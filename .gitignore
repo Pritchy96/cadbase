@@ -1,0 +1,16 @@
+#Ignore executables
+bin/*
+
+#Ignore build and lib dirs
+build
+lib/*
+.cache/*
+main.code-workspace#
+
+### VisualStudioCode ###
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+compile_commands.json
