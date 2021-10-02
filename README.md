@@ -5,7 +5,7 @@
 ## Building from source
 
 ```console
-$ cd graphics-framework/
+$ cd cad-base/
 $ mkdir build
 $ cd build
 $ cmake ..
