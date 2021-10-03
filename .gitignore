@@ -1,3 +1,6 @@
+#Ignore third party libs
+thirdparty/*
+
 #Ignore executables
 bin/*
 
