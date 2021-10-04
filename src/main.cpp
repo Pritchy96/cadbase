@@ -29,7 +29,9 @@ using std::make_unique;
 using glm::vec3;
 
 auto old_time = std::chrono::steady_clock::now(), new_time = std::chrono::steady_clock::now();
-double delta_t;	
+long delta_t;	
+
+float scale_factor = 2.0f;
 
 unique_ptr<GeometryList> master_geometry;
 shared_ptr<vector<shared_ptr<Viewport>>> viewports;
@@ -42,7 +44,7 @@ const vector<vec3> TEST_TRIANGLE = {
 
 // Our state
 bool show_alt_renderer = false;
-ImVec4 background_colour = ImVec4(0.15f, 0.15f, 0.15f, 0.00f);
+ImVec4 background_colour = ImVec4(0.15f, 0.15f, 0.15f, 1.00f); //NOLINT dumb.
 
 int main(int argc, const char* argv[]) { //NOLINT: main function.
     std::cout << "Launching Program" << std::endl;
@@ -93,6 +95,13 @@ int main(int argc, const char* argv[]) { //NOLINT: main function.
 
     // Setup Dear ImGui style
     ImGui::StyleColorsDark();
+    ImGui::GetStyle().ScaleAllSizes(scale_factor);
+    // ImGui::SetCurrentFont(ImFont *font)
+
+    ImFontConfig cfg;
+    cfg.SizePixels = 13 * scale_factor; //NOLINT 13 is the intended size for this font.
+    ImGui::GetIO().Fonts->AddFontDefault(&cfg);
+
 
     // Setup Platform/Renderer backends
     ImGui_ImplGlfw_InitForOpenGL(window, true);
@@ -131,7 +140,6 @@ int main(int argc, const char* argv[]) { //NOLINT: main function.
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
-
         
         //1. Render Window
         {
@@ -156,8 +164,8 @@ int main(int argc, const char* argv[]) { //NOLINT: main function.
         
         // 2. Settings Window
         {
-            ImGui::Begin("Settings!");             // Create a window called "Hello, world!" and append into it.
-            ImGui::Checkbox("Alt Renderer", &show_alt_renderer);      // Edit bools storing our window open/close state
+            ImGui::Begin("Settings!");
+            ImGui::Checkbox("Alt Renderer", &show_alt_renderer);
 
             ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
             ImGui::End();
@@ -169,7 +177,7 @@ int main(int argc, const char* argv[]) { //NOLINT: main function.
         int display_h;
         glfwGetFramebufferSize(window, &display_w, &display_h);
         glViewport(0, 0, display_w, display_h);
-        glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
+        glClearColor(background_colour.x * background_colour.w, background_colour.y * background_colour.w, background_colour.z * background_colour.w, background_colour.w);
         glClear(GL_COLOR_BUFFER_BIT);
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
         glfwSwapBuffers(window);
