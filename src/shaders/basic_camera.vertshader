@@ -1,0 +1,15 @@
+#version 330 core
+
+//vert position in model space
+layout(location = 0) in vec3 vertPos;
+layout(location = 1) in vec3 vertCol;
+
+out vec4 fragment_colour;
+
+//Uniform variables are constant for the entire VAO renderable, not defined per vertex.
+uniform mat4 MVP;
+
+void main() {
+	gl_Position = MVP * vec4(vertPos,1);
+	fragment_colour = vec4(vertCol, 1.0f);
+}

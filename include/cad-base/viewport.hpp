@@ -22,9 +22,11 @@
     #include "shader.hpp"
     #include "geometry.hpp"
     #include "renderable.hpp"
+
+    #include "camera.hpp"
+
     // #include "arcball.hpp"
     // #include "input_handler.hpp"
-    // #include "camera.hpp"
 
     class Viewport: public std::enable_shared_from_this<Viewport> {
         public:
@@ -61,9 +63,10 @@
             double time_elapsed = 0;
             int frames_elapsed = 0;
 
+            Camera* camera;
+
             // std::vector<InputHandler*> input_handlers;
             // ArcBall* arcball_camera;
-            // Camera* camera;
         private:
             int window_width_, window_height_;
     };

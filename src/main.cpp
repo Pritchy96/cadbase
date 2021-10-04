@@ -59,8 +59,10 @@ int main(int argc, const char* argv[]) { //NOLINT: main function.
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); //MacOS compat
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
+ 
     // Create window with graphics context
-    GLFWwindow* window = glfwCreateWindow(1280, 720, "CAD-BASE", nullptr, nullptr);
+    const GLFWvidmode* glfwvidmode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+    GLFWwindow* window = glfwCreateWindow(glfwvidmode->width, glfwvidmode->height, "CAD-BASE", nullptr, nullptr);
     if (window == nullptr) {
         return 1;
     }
@@ -80,9 +82,14 @@ int main(int argc, const char* argv[]) { //NOLINT: main function.
 	master_geometry = make_unique<GeometryList>(viewports);
 
     //TODO: temp test.
-    viewports->push_back(make_shared<Viewport>(window, glm::vec3(background_colour.x, background_colour.y, background_colour.z), 500, 500));
-    viewports->push_back(make_shared<Viewport>(window, glm::vec3(background_colour.x, background_colour.y, background_colour.z), 500, 500));
+    viewports->push_back(make_shared<Viewport>(window, glm::vec3(background_colour.x, background_colour.y, background_colour.z), 4000, 4000));
+    viewports->push_back(make_shared<Viewport>(window, glm::vec3(background_colour.x, background_colour.y, background_colour.z), 4000, 4000));
+    
+    //change some settings to differentiate the Viewports
     viewports->at(1)->background_colour = glm::vec3(0.0f, 1.0f, 0);
+    // viewports->at(1)->camera->SetProjection(true);
+    viewports->at(1)->camera->position = glm::vec3(2.0f, 10.0f, 10.0f);
+
 
 	master_geometry->push_back(make_shared<Geometry>(TEST_TRIANGLE));
 

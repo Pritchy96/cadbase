@@ -17,9 +17,9 @@ GLuint Renderable::GetVAO() {
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
 		glBufferData(GL_ARRAY_BUFFER, geometry->flat_verts.size() * sizeof(float), geometry->flat_verts.data(), GL_STREAM_DRAW);
 
-		// glBindBuffer(GL_ARRAY_BUFFER, col_vbo);
-		// glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
-		// glBufferData(GL_ARRAY_BUFFER, geometry->flat_cols.size() * sizeof(float), geometry->flat_cols.data(), GL_STATIC_DRAW);
+		glBindBuffer(GL_ARRAY_BUFFER, col_vbo);
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
+		glBufferData(GL_ARRAY_BUFFER, geometry->flat_cols.size() * sizeof(float), geometry->flat_cols.data(), GL_STATIC_DRAW);
 
 		//Deselect VAO (good practice)
 		glBindVertexArray(0);
@@ -35,12 +35,12 @@ void Renderable::Draw(double deltaT, glm::mat4 projectionMatrix, glm::mat4 viewM
 		}
 
 		glUseProgram(shader);
-		// GLuint shader_id = glGetUniformLocation(shader, "scale");
+		GLuint shader_id = glGetUniformLocation(shader, "scale");
 
-		// //TODO: Pass through and do multiplication GPU side?
-		// glm::mat4 mvp = projectionMatrix * viewMatrix * model_matrix;
-		// shader_id = glGetUniformLocation(shader, "MVP"); 
-		// glUniformMatrix4fv(shader_id, 1, GL_FALSE, &mvp[0][0]);
+		//TODO: Pass through and do multiplication GPU side?
+		glm::mat4 mvp = projectionMatrix * viewMatrix * model_matrix;
+		shader_id = glGetUniformLocation(shader, "MVP"); 
+		glUniformMatrix4fv(shader_id, 1, GL_FALSE, &mvp[0][0]);
 	
 		glBindVertexArray(GetVAO());
 		glDrawArrays(render_type, 0, geometry->vertexes.size());

@@ -53,7 +53,7 @@ Viewport::Viewport(GLFWwindow *window, glm::vec3 background_col, int window_widt
 	window_height_ = window_height;
 	background_colour = background_col;
 
-	// camera = new Camera(glm::vec3(0, 0, 100.0f), glm::vec3(0, 0, 0), glm::vec3(0.0f, 1.0f, 0.0f));
+	camera = new Camera(glm::vec3(4, 3, 3), glm::vec3(0, 0, 0), glm::vec3(0.0f, 1.0f, 0.0f));
 
 	//Pass an empty mat4 to the tcs matrix, this means it treats every mouse input as screen coords i.e between -1 and 1 for x and y.
 	//So we need to run all mouse input through conversion to go from 0:width/height to -1:1
@@ -67,7 +67,7 @@ Viewport::Viewport(GLFWwindow *window, glm::vec3 background_col, int window_widt
 
 	//TODO: file paths are currently relative to excution path, not main location.
 	//TODO: load these once, keep in static file?
-	basic_shader = shader::LoadShaders((char*)"./shaders/basic.vertshader", (char*)"./shaders/basic.fragshader");
+	basic_shader = shader::LoadShaders((char*)"./shaders/basic_camera.vertshader", (char*)"./shaders/basic_camera.fragshader");
 
     //Framebuffer config
     //TODO: can we make a single fbo and then when iterating through each viewport, bind the texture and draw to it.
@@ -150,7 +150,7 @@ void Viewport::Update(double deltaTime) {
             renderable->valid_vao = false;
         }
 
-        renderable->Draw(deltaTime, glm::mat4(), glm::mat4());
+        renderable->Draw(deltaTime, camera->GetProjectionMatrix(), camera->GetViewMatrix());
         ++geo_renderable;
     }
 
