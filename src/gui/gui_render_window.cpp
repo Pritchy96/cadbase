@@ -1,4 +1,5 @@
 #include "cad-base/gui/gui_render_window.hpp"
+#include "imgui_internal.h"
 
 #include <memory>
 #include <string>
@@ -11,7 +12,7 @@
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 
-GuiRenderWindow::GuiRenderWindow(std::string name, std::shared_ptr<Viewport> viewport) : name(name), viewport_(viewport){
+GuiRenderWindow::GuiRenderWindow(std::string name, std::shared_ptr<Viewport> viewport) : name(name), viewport_(viewport) {
   
 }
 
@@ -19,6 +20,7 @@ void GuiRenderWindow::Draw(double deltaTime) {
     is_alive = ImGui::Begin(name.c_str());
     // Using a Child allow to fill all the space of the window.
     ImGui::BeginChild("Render Window 0 Child");
+
     // Get the size of the child (i.e. the whole draw size of the windows).
     ImVec2 wsize = ImGui::GetWindowSize();
 
