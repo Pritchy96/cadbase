@@ -22,7 +22,6 @@
     #include "shader.hpp"
     #include "geometry.hpp"
     #include "renderable.hpp"
-
     #include "camera.hpp"
 
     // #include "arcball.hpp"
@@ -38,7 +37,6 @@
             }
 
             void Update(double deltaT);  
-            void SetFpsCounter(GLFWwindow* window, double deltaT);
             void SetupTransformShader(GLuint transformShader);   
             
             void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
@@ -47,7 +45,7 @@
             void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset);
             void WindowSizeCallback(GLFWwindow* glfw_window, int width, int height);
 
-            //TODO: most of these can be made private.
+            // TODO: most of these can be made private.
             GLFWwindow *glfw_window;
             std::vector<std::pair<std::shared_ptr<Geometry>, std::shared_ptr<Renderable>>> geo_renderable_pairs;
 

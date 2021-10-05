@@ -18,3 +18,5 @@ main.code-workspace#
 !.vscode/extensions.json
 compile_commands.json
 imgui.ini
+thirdparty/imgui
+thirdparty/imgui

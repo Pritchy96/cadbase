@@ -14,11 +14,13 @@ set(CMAKE_BUILD_TYPE Debug)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/bin)
 
 include_directories(include)
+include_directories(include/gui)
+
 include_directories(${THIRDPARTY_DIR})
 include_directories(${IMGUI_SRC_DIR})
 
 #Glob all .cpp files under src into a SOURCES var
-file(GLOB SOURCES CONFIGURE_DEPENDS "src/*cpp")
+file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS "src/*cpp")
 
 #Add the executable
 add_executable(${APP_NAME} 

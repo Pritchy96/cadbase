@@ -21,10 +21,10 @@
             virtual ~Geometry() = default;
             virtual int GenerateFlatBuffers();
 
-            //TODO: replace these with accessors into flatverts.
+            // TODO: replace these with accessors into flatverts.
             std::vector<glm::vec3> vertexes, colours;
             std::vector<float> flat_verts, flat_cols;
-            //If true, the flatvert buffers no longer match the vert buffers
+            // If true, the flatvert buffers no longer match the vert buffers
             bool buffers_invalid = true;
             bool visible = true, is_dead = false;
     };

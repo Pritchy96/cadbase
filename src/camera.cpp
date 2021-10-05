@@ -14,7 +14,7 @@ void Camera::SetProjection(bool ortho_not_perspective_camera) {
     ortho_not_perspective_ = ortho_not_perspective_camera;
     if (ortho_not_perspective_) {
 
-        //TODO: make these externally modifiable, regenerate matrix when i.e FoV is changed.
+        // TODO: make these externally modifiable, regenerate matrix when i.e FoV is changed.
         projection_matrix = glm::ortho(ortho_left_, ortho_right_, ortho_bottom_, ortho_top_, z_near_, z_far_);
     } else {
         projection_matrix = glm::perspective(fov_, aspect_ratio_, z_near_, z_far_);
@@ -22,7 +22,7 @@ void Camera::SetProjection(bool ortho_not_perspective_camera) {
 }
 
 mat4 Camera::GetViewMatrix() {
-    //Todo; some way of conditionally re-calculating this (assuming it's expensive to do so).
+    // Todo; some way of conditionally re-calculating this (assuming it's expensive to do so).
     view_matrix = glm::lookAt(position, target, up); 
     return view_matrix;
 }

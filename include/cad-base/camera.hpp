@@ -28,12 +28,12 @@
                 void  SetZoom(float new_zoom);
                 float GetZoom();
 
-                //Set the target to a unit vector from the camera in the requested direction 
+                // Set the target to a unit vector from the camera in the requested direction 
                 void SetDirection(glm::vec3 direction) {
                     target = position + glm::normalize(direction);   
                 }
 
-                //Get the direction of the target from the camera
+                // Get the direction of the target from the camera
                 glm::vec3 GetDirection() const {
                     return target - position;
                 }   
