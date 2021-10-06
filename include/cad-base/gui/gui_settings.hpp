@@ -13,9 +13,6 @@ struct GuiSettings {
 
             std::string name;
             bool is_alive = true;
-            bool selected_render_type = false;
-            bool orthogonol_rendering = false;
-            bool show_demo_window = false;
 
             void Draw(double deltaTime);
         private:   

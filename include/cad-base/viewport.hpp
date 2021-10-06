@@ -2,7 +2,7 @@
 #define VIEWPORT_HPP
 
     #include <glm/fwd.hpp>
-#include <iostream>
+    #include <iostream>
     #include <cstdio>
     #include <cstdlib>
     #include <vector>
@@ -23,6 +23,8 @@
     #include "geometry.hpp"
     #include "renderable.hpp"
     #include "camera.hpp"
+    #include "cad-base/viewport_grid.hpp"
+
 
     // #include "arcball.hpp"
     // #include "input_handler.hpp"
@@ -57,6 +59,9 @@
             unsigned int texture;
 
             glm::vec3 background_colour;
+
+            std::shared_ptr<Geometry> render_axis;
+            std::shared_ptr<ViewportGrid> grid;
 
             double time_elapsed = 0;
             int frames_elapsed = 0;

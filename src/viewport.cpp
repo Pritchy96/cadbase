@@ -14,11 +14,11 @@ using glm::vec3;
 
 const vector<vec3> AXIS_LINES = {
     vec3(0.0f, 0.0f, 0.0f),	// x
-	vec3(500.0f, 0.0f, 0.0f),
+	vec3(100.0f, 0.0f, 0.0f),
 	vec3(0.0f, 0.0f, 0.0f),	// y	
-	vec3(0.0f, 500.0f, 0.0f), 
+	vec3(0.0f, 100.0f, 0.0f), 
 	vec3(0.0f, 0.0f, 0.0f),	// z
-	vec3(0.0f, 0.0f, 500.0f)
+	vec3(0.0f, 0.0f, 100.0f),
 };
 
 const vector<vec3> AXIS_COLOURS = {
@@ -38,7 +38,7 @@ Viewport::Viewport(GLFWwindow *window, glm::vec3 background_col, int window_widt
 	window_height_ = window_height;
 	background_colour = background_col;
 
-	camera = new Camera(glm::vec3(4, 3, 3), glm::vec3(0, 0, 0), glm::vec3(0.0f, 1.0f, 0.0f));
+	camera = new Camera(glm::vec3(4, 3, 3), glm::vec3(0, 0, 0), glm::vec3(0.0f, 0.0f, 1.0f));
 
 	// Pass an empty mat4 to the tcs matrix, this means it treats every mouse input as screen coords i.e between -1 and 1 for x and y.
 	// So we need to run all mouse input through conversion to go from 0:width/height to -1:1
@@ -88,13 +88,11 @@ Viewport::Viewport(GLFWwindow *window, glm::vec3 background_col, int window_widt
     // Unbind framebuffer (bind default)
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-    // shared_ptr<Geometry> render_axis = make_shared<Geometry>(AXIS_LINES, AXIS_COLOURS);
-	
+    render_axis = make_shared<Geometry>(AXIS_LINES, AXIS_COLOURS);
 	// TODO: better to have a GeoList in the viewport with just (this) in it's renderable list?
-	// geo_renderable_pairs.emplace_back(render_axis, make_unique<Renderable>(basic_shader, render_axis, GL_LINES));
+	geo_renderable_pairs.emplace_back(render_axis, make_unique<Renderable>(basic_shader, render_axis, GL_LINES));
 
-    shared_ptr<ViewportGrid> grid = make_shared<ViewportGrid>(80, 80, 40, 40, basic_shader);
-	
+    grid = make_shared<ViewportGrid>(40, 40, 80, 80, glm::vec3(0.8f, 0.8f, 0.8f), basic_shader);
 	// TODO: better to have a GeoList in the viewport with just (this) in it's renderable list?
 	geo_renderable_pairs.emplace_back(grid, make_unique<Renderable>(basic_shader, grid, GL_LINES));
 }
@@ -115,7 +113,6 @@ void Viewport::Update(double deltaTime) {
     glViewport(0, 0, 4000, 4000);
     glClearColor(background_colour.r, background_colour.g, background_colour.b, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
 
     auto geo_renderable = geo_renderable_pairs.begin();
 

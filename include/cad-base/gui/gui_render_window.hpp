@@ -13,6 +13,10 @@ struct GuiRenderWindow {
 
             std::string name;
             bool is_alive = true;
+            const float OPTIONS_DROPDOWN_OFFSET = 20; 
+            
+            //TODO: replace with bool?
+            int ortho_not_persp = 1;    //0 is ortho, 1 is perspective.
 
             void Draw(double deltaTime);
         private:   

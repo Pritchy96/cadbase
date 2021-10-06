@@ -19,7 +19,7 @@ GLuint Renderable::GetVAO() {
 
 		glBindBuffer(GL_ARRAY_BUFFER, col_vbo);
 		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
-		glBufferData(GL_ARRAY_BUFFER, geometry->flat_cols.size() * sizeof(float), geometry->flat_cols.data(), GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, geometry->flat_cols.size() * sizeof(float), geometry->flat_cols.data(), GL_STREAM_DRAW);
 
 		// Deselect VAO (good practice)
 		glBindVertexArray(0);
@@ -43,7 +43,9 @@ void Renderable::Draw(double deltaT, glm::mat4 projectionMatrix, glm::mat4 viewM
 		glUniformMatrix4fv(shader_id, 1, GL_FALSE, &mvp[0][0]);
 	
 		glBindVertexArray(GetVAO());
-		glDrawArrays(render_type, 0, geometry->vertexes.size());
+		glEnable(GL_LINE_SMOOTH);
+
+		glDrawArrays(render_type, 0, geometry->flat_verts.size());
 }
 
 Renderable::Renderable(GLuint Shader, shared_ptr<Geometry> geo_ptr, GLuint renderPrimative) {

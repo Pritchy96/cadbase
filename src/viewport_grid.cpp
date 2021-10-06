@@ -1,12 +1,13 @@
 #include "cad-base/viewport_grid.hpp"
+#include <glm/fwd.hpp>
 
 using glm::vec3;
 
-ViewportGrid::ViewportGrid(int xLines, int yLines, float xSpacing, float ySpacing, GLuint shader) : Geometry() {
-	SetupGrid(xLines, yLines, xSpacing, ySpacing);
+ViewportGrid::ViewportGrid(int xLines, int yLines, float xSpacing, float ySpacing, vec3 gridColour, GLuint shader) : Geometry() {
+	SetupGrid(xLines, yLines, xSpacing, ySpacing, gridColour);
 }
 
-void ViewportGrid::SetupGrid(int xLines, int yLines, float xSpacing, float ySpacing) {
+void ViewportGrid::SetupGrid(int xLines, int yLines, float xSpacing, float ySpacing, vec3 gridColour) {
 	// Assume grid center is world coords x=0, y=0, z=0 for now
 	vec3 center = vec3(0.0);
 
@@ -21,13 +22,19 @@ void ViewportGrid::SetupGrid(int xLines, int yLines, float xSpacing, float ySpac
 	for (int x = 0; x < xLines; x++) {
 		vertexes.emplace_back(x_origin + (static_cast<float>(x)*xSpacing), y_origin, center.z);
 		vertexes.emplace_back(x_origin + (static_cast<float>(x)*xSpacing), y_origin + height, center.z);
+
+		colours.push_back(gridColour);
+		colours.push_back(gridColour);
 	}
 
 	// Rows
 	for (int y = 0; y < yLines; y++) {
 		vertexes.emplace_back(x_origin, y_origin + (static_cast<float>(y) * ySpacing), center.z);
 		vertexes.emplace_back(x_origin + width, y_origin + (static_cast<float>(y) * ySpacing), center.z);
-	}
+
+		colours.push_back(gridColour);
+		colours.push_back(gridColour);
+	}	
 
 	GenerateFlatBuffers();
 }

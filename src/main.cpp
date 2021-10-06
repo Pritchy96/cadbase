@@ -37,7 +37,9 @@ using glm::vec3;
 auto old_time = std::chrono::steady_clock::now(), new_time = std::chrono::steady_clock::now();
 double delta_t;	
 
-float scale_factor = 2.0f;
+const float INITIAL_SCALE_FACTOR = 2.0f;
+float scale_factor = INITIAL_SCALE_FACTOR;
+
 unique_ptr<ImGuiIO> imgui_io;
 
 GLFWwindow* glfw_window;
@@ -51,6 +53,21 @@ shared_ptr<vector<shared_ptr<Viewport>>> viewports;
 //GUI
 unique_ptr<GuiSettings> gui_settings;
 vector<shared_ptr<GuiRenderWindow>> gui_render_windows;
+bool show_demo_window = false;
+
+vector<vec3> test_data_lines = {
+	glm::vec3(00.0, 00.0, 00.0),	//NOLINT: magic numbers ok, temp test code
+	glm::vec3(20.0, 00.0, 00.0),	//NOLINT: magic numbers ok, temp test code
+	glm::vec3(00.0, 20.0, 00.0),	//NOLINT: magic numbers ok, temp test code
+
+	glm::vec3(00.0, 00.0, 00.0),	//NOLINT: magic numbers ok, temp test code
+	glm::vec3(00.0, 00.0, 20.0),	//NOLINT: magic numbers ok, temp test code   
+	glm::vec3(20.0, 00.0, 00.0),	//NOLINT: magic numbers ok, temp test code
+
+	glm::vec3(00.0, 00.0, 00.0),	//NOLINT: magic numbers ok, temp test code
+	glm::vec3(00.0, 20.0, 00.0),	//NOLINT: magic numbers ok, temp test code
+	glm::vec3(00.0, 00.0, 20.0)	    //NOLINT: magic numbers ok, temp test code	
+};
 
 const vector<vec3> TEST_TRIANGLE_VERTS = {
     vec3(-10.0f, -10.0f, 0.0f),
@@ -64,7 +81,7 @@ const vector<vec3> TEST_TRIANGLE_COLS = {
     vec3(0.0f,  0.0f, 1.0f)
 };
 
-ImVec4 background_colour = ImVec4(0.15f, 0.15f, 0.15f, 1.00f); // NOLINT dumb.
+const ImVec4 BACKGROUND_COLOUR = ImVec4(0.15f, 0.15f, 0.15f, 1.00f);
 
 void GlfwMouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {   
     // ImGui_ImplGlfw_MouseButtonCallback(window, button, action, mods);
@@ -134,7 +151,7 @@ bool SetupImgui() {
     ImGui::GetStyle().WindowMinSize = ImVec2(400, 400);
 
     ImFontConfig cfg;
-    cfg.SizePixels = 13 * scale_factor; // NOLINT 13 is the intended size for this font.
+    cfg.SizePixels = 13 * scale_factor; // NOLINT: 13 is the intended size for this font.
     ImGui::GetIO().Fonts->AddFontDefault(&cfg);
 
     // Setup Platform/Renderer backends
@@ -145,9 +162,127 @@ bool SetupImgui() {
     return true;
 }
 
+void SetupGuiMainMenu() {   //NOLINT: Nesting is easy to understand.
+    if(ImGui::BeginMainMenuBar())   {
+        if (ImGui::BeginMenu("File"))   {
+            if(ImGui::MenuItem("New file"))  {
+                //Do something
+            }
+            if(ImGui::MenuItem("Save file"))  {
+                //Do something
+            }
+            if(ImGui::MenuItem("Load file"))  {
+                //Do something
+            }
+            ImGui::EndMenu();
+        }
+
+        if (ImGui::BeginMenu("Preferences"))   {
+            if(ImGui::MenuItem("Thing1"))  {
+                //Do something
+            }
+            if(ImGui::MenuItem("Thing2"))  {
+                //Do something
+            }
+            ImGui::EndMenu();
+        }
+
+        if (ImGui::BeginMenu("Debug"))   {
+            if(ImGui::MenuItem("Show Dear ImGUI Demo"))  {
+                show_demo_window = true;
+            }
+            ImGui::EndMenu();
+        }
+
+        if (ImGui::BeginMenu("Help"))   {
+                if(ImGui::MenuItem("About"))  {
+                    //Do something
+                }
+                if(ImGui::MenuItem("Github"))  {
+                    //Do something
+                }
+                ImGui::EndMenu();
+            }
+    }
+        
+    ImGui::EndMainMenuBar();
+}
+
+void SetupGuiTheme() {
+    //Set some global style settings
+    //Todo: load this from a struct?
+    ImGui::GetStyle().WindowPadding = ImVec2(5.0f, 5.0f);
+    ImGui::GetStyle().FrameBorderSize = 0;
+    ImGui::GetStyle().PopupBorderSize = 0;
+
+    const ImVec4 accent_colour_primary   = ImVec4(0.160f, 0.204f, 0.204f, 1.000f); //Standard highlight colour, used for active tabs etc
+    const ImVec4 accent_colour_secondary = ImVec4(0.25f, 0.38f, 0.36f, 1.00f); //Less important highlight colour, used for inactive tabs etc
+    const ImVec4 accent_colour_highlight = ImVec4(0.11f, 0.58f, 0.51f, 1.00f); //Brighter, used for hovering etc
+    const ImVec4 accent_colour_undefined = ImVec4(1.00f, 0.43f, 0.35f, 1.00f); //A highly contrasting colour used to show elements not themed yet.
+
+    ImVec4* colors = ImGui::GetStyle().Colors;
+
+    colors[ImGuiCol_Text]                   = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
+    colors[ImGuiCol_TextDisabled]           = ImVec4(0.50f, 0.50f, 0.50f, 1.00f);
+    colors[ImGuiCol_WindowBg]               = ImVec4(0.06f, 0.06f, 0.06f, 0.94f);
+    colors[ImGuiCol_ChildBg]                = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
+    colors[ImGuiCol_Border]                 = ImVec4(0.43f, 0.43f, 0.50f, 0.50f);
+    colors[ImGuiCol_BorderShadow]           = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
+    colors[ImGuiCol_FrameBg]                = ImVec4(0.44f, 0.44f, 0.44f, 0.60f);
+    colors[ImGuiCol_FrameBgHovered]         = ImVec4(0.57f, 0.57f, 0.57f, 0.70f);
+    colors[ImGuiCol_FrameBgActive]          = ImVec4(0.76f, 0.76f, 0.76f, 0.80f);
+    colors[ImGuiCol_TitleBg]                = ImVec4(0.04f, 0.04f, 0.04f, 1.00f);
+    colors[ImGuiCol_TitleBgActive]          = ImVec4(0.16f, 0.16f, 0.16f, 1.00f);
+    colors[ImGuiCol_TitleBgCollapsed]       = ImVec4(0.00f, 0.00f, 0.00f, 0.60f);
+    colors[ImGuiCol_MenuBarBg]              = ImVec4(0.14f, 0.14f, 0.14f, 1.00f);
+    colors[ImGuiCol_ScrollbarBg]            = ImVec4(0.02f, 0.02f, 0.02f, 0.53f);
+    colors[ImGuiCol_ScrollbarGrab]          = ImVec4(0.31f, 0.31f, 0.31f, 1.00f);
+    colors[ImGuiCol_ScrollbarGrabHovered]   = ImVec4(0.41f, 0.41f, 0.41f, 1.00f);
+    colors[ImGuiCol_ScrollbarGrabActive]    = ImVec4(0.51f, 0.51f, 0.51f, 1.00f);
+    colors[ImGuiCol_Separator]              = ImVec4(0.141f, 0.141f, 0.141f, 1.000f);
+
+    colors[ImGuiCol_PopupBg]                = accent_colour_primary;
+    colors[ImGuiCol_CheckMark]              = accent_colour_primary;
+    colors[ImGuiCol_SliderGrab]             = accent_colour_primary;
+    colors[ImGuiCol_SliderGrabActive]       = accent_colour_secondary;
+    colors[ImGuiCol_Button]                 = accent_colour_primary;
+    colors[ImGuiCol_ButtonHovered]          = accent_colour_highlight;
+    colors[ImGuiCol_ButtonActive]           = accent_colour_secondary;
+    colors[ImGuiCol_Header]                 = accent_colour_primary;
+    colors[ImGuiCol_HeaderHovered]          = accent_colour_highlight;
+    colors[ImGuiCol_HeaderActive]           = accent_colour_secondary;
+    colors[ImGuiCol_SeparatorHovered]       = accent_colour_highlight;
+    colors[ImGuiCol_SeparatorActive]        = accent_colour_secondary;
+    colors[ImGuiCol_ResizeGrip]             = accent_colour_primary;
+    colors[ImGuiCol_ResizeGripHovered]      = accent_colour_highlight;
+    colors[ImGuiCol_ResizeGripActive]       = accent_colour_secondary;
+    colors[ImGuiCol_Tab]                    = accent_colour_primary;
+    colors[ImGuiCol_TabHovered]             = accent_colour_highlight;
+    colors[ImGuiCol_TabActive]              = accent_colour_secondary;
+    colors[ImGuiCol_TabUnfocused]           = accent_colour_primary;
+    colors[ImGuiCol_TabUnfocusedActive]     = accent_colour_secondary;
+    colors[ImGuiCol_DockingPreview]         = accent_colour_primary;
+    colors[ImGuiCol_DockingEmptyBg]         = accent_colour_undefined;
+    colors[ImGuiCol_PlotLines]              = accent_colour_undefined;
+    colors[ImGuiCol_PlotLinesHovered]       = accent_colour_highlight;
+    colors[ImGuiCol_PlotHistogram]          = accent_colour_undefined;
+    colors[ImGuiCol_PlotHistogramHovered]   = accent_colour_highlight;
+    colors[ImGuiCol_TableHeaderBg]          = accent_colour_undefined;
+    colors[ImGuiCol_TableBorderStrong]      = accent_colour_undefined;
+    colors[ImGuiCol_TableBorderLight]       = accent_colour_undefined;
+    colors[ImGuiCol_TableRowBg]             = accent_colour_undefined;
+    colors[ImGuiCol_TableRowBgAlt]          = accent_colour_undefined;
+    colors[ImGuiCol_TextSelectedBg]         = accent_colour_undefined;
+    colors[ImGuiCol_DragDropTarget]         = accent_colour_undefined;
+    colors[ImGuiCol_NavHighlight]           = accent_colour_undefined;
+    colors[ImGuiCol_NavWindowingHighlight]  = accent_colour_secondary;
+    colors[ImGuiCol_NavWindowingDimBg]      = accent_colour_undefined;
+    colors[ImGuiCol_ModalWindowDimBg]       = accent_colour_undefined;
+}
+
 void SetupGui() {
     // Pass through input.
-    static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_PassthruCentralNode;
+    static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_PassthruCentralNode | ImGuiDockNodeFlags_AutoHideTabBar;
 
     // We are using the ImGuiWindowFlags_NoDocking flag to make the parent window not dockable into,
     // because it would be confusing to have two docking targets within each other.
@@ -155,11 +290,16 @@ void SetupGui() {
 
     // Setup window to match screen size/pos.
     ImGuiViewport* viewport = ImGui::GetMainViewport();
+
+    SetupGuiMainMenu();
+    
     ImGui::SetNextWindowPos(viewport->Pos);
     ImGui::SetNextWindowSize(viewport->Size);
     ImGui::SetNextWindowViewport(viewport->ID);
+    //Set some styles just for the root dockspace.
     ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
     ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+    
     window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
     window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
 
@@ -185,6 +325,8 @@ void SetupGui() {
         if (first_time)
         {
             first_time = false;
+
+            SetupGuiTheme();
 
             ImGui::DockBuilderRemoveNode(dockspace_id); // clear any previous layout
             ImGui::DockBuilderAddNode(dockspace_id, dockspace_flags | ImGuiDockNodeFlags_DockSpace);
@@ -216,16 +358,19 @@ void SetupGui() {
 void SetupTestGeo() {
     // TODO: temp test.
     for (int i= 0; i < 4; i++) { 
-        viewports->push_back(make_shared<Viewport>(glfw_window, glm::vec3(background_colour.x, background_colour.y, background_colour.z), 4000, 4000));
+        viewports->push_back(make_shared<Viewport>(glfw_window, glm::vec3(BACKGROUND_COLOUR.x, BACKGROUND_COLOUR.y, BACKGROUND_COLOUR.z), 4000, 4000));
         // Randomly position camera to show different viewports.
-        viewports->back()->camera->position = glm::vec3(std::rand()/((RAND_MAX + 1u)/100), std::rand()/((RAND_MAX + 1u)/100), 1 + std::rand()/((RAND_MAX + 1u)/100));
+        float test = std::rand()/((RAND_MAX + 1u)/200);
+        viewports->back()->camera->position = glm::vec3(test, test, test);
         
         // Make our render windows.
         std::string name = "Render Window " + std::to_string(i);
         gui_render_windows.push_back(make_shared<GuiRenderWindow>(name, viewports->back()));
     }
 
-	master_geometry->push_back(make_shared<Geometry>(TEST_TRIANGLE_VERTS, TEST_TRIANGLE_COLS));
+	// master_geometry->push_back(make_shared<Geometry>(TEST_TRIANGLE_VERTS, TEST_TRIANGLE_COLS));
+	master_geometry->push_back(make_shared<Geometry>(test_data_lines, test_data_lines));
+
 }
 
 void Update() {
@@ -270,8 +415,8 @@ void Update() {
     // Settings Window
     gui_settings->Draw(delta_t);
 
-    if (gui_settings->show_demo_window) {
-        ImGui::ShowDemoWindow(&(gui_settings->show_demo_window));
+    if(show_demo_window) {
+        ImGui::ShowDemoWindow(&show_demo_window);
     }
 
     // Rendering
@@ -281,7 +426,7 @@ void Update() {
     int display_h;
     glfwGetFramebufferSize(glfw_window, &display_w, &display_h);
     glViewport(0, 0, display_w, display_h);
-    glClearColor(background_colour.x * background_colour.w, background_colour.y * background_colour.w, background_colour.z * background_colour.w, background_colour.w);
+    glClearColor(BACKGROUND_COLOUR.x * BACKGROUND_COLOUR.w, BACKGROUND_COLOUR.y * BACKGROUND_COLOUR.w, BACKGROUND_COLOUR.z * BACKGROUND_COLOUR.w, BACKGROUND_COLOUR.w);
     glClear(GL_COLOR_BUFFER_BIT);
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
     glfwSwapBuffers(glfw_window);
@@ -303,9 +448,10 @@ int main(int argc, const char* argv[]) { // NOLINT: main function.
         return -1;
     }
 
-    gui_settings = make_unique<GuiSettings>("Settings", viewports);
     viewports = make_shared<vector<shared_ptr<Viewport>>>();
 	master_geometry = make_unique<GeometryList>(viewports);
+
+    gui_settings = make_unique<GuiSettings>("Settings", viewports);
 
     SetupTestGeo();
 
