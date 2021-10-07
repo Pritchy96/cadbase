@@ -282,7 +282,7 @@ void SetupGuiTheme() {
 
 void SetupGui() {
     // Pass through input.
-    static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_PassthruCentralNode | ImGuiDockNodeFlags_AutoHideTabBar;
+    static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_PassthruCentralNode;
 
     // We are using the ImGuiWindowFlags_NoDocking flag to make the parent window not dockable into,
     // because it would be confusing to have two docking targets within each other.
@@ -332,14 +332,23 @@ void SetupGui() {
             ImGui::DockBuilderAddNode(dockspace_id, dockspace_flags | ImGuiDockNodeFlags_DockSpace);
             ImGui::DockBuilderSetNodeSize(dockspace_id, viewport->Size);
 
-            // split the dockspace into 2 nodes -- DockBuilderSplitNode takes in the following args in the following order
-            //  window ID to split, direction, fraction (between 0 and 1), the final two setting let's us choose which id we want (which ever one we DON'T set as NULL, will be returned by the function)
-            //                                                             out_id_at_dir is the id of the node in the direction we specified earlier, out_id_at_opposite_dir is in the opposite direction
             ImGuiID dock_id_settings, dock_id_grid, dock_id_grid_top_left, dock_id_grid_bottom_left, dock_id_grid_top_right, dock_id_grid_bottom_right;
             ImGui::DockBuilderSplitNode(dockspace_id, ImGuiDir_Left, 0.15f, &dock_id_settings, &dock_id_grid);
-            ImGui::DockBuilderSplitNode(dock_id_grid, ImGuiDir_Left, 0.5f, &dock_id_grid_top_left, &dock_id_grid_top_right);
-            ImGui::DockBuilderSplitNode(dock_id_grid_top_left, ImGuiDir_Up, 0.5f, &dock_id_grid_top_left, &dock_id_grid_bottom_left);
-            ImGui::DockBuilderSplitNode(dock_id_grid_top_right, ImGuiDir_Up, 0.5f, &dock_id_grid_top_right, &dock_id_grid_bottom_right);
+
+            //Construct the grid.
+            ImGui::DockBuilderSplitNode(dock_id_grid, ImGuiDir_Up, 0.5f, &dock_id_grid_top_left, &dock_id_grid_bottom_left);
+            ImGui::DockBuilderSplitNode(dock_id_grid_top_left, ImGuiDir_Left, 0.5f, &dock_id_grid_top_left, &dock_id_grid_top_right);
+            ImGui::DockBuilderSplitNode(dock_id_grid_bottom_left, ImGuiDir_Left, 0.5f, &dock_id_grid_bottom_left, &dock_id_grid_bottom_right);
+
+            //Auto hide viewport tab bars.
+            ImGuiDockNode* node = ImGui::DockBuilderGetNode(dock_id_grid_top_left);
+            node->LocalFlags |= ImGuiDockNodeFlags_AutoHideTabBar; 
+            node = ImGui::DockBuilderGetNode(dock_id_grid_top_right);
+            node->LocalFlags |= ImGuiDockNodeFlags_AutoHideTabBar;
+            node = ImGui::DockBuilderGetNode(dock_id_grid_bottom_left);
+            node->LocalFlags |= ImGuiDockNodeFlags_AutoHideTabBar;
+            node = ImGui::DockBuilderGetNode(dock_id_grid_bottom_right);
+            node->LocalFlags |= ImGuiDockNodeFlags_AutoHideTabBar;
 
             // we now dock our windows into the docking node we made above
             ImGui::DockBuilderDockWindow("Settings", dock_id_settings);
@@ -358,9 +367,9 @@ void SetupGui() {
 void SetupTestGeo() {
     // TODO: temp test.
     for (int i= 0; i < 4; i++) { 
-        viewports->push_back(make_shared<Viewport>(glfw_window, glm::vec3(BACKGROUND_COLOUR.x, BACKGROUND_COLOUR.y, BACKGROUND_COLOUR.z), 4000, 4000));
+        viewports->push_back(make_shared<Viewport>(glfw_window, glm::vec3(BACKGROUND_COLOUR.x, BACKGROUND_COLOUR.y, BACKGROUND_COLOUR.z), 1000, 1000));
         // Randomly position camera to show different viewports.
-        float test = std::rand()/((RAND_MAX + 1u)/200);
+        float test = 100 + std::rand() / ((RAND_MAX + 1u) / 100);
         viewports->back()->camera->position = glm::vec3(test, test, test);
         
         // Make our render windows.

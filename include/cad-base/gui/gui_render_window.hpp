@@ -6,6 +6,8 @@
 
 #include "cad-base/viewport.hpp"
 
+#include <imgui.h>
+
 struct GuiRenderWindow {
         public:
             explicit GuiRenderWindow(std::string name, std::shared_ptr<Viewport> viewport);
@@ -19,8 +21,10 @@ struct GuiRenderWindow {
             int ortho_not_persp = 1;    //0 is ortho, 1 is perspective.
 
             void Draw(double deltaTime);
+            void DrawRenderWindowSettings(double deltaTime);
         private:   
             std::shared_ptr<Viewport> viewport_;   
+            ImVec2 window_size_;
     };
 
 #endif

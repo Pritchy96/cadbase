@@ -25,7 +25,6 @@
     #include "camera.hpp"
     #include "cad-base/viewport_grid.hpp"
 
-
     // #include "arcball.hpp"
     // #include "input_handler.hpp"
 

@@ -63,11 +63,11 @@ Viewport::Viewport(GLFWwindow *window, glm::vec3 background_col, int window_widt
     // Create and bind a colour attatchment texture
     glGenTextures(1, &texture);
     glBindTexture(GL_TEXTURE_2D, texture);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 4000, 4000, 0,GL_RGB, GL_UNSIGNED_BYTE, nullptr); // Setup empty texture
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1000, 1000, 0, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, nullptr); // Setup empty texture
 
     // Poor filtering. Needed !
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+   	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture, 0);
 
@@ -92,7 +92,7 @@ Viewport::Viewport(GLFWwindow *window, glm::vec3 background_col, int window_widt
 	// TODO: better to have a GeoList in the viewport with just (this) in it's renderable list?
 	geo_renderable_pairs.emplace_back(render_axis, make_unique<Renderable>(basic_shader, render_axis, GL_LINES));
 
-    grid = make_shared<ViewportGrid>(40, 40, 80, 80, glm::vec3(0.8f, 0.8f, 0.8f), basic_shader);
+    grid = make_shared<ViewportGrid>(50, 50, 20, 20, glm::vec3(0.3f, 0.3f, 0.3f), basic_shader);
 	// TODO: better to have a GeoList in the viewport with just (this) in it's renderable list?
 	geo_renderable_pairs.emplace_back(grid, make_unique<Renderable>(basic_shader, grid, GL_LINES));
 }
@@ -110,7 +110,7 @@ void Viewport::Update(double deltaTime) {
 
     glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 
-    glViewport(0, 0, 4000, 4000);
+    glViewport(0, 0, 1000, 1000);
     glClearColor(background_colour.r, background_colour.g, background_colour.b, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
