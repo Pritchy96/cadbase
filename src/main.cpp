@@ -368,11 +368,8 @@ void SetupGui() {
 
 void SetupTestGeo() {
     // TODO: temp test.
-    for (int i= 0; i < 1; i++) { 
+    for (int i= 0; i < 4; i++) { 
         viewports->push_back(make_shared<Viewport>(glfw_window, glm::vec3(BACKGROUND_COLOUR.x, BACKGROUND_COLOUR.y, BACKGROUND_COLOUR.z), 1000, 1000));
-        // Randomly position camera to show different viewports.
-        float test = 100 + std::rand() / ((RAND_MAX + 1u) / 100);
-        viewports->back()->camera->position = glm::vec3(test, test, test);
 
         // Make our render windows.
         std::string name = "Render Window " + std::to_string(i);

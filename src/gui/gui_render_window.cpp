@@ -24,8 +24,8 @@
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 
-GuiRenderWindow::GuiRenderWindow(std::string name, GLFWwindow* glfw_window, std::shared_ptr<Viewport> viewport) : viewport_(viewport), GuiBase(name, glfw_window){
-
+GuiRenderWindow::GuiRenderWindow(std::string name, GLFWwindow* glfw_window, std::shared_ptr<Viewport> viewport) : GuiBase(name, glfw_window){
+    arcball_sensitivity = ARCBALL_SENSITIVITY_INITIAL;
 }
 
 void GuiRenderWindow::DrawRenderWindowSettings(double deltaTime) {
@@ -68,49 +68,45 @@ void GuiRenderWindow::DrawRenderWindowSettings(double deltaTime) {
     }
 }
 
-void GuiRenderWindow::HandleUI() {
+//TODO: Move to dedicated IO handler class
+//TODO: The rotation is currently world axis aligned and not camera axis aligned.
+void GuiRenderWindow::HandleIO() {
     ImGuiIO& io = ImGui::GetIO();
-    glm::vec2 mouse_delta = glm::vec2(io.MouseDelta.y, io.MouseDelta.x);
+    //TODO: we can apparently declare a macro in IMGUI.cpp and specify glm vectors to be used by ImGui? Investigate,
+    glm::vec2 mouse_delta = glm::vec2(io.MouseDelta.x, io.MouseDelta.y);
     glm::vec2 viewport_pos = glm::vec2(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y);
+    //Get mouse pos in terms of the viewport window space.
     glm::vec2 mouse_pos =    glm::vec2(io.MousePos.x, io.MousePos.y)  - viewport_pos;
-    glm::vec2 mouse_pos_last = mouse_pos - mouse_delta;
-
-    glm::vec2 ratio = glm::vec2(((mouse_pos .x/window_size_.x) * 2.0f) - 1.0f, ((mouse_pos.y/window_size_.y) * 2.0f) - 1.0f);
+    glm::vec2 mouse_pos_last = mouse_pos - (mouse_delta * arcball_sensitivity);
 
     bool image_hovered = ImGui::IsItemHovered();
-
-    std::cout << "\nviewport pos: " << glm::to_string(glm::vec2(viewport_pos.x, viewport_pos.y)) << std::endl;
-    std::cout << "mouse pos (pixels): " << glm::to_string(glm::vec2(mouse_pos.x, mouse_pos.y)) << std::endl;
-    std::cout << "mouse pos prev (pixels): " << glm::to_string(glm::vec2(mouse_pos_last.x, mouse_pos_last.y)) << std::endl;
-    std::cout << "window_size: " << glm::to_string(glm::vec2(window_size_.x, window_size_.y)) << std::endl;
-    std::cout << "ratio: " << glm::to_string(ratio) << std::endl;
-    
-    Camera* camera = viewport_->camera;
 
     //Allow for mouse dragging outside of the render window once clicked & held.
     if(image_hovered || is_dragging) {
         if(ImGui::IsMouseDragging(ImGuiMouseButton_Left)) {
+            std::cout << "mouse pos (pixels): " << glm::to_string(glm::vec2(mouse_pos.x, mouse_pos.y)) << std::endl;
+            std::cout << "mouse pos prev (pixels): " << glm::to_string(glm::vec2(mouse_pos_last.x, mouse_pos_last.y)) << std::endl;
+            std::cout << "mouse delta (pixels): " << glm::to_string(glm::vec2(mouse_delta.x, mouse_delta.y)) << std::endl;
+
             if (mouse_pos_last != mouse_pos) {
                 is_dragging = true;
-
-                std::cout << "mouse_pos_last: " << glm::to_string(mouse_pos_last) << std::endl;
-                std::cout << "mouse_pos: " <<  glm::to_string(mouse_pos) << std::endl;
-
+                
                 glm::vec3 last_pos_vec = GetArcballVector(mouse_pos_last, glm::vec2(window_size_.x, window_size_.y));
                 glm::vec3 pos_vec = GetArcballVector(mouse_pos, glm::vec2(window_size_.x, window_size_.y));
 
                 //Take the cross product of your start and end points (unit length vectors from the centre of the sphere) to form a rotational axis perpendicular to both of them. 
-                glm::vec3 cross_vector = glm::cross(last_pos_vec, pos_vec);
+                glm::vec3 cross_vector = glm::cross(pos_vec, last_pos_vec);
 
                 //Then to find the angle it must be rotated about this axis, take their dot product, which gives you the cosine of that angle.
-                float angle = acos(glm::dot(last_pos_vec, pos_vec));
+                float angle = acos(glm::dot(pos_vec, last_pos_vec));
 
                 //Create normalised rotation quaternion from the axis and the angle.
-                glm::quat rotation_quat = glm::angleAxis(angle, cross_vector);
-                glm::normalize(rotation_quat);
-
-                glm::mat4 rotation_matrix = glm::toMat4(rotation_quat);
-                camera->view_matrix *= rotation_matrix;
+                //TODO: possibly best to store ths quaternion and apply it to a default view matrix each update loop. This would allow for easier zooming etc.
+                // glm::quat rotation_quat = glm::angleAxis(angle, cross_vector);
+                // glm::normalize(rotation_quat);
+                
+                //Apply this rotation to the view matrix.
+                viewport_->camera->view_matrix = glm::rotate(viewport_->camera->view_matrix, angle, cross_vector);
             }
         }
     }
@@ -122,23 +118,22 @@ void GuiRenderWindow::HandleUI() {
 
 glm::vec3 GuiRenderWindow::GetArcballVector(glm::vec2 screen_pos, glm::vec2 screen_size) {
     //Convert mouse pos to homogenous coordinates (-1 to 1)
-    glm::vec3 vector = glm::vec3(((screen_pos.x/(screen_size.x) * 2.0f) - 1.0f), ((screen_pos.y/(screen_size.y) * 2.0f) - 1.0f), 0);
+    //We currently have z set as up, so we need to find y (examples generally have x, y and find z)
+    glm::vec3 vector = glm::vec3(((screen_pos.x/(screen_size.x) * 2.0f) - 1.0f), 0, ((screen_pos.y/(screen_size.y) * 2.0f) - 1.0f));
 
-    vector.y = -vector.y;   //TODO: Why?
+    vector.z = -vector.z;
 
-    //Perform Pythagoras to get Z.
-    float squared = pow(vector.x, 2) + pow(vector.y, 2);
+    //Perform Pythagoras to get Y
+    float squared = pow(vector.x, 2) + pow(vector.z, 2);
     
-    if (squared < 1)
-        vector.z = sqrt(1 - squared);  // Pythagoras
-    else
+    if (squared < 1) {
+        vector.y = sqrt(1 - squared);  // Pythagoras
+    } else {
         vector = glm::normalize(vector);  // Nearest point
-    
-    std::cout << "vector: " << glm::to_string(vector) << std::endl;
+    }
 
     return vector;
 }
-
 
 void GuiRenderWindow::Draw(double deltaTime) {
     is_alive = ImGui::Begin(name.c_str());
@@ -151,7 +146,7 @@ void GuiRenderWindow::Draw(double deltaTime) {
     // Because we use the texture from OpenGL, we need to invert the V from the UV.
     ImGui::Image((ImTextureID)viewport_->texture, window_size_, ImVec2(0, 1), ImVec2(1, 0));
 
-    HandleUI();
+    HandleIO();
 
     DrawRenderWindowSettings(deltaTime);
 

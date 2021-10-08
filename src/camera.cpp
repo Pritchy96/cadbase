@@ -5,9 +5,9 @@ using glm::vec3;
 using glm::mat4;
 
 Camera::Camera(vec3 initial_position, vec3 initial_target, vec3 initial_up) 
-    :   position(initial_position), target(initial_target), up(initial_up) {
+    :   initial_position_(initial_position), initial_target_(initial_target), initial_up_(initial_up) {
     SetProjection(false);
-    view_matrix = glm::lookAt(position, target, up);
+    view_matrix = glm::lookAt(initial_position, initial_target_, initial_up_);
 }
 
 void Camera::SetProjection(bool ortho_not_perspective_camera) {
@@ -19,13 +19,4 @@ void Camera::SetProjection(bool ortho_not_perspective_camera) {
     } else {
         projection_matrix = glm::perspective(fov_, aspect_ratio_, z_near_, z_far_);
     }
-}
-
-mat4 Camera::GetViewMatrix() {
-    // Todo; some way of conditionally re-calculating this (assuming it's expensive to do so).
-    // view_matrix = glm::lookAt(position, target, up); 
-    return view_matrix;
-}
-mat4 Camera::GetProjectionMatrix() const {
-    return projection_matrix;
 }

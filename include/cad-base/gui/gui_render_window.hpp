@@ -16,18 +16,23 @@ class GuiRenderWindow : GuiBase {
             // ~GuiRenderWindow();
 
             bool is_dragging = false;
-            const float OPTIONS_DROPDOWN_OFFSET = 20; 
+            
+            float arcball_sensitivity;
+
+            const float OPTIONS_DROPDOWN_OFFSET = 20.0f; 
             
             //TODO: replace with bool?
             int ortho_not_persp = 1;    //0 is ortho, 1 is perspective.
 
-            void HandleUI();
+            void HandleIO();
             void Draw(double deltaTime) override;
             void DrawRenderWindowSettings(double deltaTime);
             glm::vec3 GetArcballVector(glm::vec2 screen_pos, glm::vec2 screen_size);
         private:   
             std::shared_ptr<Viewport> viewport_;   
             ImVec2 window_size_;
+
+            const float ARCBALL_SENSITIVITY_INITIAL = 4.0f; 
     };
 
 #endif
