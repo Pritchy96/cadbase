@@ -24,7 +24,7 @@
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 
-GuiRenderWindow::GuiRenderWindow(std::string name, GLFWwindow* glfw_window, std::shared_ptr<Viewport> viewport) : GuiBase(name, glfw_window){
+GuiRenderWindow::GuiRenderWindow(std::string name, GLFWwindow* glfw_window, std::shared_ptr<Viewport> viewport) : GuiBase(name, glfw_window), viewport_(viewport) {
     arcball_sensitivity = ARCBALL_SENSITIVITY_INITIAL;
 }
 
