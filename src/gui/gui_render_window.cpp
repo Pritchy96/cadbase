@@ -78,22 +78,24 @@ void GuiRenderWindow::HandleUI() {
     // glm::vec2 mouse_pos_last = glm::vec2(io.MousePosPrev.x, io.MousePosPrev.y);
     // glm::vec2 mouse_pos =    glm::vec2(io.MousePos.x, io.MousePos.y);
 
+
+    //Oscillate mouse_pos.x through 0 - 500 in increments of 20
     if (ascending) {
-        if (mouse_pos.x + 490.0f > screen_size.x) {
+        if (mouse_pos.x + 20.0f > screen_size.x) {
             ascending = false;
         } else {
-            mouse_pos += glm::vec2(20.0f, 20.0f);
-            mouse_pos_last += glm::vec2(20.0f, 20.0f);
+            mouse_pos += glm::vec2(20.0f, 0.0f);
+            mouse_pos_last += glm::vec2(20.0f, 0.0f);
         }
     } 
-    // else {
-    //     if (mouse_pos.x - 20.0f < 0.0f) {
-    //         ascending = true;
-    //     } else {
-    //         mouse_pos -= glm::vec2(20.0f, 0);
-    //         mouse_pos_last -= glm::vec2(20.0f, 0);
-    //     }
-    // }
+    else {
+        if (mouse_pos.x - 20.0f < 0.0f) {
+            ascending = true;
+        } else {
+            mouse_pos -= glm::vec2(20.0f, 0);
+            mouse_pos_last -= glm::vec2(20.0f, 0);
+        }
+    }
 
     std::cout << "mouse_pos_last: " << glm::to_string(mouse_pos_last) << std::endl;
     std::cout << "mouse_pos: " <<  glm::to_string(mouse_pos) << std::endl;
@@ -117,12 +119,15 @@ void GuiRenderWindow::HandleUI() {
     Camera* camera = viewport_->camera;
 
     //Allow for mouse dragging outside of the render window once clicked & held.
-    // if(image_hovered || is_dragging) {
-        // if(ImGui::IsMouseDragging(ImGuiMouseButton_Left)) {
+    if(image_hovered || is_dragging) {
+        if(ImGui::IsMouseDragging(ImGuiMouseButton_Left)) {
             is_dragging = true;
 
                 glm::vec3 last_pos_vec = GetArcballVector(mouse_pos_last, glm::vec2(screen_size.x, screen_size.y));
                 glm::vec3 pos_vec = GetArcballVector(mouse_pos, glm::vec2(screen_size.x, screen_size.y));
+
+                std::cout << "length last_pos_vec: " << glm::length(last_pos_vec) << std::endl;
+                std::cout << "length pos_vec: " << glm::length(pos_vec) << std::endl;
 
                 //Take the cross product of your start and end points (unit length vectors from the centre of the sphere) to form a rotational axis perpendicular to both of them. 
                 glm::vec3 cross_vector = glm::cross(last_pos_vec, pos_vec);
@@ -136,8 +141,8 @@ void GuiRenderWindow::HandleUI() {
 
                 glm::mat4 rotation_matrix = glm::toMat4(rotation_quat);
                 camera->view_matrix *= rotation_matrix;
-    //     }
-    // }
+        }
+    }
 
     if(ImGui::IsMouseReleased(0)) {
         is_dragging = false;
@@ -154,7 +159,7 @@ glm::vec3 GuiRenderWindow::GetArcballVector(glm::vec2 screen_pos, glm::vec2 scre
     float squared = pow(vector.x, 2) + pow(vector.y, 2);
     
     if (squared < 1)
-        vector.z = sqrt(squared);  // Pythagoras
+        vector.z = sqrt(1 - squared);  // Pythagoras
     else
         vector = glm::normalize(vector);  // nearest point
     
