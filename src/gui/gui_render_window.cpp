@@ -71,63 +71,33 @@ void GuiRenderWindow::DrawRenderWindowSettings(double deltaTime) {
 void GuiRenderWindow::HandleUI() {
     ImGuiIO& io = ImGui::GetIO();
     glm::vec2 mouse_delta = glm::vec2(io.MouseDelta.y, io.MouseDelta.x);
-    
-    ImVec2 monitor_size = ImGui::GetViewportPlatformMonitor(ImGui::GetMainViewport())->MainSize;
-    ImVec2 screen_size = ImVec2(500, 500);
-    
-    // glm::vec2 mouse_pos_last = glm::vec2(io.MousePosPrev.x, io.MousePosPrev.y);
-    // glm::vec2 mouse_pos =    glm::vec2(io.MousePos.x, io.MousePos.y);
+    glm::vec2 viewport_pos = glm::vec2(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y);
+    glm::vec2 mouse_pos =    glm::vec2(io.MousePos.x, io.MousePos.y)  - viewport_pos;
+    glm::vec2 mouse_pos_last = mouse_pos - mouse_delta;
 
-
-    //Oscillate mouse_pos.x through 0 - 500 in increments of 20
-    if (ascending) {
-        if (mouse_pos.x + 20.0f > screen_size.x) {
-            ascending = false;
-        } else {
-            mouse_pos += glm::vec2(20.0f, 0.0f);
-            mouse_pos_last += glm::vec2(20.0f, 0.0f);
-        }
-    } 
-    else {
-        if (mouse_pos.x - 20.0f < 0.0f) {
-            ascending = true;
-        } else {
-            mouse_pos -= glm::vec2(20.0f, 0);
-            mouse_pos_last -= glm::vec2(20.0f, 0);
-        }
-    }
-
-    std::cout << "mouse_pos_last: " << glm::to_string(mouse_pos_last) << std::endl;
-    std::cout << "mouse_pos: " <<  glm::to_string(mouse_pos) << std::endl;
+    glm::vec2 ratio = glm::vec2(((mouse_pos .x/window_size_.x) * 2.0f) - 1.0f, ((mouse_pos.y/window_size_.y) * 2.0f) - 1.0f);
 
     bool image_hovered = ImGui::IsItemHovered();
 
-    // int window_origin_x, window_origin_y;
-    // glfwGetWindowPos(glfw_window, &window_origin_x, &window_origin_y);
-
-    // if (mouse_pos_last != float)
-
-    // std::cout << "Mouse pos: " << glm::to_string(glm::vec2(io.MousePos.x, io.MousePos.y)) << std::endl;
-    // std::cout << "Window pos: " << glm::to_string(glm::vec2(window_origin_x, window_origin_y)) << std::endl;
-    // std::cout << "Monitor Size: x: " << monitor_size.x << ", y: " << monitor_size.y << std::endl;
-    // std::cout << "mouse delta `(pixels): " << glm::to_string(mouse_delta) << std::endl;
-
-    glm::vec2 mouse_delta_ratio = glm::vec2(mouse_delta.x / monitor_size.x, mouse_delta.y / monitor_size.y);
-
-    //std::cout << "mouse delta (0-1): " << glm::to_string(mouse_delta_ratio) << std::endl;
+    std::cout << "\nviewport pos: " << glm::to_string(glm::vec2(viewport_pos.x, viewport_pos.y)) << std::endl;
+    std::cout << "mouse pos (pixels): " << glm::to_string(glm::vec2(mouse_pos.x, mouse_pos.y)) << std::endl;
+    std::cout << "mouse pos prev (pixels): " << glm::to_string(glm::vec2(mouse_pos_last.x, mouse_pos_last.y)) << std::endl;
+    std::cout << "window_size: " << glm::to_string(glm::vec2(window_size_.x, window_size_.y)) << std::endl;
+    std::cout << "ratio: " << glm::to_string(ratio) << std::endl;
     
     Camera* camera = viewport_->camera;
 
     //Allow for mouse dragging outside of the render window once clicked & held.
     if(image_hovered || is_dragging) {
         if(ImGui::IsMouseDragging(ImGuiMouseButton_Left)) {
-            is_dragging = true;
+            if (mouse_pos_last != mouse_pos) {
+                is_dragging = true;
 
-                glm::vec3 last_pos_vec = GetArcballVector(mouse_pos_last, glm::vec2(screen_size.x, screen_size.y));
-                glm::vec3 pos_vec = GetArcballVector(mouse_pos, glm::vec2(screen_size.x, screen_size.y));
+                std::cout << "mouse_pos_last: " << glm::to_string(mouse_pos_last) << std::endl;
+                std::cout << "mouse_pos: " <<  glm::to_string(mouse_pos) << std::endl;
 
-                std::cout << "length last_pos_vec: " << glm::length(last_pos_vec) << std::endl;
-                std::cout << "length pos_vec: " << glm::length(pos_vec) << std::endl;
+                glm::vec3 last_pos_vec = GetArcballVector(mouse_pos_last, glm::vec2(window_size_.x, window_size_.y));
+                glm::vec3 pos_vec = GetArcballVector(mouse_pos, glm::vec2(window_size_.x, window_size_.y));
 
                 //Take the cross product of your start and end points (unit length vectors from the centre of the sphere) to form a rotational axis perpendicular to both of them. 
                 glm::vec3 cross_vector = glm::cross(last_pos_vec, pos_vec);
@@ -141,6 +111,7 @@ void GuiRenderWindow::HandleUI() {
 
                 glm::mat4 rotation_matrix = glm::toMat4(rotation_quat);
                 camera->view_matrix *= rotation_matrix;
+            }
         }
     }
 
@@ -153,16 +124,18 @@ glm::vec3 GuiRenderWindow::GetArcballVector(glm::vec2 screen_pos, glm::vec2 scre
     //Convert mouse pos to homogenous coordinates (-1 to 1)
     glm::vec3 vector = glm::vec3(((screen_pos.x/(screen_size.x) * 2.0f) - 1.0f), ((screen_pos.y/(screen_size.y) * 2.0f) - 1.0f), 0);
 
-    vector.y = -vector.y;   //TODO: check this
+    vector.y = -vector.y;   //TODO: Why?
 
-    //Perform Pythag to get Z.
+    //Perform Pythagoras to get Z.
     float squared = pow(vector.x, 2) + pow(vector.y, 2);
     
     if (squared < 1)
         vector.z = sqrt(1 - squared);  // Pythagoras
     else
-        vector = glm::normalize(vector);  // nearest point
+        vector = glm::normalize(vector);  // Nearest point
     
+    std::cout << "vector: " << glm::to_string(vector) << std::endl;
+
     return vector;
 }
 
