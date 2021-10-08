@@ -38,7 +38,7 @@ Viewport::Viewport(GLFWwindow *window, glm::vec3 background_col, int window_widt
 	window_height_ = window_height;
 	background_colour = background_col;
 
-	camera = new Camera(glm::vec3(4, 3, 3), glm::vec3(0, 0, 0), glm::vec3(0.0f, 0.0f, 1.0f));
+	camera = new Camera(glm::vec3(100, 30, 80), glm::vec3(0, 0, 0), glm::vec3(0.0f, 0.0f, 1.0f));
 
 	// Pass an empty mat4 to the tcs matrix, this means it treats every mouse input as screen coords i.e between -1 and 1 for x and y.
 	// So we need to run all mouse input through conversion to go from 0:width/height to -1:1

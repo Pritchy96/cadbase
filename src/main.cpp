@@ -2,6 +2,7 @@
 #include <chrono>
 #include <cstdlib>
 #include <ctime>
+#include <glm/ext/matrix_transform.hpp>
 #include <glm/fwd.hpp>
 #include <iostream>
 #include <memory>
@@ -23,7 +24,7 @@
 #include "cad-base/viewport.hpp"
 #include "cad-base/geometry_list.hpp"
 
-#include "cad-base/gui/gui_settings.hpp"
+#include "cad-base/gui/gui_project.hpp"
 #include "cad-base/gui/gui_render_window.hpp"
 
 using std::vector;
@@ -51,7 +52,7 @@ unique_ptr<GeometryList> master_geometry;
 shared_ptr<vector<shared_ptr<Viewport>>> viewports;
 
 //GUI
-unique_ptr<GuiSettings> gui_settings;
+unique_ptr<GuiProject> gui_settings;
 vector<shared_ptr<GuiRenderWindow>> gui_render_windows;
 bool show_demo_window = false;
 
@@ -332,8 +333,8 @@ void SetupGui() {
             ImGui::DockBuilderAddNode(dockspace_id, dockspace_flags | ImGuiDockNodeFlags_DockSpace);
             ImGui::DockBuilderSetNodeSize(dockspace_id, viewport->Size);
 
-            ImGuiID dock_id_settings, dock_id_grid, dock_id_grid_top_left, dock_id_grid_bottom_left, dock_id_grid_top_right, dock_id_grid_bottom_right;
-            ImGui::DockBuilderSplitNode(dockspace_id, ImGuiDir_Left, 0.15f, &dock_id_settings, &dock_id_grid);
+            ImGuiID dock_id_left_pane, dock_id_grid, dock_id_grid_top_left, dock_id_grid_bottom_left, dock_id_grid_top_right, dock_id_grid_bottom_right;
+            ImGui::DockBuilderSplitNode(dockspace_id, ImGuiDir_Left, 0.15f, &dock_id_left_pane, &dock_id_grid);
 
             //Construct the grid.
             ImGui::DockBuilderSplitNode(dock_id_grid, ImGuiDir_Up, 0.5f, &dock_id_grid_top_left, &dock_id_grid_bottom_left);
@@ -351,7 +352,8 @@ void SetupGui() {
             node->LocalFlags |= ImGuiDockNodeFlags_AutoHideTabBar;
 
             // we now dock our windows into the docking node we made above
-            ImGui::DockBuilderDockWindow("Settings", dock_id_settings);
+            ImGui::DockBuilderDockWindow("Project", dock_id_left_pane);
+            ImGui::DockBuilderDockWindow("Dear Imgui Demo", dock_id_left_pane);
             ImGui::DockBuilderDockWindow("Render Window 0", dock_id_grid_top_left);
             ImGui::DockBuilderDockWindow("Render Window 1", dock_id_grid_top_right);
             ImGui::DockBuilderDockWindow("Render Window 2", dock_id_grid_bottom_left);
@@ -371,10 +373,10 @@ void SetupTestGeo() {
         // Randomly position camera to show different viewports.
         float test = 100 + std::rand() / ((RAND_MAX + 1u) / 100);
         viewports->back()->camera->position = glm::vec3(test, test, test);
-        
+
         // Make our render windows.
         std::string name = "Render Window " + std::to_string(i);
-        gui_render_windows.push_back(make_shared<GuiRenderWindow>(name, viewports->back()));
+        gui_render_windows.push_back(make_shared<GuiRenderWindow>(name, glfw_window, viewports->back()));
     }
 
 	// master_geometry->push_back(make_shared<Geometry>(TEST_TRIANGLE_VERTS, TEST_TRIANGLE_COLS));
@@ -413,9 +415,8 @@ void Update() {
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 
-    //Ready Docking etc for window drawing.
     SetupGui();
-
+    
     // Render Windows
     for (const auto& r : (gui_render_windows)) {
         r->Draw(delta_t);
@@ -440,6 +441,12 @@ void Update() {
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
     glfwSwapBuffers(glfw_window);
 
+    int xpos, ypos;
+    glfwGetWindowPos(glfw_window, &xpos, &ypos);
+
+
+    std::cout << "xpos: " << xpos << ", ypos: " << ypos << std::endl;
+
     // Update and Render additional Platform Windows
     if (imgui_io->ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
     {
@@ -460,7 +467,7 @@ int main(int argc, const char* argv[]) { // NOLINT: main function.
     viewports = make_shared<vector<shared_ptr<Viewport>>>();
 	master_geometry = make_unique<GeometryList>(viewports);
 
-    gui_settings = make_unique<GuiSettings>("Settings", viewports);
+    gui_settings = make_unique<GuiProject>("Project", glfw_window, viewports);
 
     SetupTestGeo();
 

@@ -23,7 +23,7 @@ void Camera::SetProjection(bool ortho_not_perspective_camera) {
 
 mat4 Camera::GetViewMatrix() {
     // Todo; some way of conditionally re-calculating this (assuming it's expensive to do so).
-    view_matrix = glm::lookAt(position, target, up); 
+    // view_matrix = glm::lookAt(position, target, up); 
     return view_matrix;
 }
 mat4 Camera::GetProjectionMatrix() const {
