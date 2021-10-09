@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.12)
 
-set(APP_NAME cad_base)
+set(APP_NAME cad-base)
 set(THIRDPARTY_DIR ${CMAKE_CURRENT_LIST_DIR}/thirdparty)
 set(IMGUI_SRC_DIR ${THIRDPARTY_DIR}/imgui)
 
@@ -8,7 +8,6 @@ set(IMGUI_SRC_DIR ${THIRDPARTY_DIR}/imgui)
 project(${APP_NAME} VERSION 0.0.1)
 
 set(CMAKE_BUILD_TYPE Debug)
-
 
 #Put output binary (and shaders) in /bin instead of /build
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/bin)
@@ -43,6 +42,28 @@ target_link_libraries(${APP_NAME} OpenGL::GL)
 find_package(GLEW REQUIRED)
 target_link_libraries(${APP_NAME} GLEW::GLEW)
 
+#assimp
+set(ASSIMP_SRC_DIR ${THIRDPARTY_DIR}/assimp)
+include_directories(ASSIMP_SRC_DIR}/include)
+add_subdirectory(${ASSIMP_SRC_DIR})
+
+# Native File Dialog
+set(NFD_SRC_DIR ${THIRDPARTY_DIR}/nativefiledialog)
+
+if(WIN32)
+	add_library(nativefiledialog STATIC
+		${NFD_SRC_DIR}/src/nfd_common.c
+		${NFD_SRC_DIR}/src/nfd_win.cpp
+	)
+else()
+	add_library(nativefiledialog STATIC
+		${NFD_SRC_DIR}/src/nfd_common.c
+		${NFD_SRC_DIR}/src/nfd_zenity.c
+	)
+endif()
+target_link_libraries(cad-base nativefiledialog)
+include_directories(${NFD_SRC_DIR}/src/include)
+
 #Dear ImGui
 set(IMGUI_SOURCES
     ${IMGUI_SRC_DIR}/imconfig.h
@@ -58,13 +79,13 @@ set(IMGUI_SOURCES
     ${IMGUI_SRC_DIR}/imstb_truetype.h
 )
 add_library(imgui STATIC ${IMGUI_SOURCES})
-target_link_libraries(${APP_NAME} imgui)
+target_link_libraries(${APP_NAME} imgui assimp)
 
 # Copy over shader files.
 add_custom_target(copy_assets
     COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_LIST_DIR}/src/shaders ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/shaders
 )
-add_dependencies(cad_base copy_assets)
+add_dependencies(cad-base copy_assets)
 
 # Generate compile_commands.json and copy to root for clang-tidy.
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
@@ -76,4 +97,4 @@ add_custom_target(
         ${CMAKE_CURRENT_LIST_DIR}
     )
 
-add_dependencies(cad_base copy-compile-commands)
+add_dependencies(cad-base copy-compile-commands)

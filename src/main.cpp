@@ -13,6 +13,8 @@
 #include <imgui/backends/imgui_impl_glfw.h>
 #include <imgui_internal.h>
 
+#include <nfd.h>
+
 #include <assimp/Importer.hpp>      // C++ importer interface
 #include <assimp/scene.h>           // Output data structure
 #include <assimp/postprocess.h>     // Post processing flags
@@ -52,6 +54,8 @@ unique_ptr<ImGuiIO> imgui_io;
 GLFWwindow* glfw_window;
 
 unique_ptr<GeometryList> master_geometry;
+shared_ptr<Geometry> loaded_geometry;
+
 // TODO: Do we still need this to be a shared ptr to a vector? What was the reasoning for this?
 // Geometry_list needs this list to add and remove geo from them.
 // TODO: We may wish to rename 'Viewport' as IMGUI now has such a concept.
@@ -90,11 +94,13 @@ const vector<vec3> TEST_TRIANGLE_COLS = {
 
 const ImVec4 BACKGROUND_COLOUR = ImVec4(0.15f, 0.15f, 0.15f, 1.00f);
 
-void GlfwMouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {   
+bool ImportGeoTest( const std::string& pFile);  //TODO: temp prototype.
+
+void GlfwMouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {    //NOLINT: unused params in callback.
     // ImGui_ImplGlfw_MouseButtonCallback(window, button, action, mods);
     if(ImGui::GetIO().WantCaptureMouse)  return;
 
-    std::cout << "Mouse button not captured by IMGUI" << std::endl;
+    puts("Mouse button not captured by IMGUI");
 
     // double x,y;
     // glfwGetCursorPos(window, &x, &y);
@@ -179,7 +185,22 @@ void SetupGuiMainMenu() {   //NOLINT: Nesting is easy to understand.
                 //Do something
             }
             if(ImGui::MenuItem("Load file"))  {
-                //Do something
+                nfdchar_t *out_path = NULL;
+                //TODO this doesn't work when ran in vscode debugger? 
+                //Says "zenity not installed"
+                nfdresult_t result = NFD_OpenDialog(NULL, NULL, &out_path);
+                    
+                if ( result == NFD_OKAY ) {
+                    puts("Success!");
+                    ImportGeoTest(out_path);
+                    free(out_path);
+                }
+                else if ( result == NFD_CANCEL ) {
+                    puts("User pressed cancel.");
+                }
+                else {
+                    printf("Error: %s\n", NFD_GetError() );
+                }
             }
             ImGui::EndMenu();
         }
@@ -373,9 +394,6 @@ void SetupGui() {
 }
 
 bool ImportGeoTest( const std::string& pFile) {
-
- 
-
     // Create an instance of the Importer class
     Assimp::Importer importer;
 
@@ -400,12 +418,12 @@ bool ImportGeoTest( const std::string& pFile) {
 
     // If the import failed, report it
     if (nullptr == scene) {
-        std::cout << importer.GetErrorString() << std::endl;
+        puts(importer.GetErrorString());
         return false;
     }
 
     vector<vec3> test_geo;
-    float import_scale_factor = 0.04f;
+    float import_scale_factor = 1.0f;
 
     for (int m = 0; m < scene->mNumMeshes; m++) {
         aiMesh* mesh =  scene->mMeshes[m];
@@ -419,8 +437,13 @@ bool ImportGeoTest( const std::string& pFile) {
         }
     }
 
+    if (loaded_geometry != nullptr) {
+        loaded_geometry->is_dead = true;
+        loaded_geometry = nullptr;
+    }
 
-	master_geometry->push_back(make_shared<Geometry>(test_geo));
+    loaded_geometry = make_shared<Geometry>(test_geo);
+	master_geometry->push_back(loaded_geometry);
 
     // We're done. Everything will be cleaned up by the importer destructor
     return true;
@@ -437,10 +460,9 @@ void SetupTestGeo() {
     }
 
 	// master_geometry->push_back(make_shared<Geometry>(TEST_TRIANGLE_VERTS, TEST_TRIANGLE_COLS));
-	master_geometry->push_back(make_shared<Geometry>(test_data_lines, test_data_lines));
+	// master_geometry->push_back(make_shared<Geometry>(test_data_lines, test_data_lines));
 
     ImportGeoTest("/home/tom/git/cad-base/thirdparty/assimp/test/models/Q3D/E-AT-AT.q3o");
-
 }
 
 void Update() {
@@ -512,7 +534,7 @@ void Update() {
 }
 
 int main(int argc, const char* argv[]) { // NOLINT: main function.
-    std::cout << "Launching Program" << std::endl;
+    puts("Launching Program");
 
     std::srand(time(NULL));
 
@@ -545,6 +567,6 @@ int main(int argc, const char* argv[]) { // NOLINT: main function.
     glfwDestroyWindow(glfw_window);
     glfwTerminate();
 
-    std::cout << "Terminating Program" << std::endl;    
+    puts("Terminating Program");    
     return 0;
 }

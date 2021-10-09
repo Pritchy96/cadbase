@@ -3,19 +3,17 @@
 #include <ostream>
 
 using std::string;
-using std::cout;
-using std::endl;
 using std::vector;
 
 GLuint shader::LoadShaders(char* vertex_file_path, char* fragment_file_path) {
-	cout << "Compiling Shaders" << endl;
+	puts("Compiling Shaders");
 
 	GLuint vert_shader_id = glCreateShader(GL_VERTEX_SHADER);
 	GLuint fragment_shader_id = glCreateShader(GL_FRAGMENT_SHADER);
 
 	string vert_shader_code = LoadFileFromDisk(vertex_file_path);
 	string frag_shader_code = LoadFileFromDisk(fragment_file_path);
-	cout << "Shaders Read from File" << endl;
+	puts("Shaders Read from File");
 
 	GLint result = GL_FALSE; int info_log_size;
 
@@ -34,7 +32,7 @@ GLuint shader::LoadShaders(char* vertex_file_path, char* fragment_file_path) {
 	if (&vertex_shader_error_message[0]) {
 		fprintf(stdout, "%s\n", &vertex_shader_error_message[0]);
 	}
-	cout << "Vertex Shader Compiled and Checked" << endl;
+	puts("Vertex Shader Compiled and Checked");
 
 
 	// Compile Fragment Shader
@@ -52,7 +50,7 @@ GLuint shader::LoadShaders(char* vertex_file_path, char* fragment_file_path) {
 	if (&fragment_shader_error_message[0]) {
 		fprintf(stdout, "%s\n", &fragment_shader_error_message[0]);
 	}
-	cout << "Fragment Shader Compiled and Checked" << endl;
+	puts("Fragment Shader Compiled and Checked");
 
 	// Link the program
 	fprintf(stdout, "Linking program\n");
@@ -93,12 +91,12 @@ string shader::LoadFileFromDisk(char* path) {
 }
 
 GLuint shader::LoadTransformShader(char* path){
-	cout << "Compiling Shaders" << endl;
+	puts("Compiling Shaders");
 
 	GLuint vert_shader_id = glCreateShader(GL_VERTEX_SHADER);
 
 	string vert_shader_code = LoadFileFromDisk(path);
-	cout << "Shader Read from File" << endl;
+	puts("Shader Read from File");
 
 	GLint result = GL_FALSE; int info_log_size;
 
@@ -117,10 +115,10 @@ GLuint shader::LoadTransformShader(char* path){
 	if (&vertex_shader_error_message[0]) {
 		fprintf(stdout, "%s\n", &vertex_shader_error_message[0]);
 	}
-	cout << "Vertex Shader Compiled and Checked" << endl;
+	puts("Vertex Shader Compiled and Checked");
 
 	// Link the program
-	fprintf(stdout, "Linking program\n");
+	puts("Linking program");
 	GLuint program_id = glCreateProgram();
 	glAttachShader(program_id, vert_shader_id);
 

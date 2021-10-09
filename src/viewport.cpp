@@ -32,7 +32,7 @@ const vector<vec3> AXIS_COLOURS = {
 
 Viewport::Viewport(GLFWwindow *window, glm::vec3 background_col, int window_width, int window_height) {
 
-    std::cout << "Initialised Viewport" << std::endl;
+    puts("Initialised Viewport");
 	glfw_window = window;
 	window_width_ = window_width;
 	window_height_ = window_height;
@@ -82,7 +82,7 @@ Viewport::Viewport(GLFWwindow *window, glm::vec3 background_col, int window_widt
     // Check that framebuffer is ok
     // TODO throw error!
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-        std::cout << "Error: Framebuffer not ok!" << std::endl;
+        puts("Error: Framebuffer not ok!");
     }
 
     // Unbind framebuffer (bind default)

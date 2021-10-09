@@ -84,9 +84,9 @@ void GuiRenderWindow::HandleIO() {
     //Allow for mouse dragging outside of the render window once clicked & held.
     if(image_hovered || is_dragging) {
         if(ImGui::IsMouseDragging(ImGuiMouseButton_Left)) {
-            // std::cout << "mouse pos (pixels): " << glm::to_string(glm::vec2(mouse_pos.x, mouse_pos.y)) << std::endl;
-            // std::cout << "mouse pos prev (pixels): " << glm::to_string(glm::vec2(mouse_pos_last.x, mouse_pos_last.y)) << std::endl;
-            // std::cout << "mouse delta (pixels): " << glm::to_string(glm::vec2(mouse_delta.x, mouse_delta.y)) << std::endl;
+            // puts("mouse pos (pixels): " << glm::to_string(glm::vec2(mouse_pos.x, mouse_pos.y)));
+            // puts("mouse pos prev (pixels): " << glm::to_string(glm::vec2(mouse_pos_last.x, mouse_pos_last.y)));
+            // puts("mouse delta (pixels): " << glm::to_string(glm::vec2(mouse_delta.x, mouse_delta.y)));
 
             if (mouse_pos_last != mouse_pos) {
                 is_dragging = true;
