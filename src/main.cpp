@@ -13,11 +13,16 @@
 #include <imgui/backends/imgui_impl_glfw.h>
 #include <imgui_internal.h>
 
+#include <assimp/Importer.hpp>      // C++ importer interface
+#include <assimp/scene.h>           // Output data structure
+#include <assimp/postprocess.h>     // Post processing flags
+
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#include "assimp/mesh.h"
 #include "cad-base/shader.hpp"
 #include "cad-base/geometry.hpp"
 #include "cad-base/renderable.hpp"
@@ -26,6 +31,7 @@
 
 #include "cad-base/gui/gui_project.hpp"
 #include "cad-base/gui/gui_render_window.hpp"
+
 
 using std::vector;
 using std::shared_ptr;
@@ -366,6 +372,60 @@ void SetupGui() {
     ImGui::End();
 }
 
+bool ImportGeoTest( const std::string& pFile) {
+
+ 
+
+    // Create an instance of the Importer class
+    Assimp::Importer importer;
+
+    //check if file exists
+    std::ifstream fin(pFile.c_str());
+    if(!fin.fail()) {
+        fin.close();
+    }
+    else{
+        printf("Couldn't open file: %s\n", pFile.c_str());
+        printf("%s\n", importer.GetErrorString());
+        return false;
+    }
+
+    // And have it read the given file with some example postprocessing
+    // Usually - if speed is not the most important aspect for you - you'll
+    // probably to request more postprocessing than we do in this example.
+    const aiScene* scene = importer.ReadFile( pFile,
+        aiProcess_CalcTangentSpace       |
+        aiProcess_Triangulate            |
+        aiProcess_JoinIdenticalVertices);
+
+    // If the import failed, report it
+    if (nullptr == scene) {
+        std::cout << importer.GetErrorString() << std::endl;
+        return false;
+    }
+
+    vector<vec3> test_geo;
+    float import_scale_factor = 0.04f;
+
+    for (int m = 0; m < scene->mNumMeshes; m++) {
+        aiMesh* mesh =  scene->mMeshes[m];
+
+        for (int f = 0; f < mesh->mNumFaces; f++) {
+            for (int i = 0; i < mesh->mFaces->mNumIndices; i++) {
+                int faceIndex = mesh->mFaces[f].mIndices[i];
+
+                test_geo.push_back(glm::vec3(mesh->mVertices[faceIndex].x, mesh->mVertices[faceIndex].y, mesh->mVertices[faceIndex].z) * import_scale_factor);
+            }
+        }
+    }
+
+
+	master_geometry->push_back(make_shared<Geometry>(test_geo));
+
+    // We're done. Everything will be cleaned up by the importer destructor
+    return true;
+}
+
 void SetupTestGeo() {
     // TODO: temp test.
     for (int i= 0; i < 4; i++) { 
@@ -378,6 +438,8 @@ void SetupTestGeo() {
 
 	// master_geometry->push_back(make_shared<Geometry>(TEST_TRIANGLE_VERTS, TEST_TRIANGLE_COLS));
 	master_geometry->push_back(make_shared<Geometry>(test_data_lines, test_data_lines));
+
+    ImportGeoTest("/home/tom/git/cad-base/thirdparty/assimp/test/models/Q3D/E-AT-AT.q3o");
 
 }
 
