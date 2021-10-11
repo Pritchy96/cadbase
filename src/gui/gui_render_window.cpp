@@ -53,7 +53,7 @@ void GuiRenderWindow::DrawRenderWindowSettings(double deltaTime) {
         if (ImGui::RadioButton("Orthogonal", &ortho_not_persp, 0)) {
             viewport_->camera->SetProjection(true);
         }
-
+        
         ImGui::SameLine();
         
         if (ImGui::RadioButton("Perspective", &ortho_not_persp, 1)) {
@@ -69,7 +69,6 @@ void GuiRenderWindow::DrawRenderWindowSettings(double deltaTime) {
 }
 
 //TODO: Move to dedicated IO handler class
-//TODO: The rotation is currently world axis aligned and not camera axis aligned.
 void GuiRenderWindow::HandleIO() {
     ImGuiIO& io = ImGui::GetIO();
     //TODO: we can apparently declare a macro in IMGUI.cpp and specify glm vectors to be used by ImGui? Investigate,
@@ -81,13 +80,13 @@ void GuiRenderWindow::HandleIO() {
 
     bool image_hovered = ImGui::IsItemHovered();
 
+    if (image_hovered && io.MouseWheel != 0) {
+        viewport_->camera->distance += io.MouseWheel;
+    }
+
     //Allow for mouse dragging outside of the render window once clicked & held.
     if(image_hovered || is_dragging) {
         if(ImGui::IsMouseDragging(ImGuiMouseButton_Left)) {
-            // puts("mouse pos (pixels): " << glm::to_string(glm::vec2(mouse_pos.x, mouse_pos.y)));
-            // puts("mouse pos prev (pixels): " << glm::to_string(glm::vec2(mouse_pos_last.x, mouse_pos_last.y)));
-            // puts("mouse delta (pixels): " << glm::to_string(glm::vec2(mouse_delta.x, mouse_delta.y)));
-
             if (mouse_pos_last != mouse_pos) {
                 is_dragging = true;
                 
@@ -98,15 +97,10 @@ void GuiRenderWindow::HandleIO() {
                 glm::vec3 cross_vector = glm::cross(pos_vec, last_pos_vec);
 
                 //Then to find the angle it must be rotated about this axis, take their dot product, which gives you the cosine of that angle.
-                float angle = acos(glm::dot(pos_vec, last_pos_vec));
-
-                //Create normalised rotation quaternion from the axis and the angle.
-                //TODO: possibly best to store ths quaternion and apply it to a default view matrix each update loop. This would allow for easier zooming etc.
-                // glm::quat rotation_quat = glm::angleAxis(angle, cross_vector);
-                // glm::normalize(rotation_quat);
+                float angle = acos(glm::dot(last_pos_vec, pos_vec));
                 
-                //Apply this rotation to the view matrix.
-                viewport_->camera->view_matrix = glm::rotate(viewport_->camera->view_matrix, angle, cross_vector);
+                //Apply this multiplication to the pre-existing rotation applied when generating the view matrix. 
+                viewport_->camera->rotation = glm::rotate(viewport_->camera->rotation, angle, cross_vector);
             }
         }
     }

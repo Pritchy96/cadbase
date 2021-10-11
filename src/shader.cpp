@@ -53,7 +53,7 @@ GLuint shader::LoadShaders(char* vertex_file_path, char* fragment_file_path) {
 	puts("Fragment Shader Compiled and Checked");
 
 	// Link the program
-	fprintf(stdout, "Linking program\n");
+	puts("Linking program");
 	GLuint program_id = glCreateProgram();
 	glAttachShader(program_id, vert_shader_id);
 	glAttachShader(program_id, fragment_shader_id);

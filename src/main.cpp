@@ -66,18 +66,18 @@ unique_ptr<GuiProject> gui_settings;
 vector<shared_ptr<GuiRenderWindow>> gui_render_windows;
 bool show_demo_window = false;
 
-vector<vec3> test_data_lines = {
-	glm::vec3(00.0, 00.0, 00.0),	//NOLINT: magic numbers ok, temp test code
-	glm::vec3(20.0, 00.0, 00.0),	//NOLINT: magic numbers ok, temp test code
-	glm::vec3(00.0, 20.0, 00.0),	//NOLINT: magic numbers ok, temp test code
+const vector<vec3> test_data_lines = {
+	glm::vec3(00.0, 00.0, 00.0),
+	glm::vec3(20.0, 00.0, 00.0),
+	glm::vec3(00.0, 20.0, 00.0),
 
-	glm::vec3(00.0, 00.0, 00.0),	//NOLINT: magic numbers ok, temp test code
-	glm::vec3(00.0, 00.0, 20.0),	//NOLINT: magic numbers ok, temp test code   
-	glm::vec3(20.0, 00.0, 00.0),	//NOLINT: magic numbers ok, temp test code
+	glm::vec3(00.0, 00.0, 00.0),
+	glm::vec3(00.0, 00.0, 20.0), 
+	glm::vec3(20.0, 00.0, 00.0),
 
-	glm::vec3(00.0, 00.0, 00.0),	//NOLINT: magic numbers ok, temp test code
-	glm::vec3(00.0, 20.0, 00.0),	//NOLINT: magic numbers ok, temp test code
-	glm::vec3(00.0, 00.0, 20.0)	    //NOLINT: magic numbers ok, temp test code	
+	glm::vec3(00.0, 00.0, 00.0),
+	glm::vec3(00.0, 20.0, 00.0),
+	glm::vec3(00.0, 00.0, 20.0)	
 };
 
 const vector<vec3> TEST_TRIANGLE_VERTS = {
@@ -178,6 +178,11 @@ bool SetupImgui() {
 void SetupGuiMainMenu() {   //NOLINT: Nesting is easy to understand.
     if(ImGui::BeginMainMenuBar())   {
         if (ImGui::BeginMenu("File"))   {
+
+            //Disable these for now.
+            ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+            ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.5f);
+
             if(ImGui::MenuItem("New file"))  {
                 //Do something
             }
@@ -185,6 +190,14 @@ void SetupGuiMainMenu() {   //NOLINT: Nesting is easy to understand.
                 //Do something
             }
             if(ImGui::MenuItem("Load file"))  {
+
+            }
+
+            ImGui::PopItemFlag();
+            ImGui::PopStyleVar();
+
+
+            if(ImGui::MenuItem("Import Mesh"))  {
                 nfdchar_t *out_path = NULL;
                 //TODO this doesn't work when ran in vscode debugger? 
                 //Says "zenity not installed"
@@ -423,7 +436,7 @@ bool ImportGeoTest( const std::string& pFile) {
     }
 
     vector<vec3> test_geo;
-    float import_scale_factor = 1.0f;
+    float import_scale_factor = 0.05f;
 
     for (int m = 0; m < scene->mNumMeshes; m++) {
         aiMesh* mesh =  scene->mMeshes[m];
@@ -445,13 +458,12 @@ bool ImportGeoTest( const std::string& pFile) {
     loaded_geometry = make_shared<Geometry>(test_geo);
 	master_geometry->push_back(loaded_geometry);
 
-    // We're done. Everything will be cleaned up by the importer destructor
     return true;
 }
 
 void SetupTestGeo() {
     // TODO: temp test.
-    for (int i= 0; i < 4; i++) { 
+    for (int i= 0; i < 1; i++) { 
         viewports->push_back(make_shared<Viewport>(glfw_window, glm::vec3(BACKGROUND_COLOUR.x, BACKGROUND_COLOUR.y, BACKGROUND_COLOUR.z), 1000, 1000));
 
         // Make our render windows.
