@@ -25,7 +25,9 @@
             void SetProjection(bool ortho_not_perspective_camera);
             bool GetProjection() const { return ortho_not_perspective_; }
 
+
             glm::mat4 GetDistanceMatrix();
+
             glm::mat4 GetViewMatrix();
 
             bool matrix_needs_update = true;
@@ -63,7 +65,7 @@
                 matrix_needs_update = true;
             }
 
-            float GetZoom() {
+            float GetZoom() const {
                 return zoom_;
             }
 
@@ -81,8 +83,10 @@
             bool ortho_not_perspective_;
 
             glm::vec3 initial_target_, target_;
-            glm::mat4 initial_rotation_, rotation_;
             float initial_zoom_, zoom_;
+
+            glm::mat4 initial_rotation_, rotation_;
+
             glm::mat4 view_matrix_;
             glm::mat4 camera_transform_;    //inverse of the View matrix, stored here so we don't need to recalculate it.
 
@@ -91,5 +95,5 @@
             float fov_ = INITIAL_FOV, aspect_ratio_ = INITIAL_ASPECT_RATIO, z_near_ = INITIAL_Z_NEAR, z_far_ = INITIAL_Z_FAR, 
                 ortho_left_ = INITIAL_ORTHO_LEFT, ortho_right_ = INITIAL_ORTHO_RIGHT, ortho_bottom_ = INITIAL_ORTHO_BOTTOM, ortho_top_ = INITIAL_ORTHO_TOP;
     };
-
+    
 #endif

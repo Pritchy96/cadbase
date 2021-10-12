@@ -9,8 +9,8 @@ class GuiBase {
             explicit GuiBase(std::string name, GLFWwindow* glfw_window);
             // ~GuiBase();
 
-            GLFWwindow* glfw_window;
             std::string name;
+            GLFWwindow* glfw_window;
             bool is_alive = true;
             virtual void Draw(double deltaTime) = 0;
         private:   

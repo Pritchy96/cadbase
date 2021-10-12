@@ -1,19 +1,4 @@
-# Here is an explanation for why some of the checks are disabled:
-#
-#   -google-readability-todo: Currently a single dev project, doesn't make much 
-#     sense to format as // TODO: <USER> comment
-#
-#   --misc-non-private-member-variables-in-classes: We use some getter/setter 
-#     methods, but don't want to enforce all member variables having to use getter/setters.
-#
-#   -modernize-use-trailing-return-type: clang-tidy recommends using
-#     `auto Foo() -> std::string { return ...; }`, we think the code is less
-#     readable in this form.
-#
-#   -readability-uppercase-literal-suffix: lower case 'f' for floats is more readable
-#
-
-Checks: >
+Checks: '
   -*,
   bugprone-*,
   google-*,
@@ -24,13 +9,16 @@ Checks: >
   performance-*,
   portability-*,
   readability-*,
-  -readability-uppercase-literal-suffix,  
-  -google-readability-todo
-  
+  -readability-uppercase-literal-suffix,
+  -google-readability-todo,
+  -mondernize-pass-by-value
+  '
 
-#Turn most of the specified above warnings into errors
 
-
+WarningsAsErrors: true
+HeaderFilterRegex: ''
+AnalyzeTemporaryDtors: false
+FormatStyle:     google
 CheckOptions:
   - { key: readability-identifier-naming.NamespaceCase,          value: lower_case }
   - { key: readability-identifier-naming.ClassCase,              value: CamelCase  }
@@ -51,3 +39,4 @@ CheckOptions:
   - { key: readability-identifier-naming.StaticConstantCase,       value: UPPER_CASE }
   - { key: readability-implicit-bool-conversion.AllowIntegerConditions,  value: 1   }
   - { key: readability-implicit-bool-conversion.AllowPointerConditions,  value: 1   }
+

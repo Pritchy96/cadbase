@@ -8,7 +8,7 @@ using glm::vec3;
 using glm::mat4;
 
 Camera::Camera(vec3 initial_target, float initial_zoom) 
-    :   initial_target_(initial_target), target_(initial_target), initial_zoom_(initial_zoom), zoom_(initial_zoom), rotation_(glm::mat4(1.0f)), initial_rotation_(glm::mat4(1.0f)) {
+    :   initial_target_(initial_target), target_(initial_target), initial_zoom_(initial_zoom), zoom_(initial_zoom), initial_rotation_(glm::mat4(1.0f)), rotation_(glm::mat4(1.0f)) {
     SetProjection(false);
 
     //TODO: Construct an initial rotation from position + target parameter.
@@ -29,11 +29,12 @@ void Camera::SetProjection(bool ortho_not_perspective_camera) {
 //This is then rotated by the rotation matrix and translated by the target position 
 //(In that order!) to give the final camera pos. Draw out the order of operations to make sense of it :)
 glm::mat4 Camera::GetDistanceMatrix() {
-    return glm::mat4(
+    return {
         glm::vec4(1.0f, 0.0f, 0.0f, 0.0f),  //Left //TODO: replace this with a stored left/up?
         glm::vec4(0.0f, 0.0f, 1.0f, 0.0f),     //Up
         glm::vec4(glm::normalize(glm::vec3(0.0f, zoom_, 0.0f)), 0.0f), //Forward
-        glm::vec4(glm::vec3(0.0f, zoom_, 0.0f), 1.0f)); //Position
+        glm::vec4(glm::vec3(0.0f, zoom_, 0.0f), 1.0f) //Position
+    };
 }
 
  glm::mat4 Camera::GetViewMatrix() {
