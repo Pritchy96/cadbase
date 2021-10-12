@@ -25,7 +25,8 @@
 #include <glm/glm.hpp>
 
 GuiRenderWindow::GuiRenderWindow(std::string name, GLFWwindow* glfw_window, std::shared_ptr<Viewport> viewport) : GuiBase(name, glfw_window), viewport_(viewport) {
-    arcball_sensitivity = ARCBALL_SENSITIVITY_INITIAL;
+    arcball_rotate_sensitivity = ARCBALL_ROTATE_SENSITIVITY_INITIAL;
+    arcball_pan_sensitivity = ARCBALL_PAN_SENSITIVITY_INITIAL;
 }
 
 void GuiRenderWindow::DrawRenderWindowSettings(double deltaTime) {
@@ -63,6 +64,26 @@ void GuiRenderWindow::DrawRenderWindowSettings(double deltaTime) {
         ImGui::Separator();
         ImGui::Checkbox("Show Grid", &viewport_->grid->visible);
         ImGui::Checkbox("Show Render Axis", &viewport_->render_axis->visible);
+        
+        ImGui::Separator();
+        if (ImGui::Button("Reset Pan")) {
+            viewport_->camera->ResetTarget();
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Reset Zoom")) {
+            viewport_->camera->ResetZoom();
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Reset Rotation")) {
+            viewport_->camera->ResetRotation();
+        }
+
+        ImGui::Separator();
+        if (ImGui::Button("Reset Entire View")) {
+            viewport_->camera->ResetRotation();
+            viewport_->camera->ResetTarget();
+            viewport_->camera->ResetZoom();
+        }
 
         ImGui::EndPopup();
     }
@@ -76,37 +97,58 @@ void GuiRenderWindow::HandleIO() {
     glm::vec2 viewport_pos = glm::vec2(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y);
     //Get mouse pos in terms of the viewport window space.
     glm::vec2 mouse_pos =    glm::vec2(io.MousePos.x, io.MousePos.y)  - viewport_pos;
-    glm::vec2 mouse_pos_last = mouse_pos - (mouse_delta * arcball_sensitivity);
+    glm::vec2 mouse_pos_last = mouse_pos - (mouse_delta * arcball_rotate_sensitivity);
 
     bool image_hovered = ImGui::IsItemHovered();
 
-    if (image_hovered && io.MouseWheel != 0) {
-        viewport_->camera->distance += io.MouseWheel;
-    }
-
-    //Allow for mouse dragging outside of the render window once clicked & held.
-    if(image_hovered || is_dragging) {
-        if(ImGui::IsMouseDragging(ImGuiMouseButton_Left)) {
-            if (mouse_pos_last != mouse_pos) {
-                is_dragging = true;
-                
-                glm::vec3 last_pos_vec = GetArcballVector(mouse_pos_last, glm::vec2(window_size_.x, window_size_.y));
-                glm::vec3 pos_vec = GetArcballVector(mouse_pos, glm::vec2(window_size_.x, window_size_.y));
-
-                //Take the cross product of your start and end points (unit length vectors from the centre of the sphere) to form a rotational axis perpendicular to both of them. 
-                glm::vec3 cross_vector = glm::cross(pos_vec, last_pos_vec);
-
-                //Then to find the angle it must be rotated about this axis, take their dot product, which gives you the cosine of that angle.
-                float angle = acos(glm::dot(last_pos_vec, pos_vec));
-                
-                //Apply this multiplication to the pre-existing rotation applied when generating the view matrix. 
-                viewport_->camera->rotation = glm::rotate(viewport_->camera->rotation, angle, cross_vector);
-            }
+    //Store a bool to see if the mouse has clicked on the image with any given mouse button.
+    //This is because clicking + dragging may mean we're hovered over another image but we still want to rotate
+    //the image we've initially clicked on.
+    for (int i = 0; i < 5; i++) {
+        if (io.MouseClicked[i] && image_hovered) {
+            clicked_on_image[i] = true;
         }
     }
 
-    if(ImGui::IsMouseReleased(0)) {
-        is_dragging = false;
+    viewport_has_focus = (clicked_on_image[ImGuiMouseButton_Left] 
+        || clicked_on_image[ImGuiMouseButton_Middle] 
+        || clicked_on_image[ImGuiMouseButton_Right]);
+
+    if ((image_hovered || viewport_has_focus) && io.MouseWheel != 0) {
+        viewport_->camera->SetZoom(viewport_->camera->GetZoom() + io.MouseWheel);
+    }
+
+    if(ImGui::IsMouseDragging(ImGuiMouseButton_Left)) {
+        //Allow for mouse dragging outside of the render window once clicked & held.
+        if(viewport_has_focus && mouse_pos != mouse_pos_last) {
+            glm::vec3 last_pos_vec = GetArcballVector(mouse_pos_last, glm::vec2(window_size_.x, window_size_.y));
+            glm::vec3 pos_vec = GetArcballVector(mouse_pos, glm::vec2(window_size_.x, window_size_.y));
+
+            //Take the cross product of your start and end points (unit length vectors from the centre of the sphere) to form a rotational axis perpendicular to both of them. 
+            glm::vec3 cross_vector = glm::cross(pos_vec, last_pos_vec);
+
+            //Then to find the angle it must be rotated about this axis, take their dot product, which gives you the cosine of that angle.
+            float angle = acos(glm::dot(last_pos_vec, pos_vec));
+            
+            //Apply this multiplication to the pre-existing rotation applied when generating the view matrix. 
+            viewport_->camera->SetRotation(glm::rotate(viewport_->camera->GetRotation(), angle, cross_vector));
+        }
+    } else if (ImGui::IsMouseDragging(ImGuiMouseButton_Middle)) {
+        if (viewport_has_focus) {
+            //TODO: probably should add a 'MoveTarget' function to stop this blah.setblah(blah.getblah + x)
+            viewport_->camera->SetTarget(viewport_->camera->GetTarget() 
+                + glm::vec3(viewport_->camera->GetCameraTransform() * glm::vec4(mouse_delta.x/arcball_pan_sensitivity, -mouse_delta.y/arcball_pan_sensitivity, 0.0f, 0.0f)));
+        }
+    }
+
+    for (int i = 0; i < 5; i++) {
+        if (ImGui::IsMouseReleased(i)) {
+            clicked_on_image[i] = false;
+        }
+    }
+
+    if(ImGui::IsMouseReleased(ImGuiMouseButton_Left)) {
+        viewport_has_focus = false;
     }
 }
 

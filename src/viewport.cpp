@@ -38,9 +38,7 @@ Viewport::Viewport(GLFWwindow *window, glm::vec3 background_col, int window_widt
 	window_height_ = window_height;
 	background_colour = background_col;
 
-	camera = new Camera(glm::vec3(1, 0, 0), glm::vec3(0, 0, 0), glm::vec3(0.0f, 0.0f, 1.0f), 10.0f);
-		
-	// input_handlers.push_back(arcball_camera);
+	camera = new Camera(glm::vec3(0.0f, 0.0f, 0.0f), 10.0f);
 
 	// TODO: Move everything dependent on this (gl calls, shader loads etc) to an init() function so this context setting can be done 
 	// in main.cpp
@@ -61,7 +59,7 @@ Viewport::Viewport(GLFWwindow *window, glm::vec3 background_col, int window_widt
     glBindTexture(GL_TEXTURE_2D, texture);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1000, 1000, 0, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, nullptr); // Setup empty texture
 
-    // Poor filtering. Needed !
+    // Poor filtering. Needed
    	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
@@ -70,7 +68,7 @@ Viewport::Viewport(GLFWwindow *window, glm::vec3 background_col, int window_widt
     // GLuint depthrenderbuffer;
     // glGenRenderbuffers(1, &depthrenderbuffer);
     
-    // Depth buffer
+    // // Depth buffer
     // glBindRenderbuffer(GL_RENDERBUFFER, depthrenderbuffer);
     // glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, 500, 500);
     // glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthrenderbuffer);

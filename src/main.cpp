@@ -357,14 +357,12 @@ void SetupGui() {
     // Setup Dockspace
     // TODO: Have this as an editable default (don't reset every boot unless user clicks a 'reset UI' button)
     imgui_io = make_unique<ImGuiIO>(ImGui::GetIO());
-    if (imgui_io->ConfigFlags & ImGuiConfigFlags_DockingEnable)
-    {
+    if (imgui_io->ConfigFlags & ImGuiConfigFlags_DockingEnable) {
         ImGuiID dockspace_id = ImGui::GetID("DockSpace");
         ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
 
         static auto first_time = true;
-        if (first_time)
-        {
+        if (first_time) {
             first_time = false;
 
             SetupGuiTheme();
@@ -463,7 +461,7 @@ bool ImportGeoTest( const std::string& pFile) {
 
 void SetupTestGeo() {
     // TODO: temp test.
-    for (int i= 0; i < 1; i++) { 
+    for (int i= 0; i < 4; i++) { 
         viewports->push_back(make_shared<Viewport>(glfw_window, glm::vec3(BACKGROUND_COLOUR.x, BACKGROUND_COLOUR.y, BACKGROUND_COLOUR.z), 1000, 1000));
 
         // Make our render windows.

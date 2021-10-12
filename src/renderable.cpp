@@ -43,7 +43,6 @@ void Renderable::Draw(double deltaT, glm::mat4 projectionMatrix, glm::mat4 viewM
 		glUniformMatrix4fv(shader_id, 1, GL_FALSE, &mvp[0][0]);
 	
 		glBindVertexArray(GetVAO());
-		glEnable(GL_LINE_SMOOTH);
 
 		glDrawArrays(render_type, 0, geometry->flat_verts.size());
 }

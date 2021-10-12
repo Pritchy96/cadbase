@@ -15,9 +15,10 @@ class GuiRenderWindow : GuiBase {
             GuiRenderWindow(std::string name, GLFWwindow* glfw_window, std::shared_ptr<Viewport> viewport) ;
             // ~GuiRenderWindow();
 
-            bool is_dragging = false;
+            bool viewport_has_focus = false;
+            bool clicked_on_image[5] = {false, false, false, false, false};
             
-            float arcball_sensitivity;
+            float arcball_rotate_sensitivity, arcball_pan_sensitivity;
 
             const float OPTIONS_DROPDOWN_OFFSET = 20.0f; 
             
@@ -32,7 +33,9 @@ class GuiRenderWindow : GuiBase {
             std::shared_ptr<Viewport> viewport_;   
             ImVec2 window_size_;
 
-            const float ARCBALL_SENSITIVITY_INITIAL = 4.0f; 
+            const float ARCBALL_ROTATE_SENSITIVITY_INITIAL = 4.0f; 
+            const float ARCBALL_PAN_SENSITIVITY_INITIAL = 100.0f; 
+
     };
 
 #endif
