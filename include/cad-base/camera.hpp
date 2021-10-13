@@ -1,7 +1,7 @@
 #ifndef CAMERA_HPP
 #define CAMERA_HPP
 
-#include "imgui.h"
+#include <imgui.h>
 #include <glm/fwd.hpp>
 #include <glm/geometric.hpp>
 #include <glm/gtx/dual_quaternion.hpp>
@@ -14,7 +14,7 @@
 #include <glm/gtx/rotate_vector.hpp>
 #include <glm/gtc/matrix_inverse.hpp>
 
-    struct Camera {
+    class Camera {
         public:
 
             Camera(glm::vec3 initial_target, float initial_zoom);

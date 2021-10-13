@@ -10,6 +10,8 @@
     #include <glm/gtc/matrix_transform.hpp>
     #include <glm/gtx/transform.hpp>
 
+    #include "cad-base/geometry/aa_bounding_box.hpp"
+
     class Geometry {
         public:
             Geometry() = default;
@@ -26,7 +28,14 @@
             std::vector<float> flat_verts, flat_cols;
             // If true, the flatvert buffers no longer match the vert buffers
             bool buffers_invalid = true;
-            bool visible = true, is_dead = false;
-    };
+            
+            //Only if corresponding bool in renderable is true.
+            //Setting these false here will make whatever it is invisible in ALL viewports
+            bool draw_geometry = true;
+            bool draw_aa_bounding_box = true;
+            
+            bool is_dead = false;
 
+            AABoundingBox aa_bounding_box;  
+    };
 #endif

@@ -19,11 +19,11 @@
     #include <glm/gtx/transform.hpp>
     #include <glm/gtx/string_cast.hpp>
 
-    #include "shader.hpp"
-    #include "geometry.hpp"
-    #include "renderable.hpp"
-    #include "camera.hpp"
-    #include "cad-base/viewport_grid.hpp"
+    #include "cad-base/shader.hpp"
+    #include "cad-base/geometry/geometry.hpp"
+    #include "cad-base/renderable.hpp"
+    #include "cad-base/camera.hpp"
+    #include "cad-base/geometry/viewport_grid.hpp"
 
     // #include "arcball.hpp"
     // #include "input_handler.hpp"

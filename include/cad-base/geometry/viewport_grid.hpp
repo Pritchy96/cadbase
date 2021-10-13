@@ -1,8 +1,8 @@
 #ifndef VIEWPORTGRID_HPP
 #define VIEWPORTGRID_HPP
 
-#include "renderable.hpp"
-#include "geometry.hpp"
+#include "cad-base/renderable.hpp"
+#include "cad-base/geometry/geometry.hpp"
 #include <glm/fwd.hpp>
 
     class ViewportGrid : public Geometry {

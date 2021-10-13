@@ -26,7 +26,7 @@
 
 #include "assimp/mesh.h"
 #include "cad-base/shader.hpp"
-#include "cad-base/geometry.hpp"
+#include "cad-base/geometry/geometry.hpp"
 #include "cad-base/renderable.hpp"
 #include "cad-base/viewport.hpp"
 #include "cad-base/geometry_list.hpp"
@@ -448,6 +448,7 @@ bool ImportGeoTest( const std::string& pFile) {
         }
     }
 
+    //Unload old geo.
     if (loaded_geometry != nullptr) {
         loaded_geometry->is_dead = true;
         loaded_geometry = nullptr;

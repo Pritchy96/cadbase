@@ -1,4 +1,4 @@
-#include "cad-base/viewport_grid.hpp"
+#include "cad-base/geometry/viewport_grid.hpp"
 #include <glm/fwd.hpp>
 
 using glm::vec3;

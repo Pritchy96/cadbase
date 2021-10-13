@@ -62,8 +62,9 @@ void GuiRenderWindow::DrawRenderWindowSettings(double deltaTime) {
         }
 
         ImGui::Separator();
-        ImGui::Checkbox("Show Grid", &viewport_->grid->visible);
-        ImGui::Checkbox("Show Render Axis", &viewport_->render_axis->visible);
+        ImGui::Checkbox("Show Grid", &viewport_->grid->draw_geometry);
+        ImGui::Checkbox("Show Render Axis", &viewport_->render_axis->draw_geometry);
+        ImGui::Checkbox("Show Bounding Boxes", &viewport_->geo_renderable_pairs.back().second->draw_aa_bounding_box);   //TODO: loop through all non axis/grid geo and set to true.
         
         ImGui::Separator();
         if (ImGui::Button("Reset Pan")) {

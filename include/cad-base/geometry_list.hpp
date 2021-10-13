@@ -4,10 +4,9 @@
 #include <iterator>
 #include <vector>
 #include <memory>
-    
+
+#include "cad-base/geometry/geometry.hpp"
 #include "cad-base/viewport.hpp"
-#include "cad-base/viewport.hpp"
-#include "cad-base/geometry.hpp"
 
     class GeometryList {
         public:

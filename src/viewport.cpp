@@ -1,5 +1,5 @@
 #include "cad-base/viewport.hpp"	
-#include "cad-base/viewport_grid.hpp"
+#include "cad-base/geometry/viewport_grid.hpp"
 
 #include <glm/fwd.hpp>
 #include <memory>
@@ -128,7 +128,7 @@ void Viewport::Update(double deltaTime) {
         shared_ptr<Renderable> renderable = geo_renderable->second;
 
         if (geometry->buffers_invalid) {
-            renderable->valid_vao = false;
+            renderable->valid_geometry_vao = false;
         }
 
         renderable->Draw(deltaTime, camera->projection_matrix, camera->GetViewMatrix());
@@ -139,7 +139,6 @@ void Viewport::Update(double deltaTime) {
     glBindVertexArray(0);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
-
 
 // void Viewport::WindowSizeCallback(GLFWwindow* glfw_window, int width, int height) {
 //  	this->window_height_ = height;
