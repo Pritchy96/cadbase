@@ -505,8 +505,8 @@ void Update() {
     }
 
     // We don't want this when drawing UI elements
-    glDisable(GL_DEPTH_TEST);
-    glDisable(GL_CULL_FACE);
+    // glDisable(GL_DEPTH_TEST);
+    // glDisable(GL_CULL_FACE);
 
     // Start the Dear ImGui frame
     ImGui_ImplOpenGL3_NewFrame();

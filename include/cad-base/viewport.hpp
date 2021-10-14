@@ -25,9 +25,6 @@
     #include "cad-base/camera.hpp"
     #include "cad-base/geometry/viewport_grid.hpp"
 
-    // #include "arcball.hpp"
-    // #include "input_handler.hpp"
-
     class Viewport: public std::enable_shared_from_this<Viewport> {
         public:
             Viewport(GLFWwindow *window, glm::vec3 background_col, int window_width, int window_height);
@@ -38,15 +35,12 @@
             }
 
             void Update(double deltaT);  
-            void SetupTransformShader(GLuint transformShader);   
             
             void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
             void MouseButtonCallback( GLFWwindow* window, int button, int action, int mods );
             void CursorCallback( GLFWwindow* window, double x, double y );
             void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset);
             void WindowSizeCallback(GLFWwindow* glfw_window, int width, int height);
-
-            bool CheckFramebufferStatus(GLuint fbo);
 
             // TODO: most of these can be made private.
             GLFWwindow *glfw_window;
@@ -58,8 +52,8 @@
             GLint render_face = GL_FRONT, render_mode = GL_FILL;
 
             GLuint fbo;
-            GLuint texture;
-            GLuint depth_render_buffer;
+            GLuint colour_texture;
+            GLuint depth_texture;
 
             const int WIDTH = 1000, HEIGHT = 1000;
 
@@ -74,6 +68,10 @@
             Camera* camera;
         private:
             int window_width_, window_height_;
+
+            void SetupFBO(); 
+            void SetupTransformShader(GLuint transformShader);  
+            bool CheckFramebufferStatus(GLuint fbo);
     };
 
 #endif
