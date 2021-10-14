@@ -46,6 +46,8 @@
             void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset);
             void WindowSizeCallback(GLFWwindow* glfw_window, int width, int height);
 
+            bool CheckFramebufferStatus(GLuint fbo);
+
             // TODO: most of these can be made private.
             GLFWwindow *glfw_window;
             std::vector<std::pair<std::shared_ptr<Geometry>, std::shared_ptr<Renderable>>> geo_renderable_pairs;
@@ -53,9 +55,13 @@
             GLuint t_shader;      
             GLuint shader_id;    
             GLuint basic_shader;
-            GLint render_face = GL_FRONT_AND_BACK, render_mode = GL_FILL;
-            unsigned int fbo;
-            unsigned int texture;
+            GLint render_face = GL_FRONT, render_mode = GL_FILL;
+
+            GLuint fbo;
+            GLuint texture;
+            GLuint depth_render_buffer;
+
+            const int WIDTH = 1000, HEIGHT = 1000;
 
             glm::vec3 background_colour;
 

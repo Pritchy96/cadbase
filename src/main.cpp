@@ -66,7 +66,7 @@ unique_ptr<GuiProject> gui_settings;
 vector<shared_ptr<GuiRenderWindow>> gui_render_windows;
 bool show_demo_window = false;
 
-const vector<vec3> test_data_lines = {
+const vector<vec3> TEST_DATA_LINES = {
 	glm::vec3(00.0, 00.0, 00.0),
 	glm::vec3(20.0, 00.0, 00.0),
 	glm::vec3(00.0, 20.0, 00.0),
@@ -462,7 +462,7 @@ bool ImportGeoTest( const std::string& pFile) {
 
 void SetupTestGeo() {
     // TODO: temp test.
-    for (int i= 0; i < 4; i++) { 
+    for (int i= 0; i < 1; i++) { 
         viewports->push_back(make_shared<Viewport>(glfw_window, glm::vec3(BACKGROUND_COLOUR.x, BACKGROUND_COLOUR.y, BACKGROUND_COLOUR.z), 1000, 1000));
 
         // Make our render windows.
@@ -487,6 +487,12 @@ void Update() {
     // - When imgui_io.WantCaptureKeyboard is true, do not dispatch keyboard input data to your main application.
     // Generally you may always pass all inputs to dear imgui, and hide them from your application based on those two flags.
     glfwPollEvents();
+
+
+    glEnable(GL_DEPTH_TEST); // Enable depth-testing
+    glDepthFunc(GL_LESS); // Depth-testing interprets a smaller value as "closer"
+    glEnable(GL_CULL_FACE);
+
 
     for (const auto& v : (*viewports)) {
         v->Update(delta_t);
