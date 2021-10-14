@@ -90,7 +90,7 @@
             glm::mat4 view_matrix_;
             glm::mat4 camera_transform_;    //inverse of the View matrix, stored here so we don't need to recalculate it.
 
-            const float INITIAL_FOV = 70.0f, INITIAL_ASPECT_RATIO = 4.0f/3.0f, INITIAL_Z_NEAR = 0.0f, INITIAL_Z_FAR = 10000.0f, 
+            const float INITIAL_FOV = 90.0f, INITIAL_ASPECT_RATIO = 4.0f/3.0f, INITIAL_Z_NEAR = 1.0f, INITIAL_Z_FAR = 10000.0f, 
                 INITIAL_ORTHO_LEFT = -300.0f, INITIAL_ORTHO_RIGHT = 300.0f, INITIAL_ORTHO_BOTTOM = -300.0f, INITIAL_ORTHO_TOP = 300.0f;
             float fov_ = INITIAL_FOV, aspect_ratio_ = INITIAL_ASPECT_RATIO, z_near_ = INITIAL_Z_NEAR, z_far_ = INITIAL_Z_FAR, 
                 ortho_left_ = INITIAL_ORTHO_LEFT, ortho_right_ = INITIAL_ORTHO_RIGHT, ortho_bottom_ = INITIAL_ORTHO_BOTTOM, ortho_top_ = INITIAL_ORTHO_TOP;

@@ -66,7 +66,7 @@ unique_ptr<GuiProject> gui_settings;
 vector<shared_ptr<GuiRenderWindow>> gui_render_windows;
 bool show_demo_window = false;
 
-const vector<vec3> test_data_lines = {
+const vector<vec3> TEST_DATA_LINES = {
 	glm::vec3(00.0, 00.0, 00.0),
 	glm::vec3(20.0, 00.0, 00.0),
 	glm::vec3(00.0, 20.0, 00.0),
@@ -441,9 +441,9 @@ bool ImportGeoTest( const std::string& pFile) {
 
         for (int f = 0; f < mesh->mNumFaces; f++) {
             for (int i = 0; i < mesh->mFaces->mNumIndices; i++) {
-                int faceIndex = mesh->mFaces[f].mIndices[i];
+                int face_index = mesh->mFaces[f].mIndices[i];
 
-                test_geo.push_back(glm::vec3(mesh->mVertices[faceIndex].x, mesh->mVertices[faceIndex].y, mesh->mVertices[faceIndex].z) * import_scale_factor);
+                test_geo.push_back(glm::vec3(mesh->mVertices[face_index].x, mesh->mVertices[face_index].y, mesh->mVertices[face_index].z) * import_scale_factor);
             }
         }
     }
@@ -487,6 +487,10 @@ void Update() {
     // - When imgui_io.WantCaptureKeyboard is true, do not dispatch keyboard input data to your main application.
     // Generally you may always pass all inputs to dear imgui, and hide them from your application based on those two flags.
     glfwPollEvents();
+
+    glEnable(GL_DEPTH_TEST); // Enable depth-testing
+    glDepthFunc(GL_LESS); // Depth-testing interprets a smaller value as "closer"
+    glEnable(GL_CULL_FACE);
 
     for (const auto& v : (*viewports)) {
         v->Update(delta_t);
@@ -533,9 +537,6 @@ void Update() {
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
     glfwSwapBuffers(glfw_window);
 
-    int xpos, ypos;
-    glfwGetWindowPos(glfw_window, &xpos, &ypos);
-
     // Update and Render additional Platform Windows
     if (imgui_io->ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
     {
@@ -547,7 +548,7 @@ void Update() {
 int main(int argc, const char* argv[]) { // NOLINT: main function.
     puts("Launching Program");
 
-    std::srand(time(NULL));
+    std::srand(time(nullptr));
 
     if (!SetupGLFW()) {
         return -1;
@@ -565,8 +566,7 @@ int main(int argc, const char* argv[]) { // NOLINT: main function.
     }
 
     // Main loop
-    while (!glfwWindowShouldClose(glfw_window))
-    {
+    while (!glfwWindowShouldClose(glfw_window)) {
         Update();
     }
 

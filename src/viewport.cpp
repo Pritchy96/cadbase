@@ -48,39 +48,7 @@ Viewport::Viewport(GLFWwindow *window, glm::vec3 background_col, int window_widt
 	// TODO: load these once, keep in static file?
 	basic_shader = shader::LoadShaders((char*)"./shaders/basic_camera.vertshader", (char*)"./shaders/basic_camera.fragshader");
 
-    // Framebuffer config
-    // TODO: can we make a single fbo and then when iterating through each viewport, bind the texture and draw to it.
-    // As opposed to making many fbo's with the texture permanently bound here.
-    glGenFramebuffers(1, &fbo); // Generate fbo
-    glBindFramebuffer(GL_FRAMEBUFFER, fbo); // Bind fbo to config it
-
-    // Create and bind a colour attatchment texture
-    glGenTextures(1, &texture);
-    glBindTexture(GL_TEXTURE_2D, texture);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1000, 1000, 0, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, nullptr); // Setup empty texture
-
-    // Poor filtering. Needed
-   	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture, 0);
-
-    // GLuint depthrenderbuffer;
-    // glGenRenderbuffers(1, &depthrenderbuffer);
-    
-    // // Depth buffer
-    // glBindRenderbuffer(GL_RENDERBUFFER, depthrenderbuffer);
-    // glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, 500, 500);
-    // glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthrenderbuffer);
-
-    // Check that framebuffer is ok
-    // TODO throw error!
-    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-        puts("Error: Framebuffer not ok!");
-    }
-
-    // Unbind framebuffer (bind default)
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    SetupFBO();
 
     render_axis = make_shared<Geometry>(AXIS_LINES, AXIS_COLOURS);
 	// TODO: better to have a GeoList in the viewport with just (this) in it's renderable list?
@@ -96,17 +64,13 @@ void Viewport::SetupTransformShader(GLuint transformShader) {
 }
 
 void Viewport::Update(double deltaTime) {
-	glPolygonMode(render_face, render_mode);
-    // Render opengl window to texture
-    glEnable(GL_DEPTH_TEST); // enable depth-testing
-    glEnable(GL_CULL_FACE);
-    glDepthFunc(GL_LESS); // depth-testing interprets a smaller value as "closer"
-
     glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 
-    glViewport(0, 0, 1000, 1000);
+    glViewport(0, 0, WIDTH, HEIGHT);
     glClearColor(background_colour.r, background_colour.g, background_colour.b, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	glPolygonMode(render_face, render_mode);
 
     auto geo_renderable = geo_renderable_pairs.begin();
 
@@ -137,6 +101,90 @@ void Viewport::Update(double deltaTime) {
 
     // Bind default framebuffer again.
     glBindVertexArray(0);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+void Viewport::SetupFBO() {
+    //Colour texture
+	glGenTextures(1, &colour_texture);
+	glBindTexture(GL_TEXTURE_2D, colour_texture);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, WIDTH, HEIGHT, 0, GL_RGBA,GL_UNSIGNED_BYTE , 0);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+    // Depth texture - Slower than depth buffer, but can sample it later in shader
+    // TODO: If we don't end up using this texture and neeed a fps boost, we can change this to a buffer
+	glGenTextures(1, &depth_texture);
+	glBindTexture(GL_TEXTURE_2D, depth_texture);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, WIDTH, HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	glGenFramebuffers(1, &fbo);
+	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+
+    //Attach textures to FBO context.
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, colour_texture, 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depth_texture, 0);
+
+    // Check that framebuffer is ok
+    CheckFramebufferStatus(fbo);
+
+    // Unbind framebuffer (bind default)
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+bool Viewport::CheckFramebufferStatus(GLuint fbo) {
+    // check FBO status
+    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+
+    switch(glCheckFramebufferStatus(GL_FRAMEBUFFER))  {
+        case GL_FRAMEBUFFER_COMPLETE:
+            std::cout << "Framebuffer complete." << std::endl;
+            return true;
+
+        case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:
+            std::cout << "[ERROR] Framebuffer incomplete: Attachment is NOT complete." << std::endl;
+            return false;
+
+        case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT:
+            std::cout << "[ERROR] Framebuffer incomplete: No image is attached to FBO." << std::endl;
+            return false;
+        /*
+        case GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS:
+            std::cout << "[ERROR] Framebuffer incomplete: Attached images have different dimensions." << std::endl;
+            return false;
+
+        case GL_FRAMEBUFFER_INCOMPLETE_FORMATS:
+            std::cout << "[ERROR] Framebuffer incomplete: Color attached images have different internal formats." << std::endl;
+            return false;
+        */
+        case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER:
+            std::cout << "[ERROR] Framebuffer incomplete: Draw buffer." << std::endl;
+            return false;
+
+        case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER:
+            std::cout << "[ERROR] Framebuffer incomplete: Read buffer." << std::endl;
+            return false;
+
+        case GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE:
+            std::cout << "[ERROR] Framebuffer incomplete: Multisample." << std::endl;
+            return false;
+
+        case GL_FRAMEBUFFER_UNSUPPORTED:
+            std::cout << "[ERROR] Framebuffer incomplete: Unsupported by FBO implementation." << std::endl;
+            return false;
+
+        default:
+            std::cout << "[ERROR] Framebuffer incomplete: Unknown error." << std::endl;
+            return false;
+    }
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 

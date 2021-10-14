@@ -181,7 +181,7 @@ void GuiRenderWindow::Draw(double deltaTime) {
     window_size_ = ImGui::GetWindowSize();
 
     // Because we use the texture from OpenGL, we need to invert the V from the UV.
-    ImGui::Image((ImTextureID)viewport_->texture, window_size_, ImVec2(0, 1), ImVec2(1, 0));
+    ImGui::Image((ImTextureID)viewport_->colour_texture, window_size_, ImVec2(0, 1), ImVec2(1, 0));
 
     HandleIO();
 
