@@ -32,8 +32,8 @@ glm::mat4 Camera::GetDistanceMatrix() {
     return {
         glm::vec4(1.0f, 0.0f, 0.0f, 0.0f),  //Left //TODO: replace this with a stored left/up?
         glm::vec4(0.0f, 0.0f, 1.0f, 0.0f),     //Up
-        glm::vec4(glm::normalize(glm::vec3(0.0f, zoom_, 0.0f)), 0.0f), //Forward
-        glm::vec4(glm::vec3(0.0f, zoom_, 0.0f), 1.0f) //Position
+        glm::vec4(glm::normalize(glm::vec3(0.0f, -zoom_, 0.0f)), 0.0f), //Forward
+        glm::vec4(glm::vec3(0.0f, -zoom_, 0.0f), 1.0f) //Position
     };
 }
 

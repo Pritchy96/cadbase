@@ -1,6 +1,8 @@
 #ifndef CAMERA_HPP
 #define CAMERA_HPP
 
+#include <cmath>
+#include <glm/common.hpp>
 #include <imgui.h>
 #include <glm/fwd.hpp>
 #include <glm/geometric.hpp>
@@ -51,6 +53,12 @@
                 matrix_needs_update = true;
             }
 
+            void MoveTarget(glm::vec3 delta) {
+                target_ += delta;
+                matrix_needs_update = true;
+            }
+
+
             glm::vec3 GetTarget() {
                 return target_;
             }
@@ -61,7 +69,7 @@
             }
 
             void SetZoom(float zoom) {
-                zoom_ = zoom;
+                zoom_ = std::fmax(zoom, 1.0f);
                 matrix_needs_update = true;
             }
 

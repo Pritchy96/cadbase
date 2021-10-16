@@ -115,10 +115,13 @@ void GuiRenderWindow::HandleIO() {
         || clicked_on_image[ImGuiMouseButton_Middle] 
         || clicked_on_image[ImGuiMouseButton_Right]);
 
+
+    //Zoom
     if ((image_hovered || viewport_has_focus) && io.MouseWheel != 0) {
         viewport_->camera->SetZoom(viewport_->camera->GetZoom() + io.MouseWheel);
     }
 
+    //Rotate
     if(ImGui::IsMouseDragging(ImGuiMouseButton_Left)) {
         //Allow for mouse dragging outside of the render window once clicked & held.
         if(viewport_has_focus && mouse_pos != mouse_pos_last) {
@@ -134,11 +137,11 @@ void GuiRenderWindow::HandleIO() {
             //Apply this multiplication to the pre-existing rotation applied when generating the view matrix. 
             viewport_->camera->SetRotation(glm::rotate(viewport_->camera->GetRotation(), angle, cross_vector));
         }
+
+    //Pan
     } else if (ImGui::IsMouseDragging(ImGuiMouseButton_Middle)) {
         if (viewport_has_focus) {
-            //TODO: probably should add a 'MoveTarget' function to stop this blah.setblah(blah.getblah + x)
-            viewport_->camera->SetTarget(viewport_->camera->GetTarget() 
-                + glm::vec3(viewport_->camera->GetCameraTransform() * glm::vec4(mouse_delta.x/arcball_pan_sensitivity, -mouse_delta.y/arcball_pan_sensitivity, 0.0f, 0.0f)));
+            viewport_->camera->MoveTarget(glm::vec3(viewport_->camera->GetCameraTransform() * glm::vec4(mouse_delta.x/arcball_pan_sensitivity, -mouse_delta.y/arcball_pan_sensitivity, 0.0f, 0.0f)));
         }
     }
 
