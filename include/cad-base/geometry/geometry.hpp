@@ -2,7 +2,8 @@
 #define GEOMETRY_HPP
 
     // #include "stdafx.h"
-    #include <vector>
+    #include <glm/fwd.hpp>
+#include <vector>
     #include <GL/glew.h>
     #include <GLFW/glfw3.h>
     #define GLM_ENABLE_EXPERIMENTAL
@@ -15,13 +16,26 @@
     class Geometry {
         public:
             Geometry() = default;
-            explicit Geometry(std::vector<glm::vec3> vert_data);
-            Geometry(std::vector<glm::vec3> vert_data, std::vector<glm::vec3> colour_data);
+            explicit Geometry(std::vector<glm::vec3> vert_data, glm::vec3 origin = glm::vec3(0.0f));
+            Geometry(std::vector<glm::vec3> vert_data, std::vector<glm::vec3> colour_data, glm::vec3 origin = glm::vec3(0.0f));
 
             void Update(double deltaT);
 
+            glm::vec3 GetOrigin() { return origin_; }
+
+            void SetOrigin(glm::vec3 new_origin) {
+                origin_ = new_origin;
+                buffers_invalid = true;
+            }
+
+            void MoveOrigin(glm::vec3 delta) {
+                origin_ += delta;
+                buffers_invalid = true;
+            }
+
             virtual ~Geometry() = default;
             virtual int GenerateFlatBuffers();
+
 
             // TODO: replace these with accessors into flatverts.
             std::vector<glm::vec3> vertexes, colours;
@@ -37,5 +51,7 @@
             bool is_dead = false;
 
             AABoundingBox aa_bounding_box;  
+        private:
+            glm::vec3 origin_ = glm::vec3(0.0f); //Offsets the geometry.
     };
 #endif

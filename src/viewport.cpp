@@ -51,11 +51,9 @@ Viewport::Viewport(GLFWwindow *window, glm::vec3 background_col, int window_widt
     SetupFBO();
 
     render_axis = make_shared<Geometry>(AXIS_LINES, AXIS_COLOURS);
-	// TODO: better to have a GeoList in the viewport with just (this) in it's renderable list?
 	viewport_geo_renderable_pairs.emplace_back(render_axis, make_unique<Renderable>(basic_shader, render_axis, GL_LINES));
 
     grid = make_shared<ViewportGrid>(50, 50, 20, 20, glm::vec3(0.3f, 0.3f, 0.3f), basic_shader);
-	// TODO: better to have a GeoList in the viewport with just (this) in it's renderable list?
 	viewport_geo_renderable_pairs.emplace_back(grid, make_unique<Renderable>(basic_shader, grid, GL_LINES));
 }
 
