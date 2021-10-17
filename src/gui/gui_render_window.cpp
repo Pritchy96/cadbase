@@ -160,15 +160,12 @@ void GuiRenderWindow::HandleIO() {
             mouse_world_pos /= mouse_world_pos.w;
             glm::vec3 ray_dir = glm::normalize(glm::vec3(mouse_world_pos));
 
-            std::vector<glm::vec3> line;
-            line.emplace_back(camera_pos);
-            line.emplace_back(camera_pos + (ray_dir * 10000.0f));
-            std::shared_ptr<Geometry> line_geo = std::make_shared<Geometry>(line, line);
-            viewport_->viewport_geo_renderable_pairs.emplace_back(line_geo, std::make_unique<Renderable>(viewport_->basic_shader, line_geo, GL_LINES));
-                    
-            std::cout << "Mouse Homo Coords: " << glm::to_string(mouse_homo) << std::endl;
-            std::cout << "Camera Position: " << glm::to_string(camera_pos) << std::endl;
-            std::cout << "Ray Direction: " << glm::to_string(ray_dir) << std::endl;
+            // Debug: draw raycast lines
+            // std::vector<glm::vec3> line;
+            // line.emplace_back(camera_pos);
+            // line.emplace_back(camera_pos + (ray_dir * 10000.0f));
+            // std::shared_ptr<Geometry> line_geo = std::make_shared<Geometry>(line, line);
+            // viewport_->viewport_geo_renderable_pairs.emplace_back(line_geo, std::make_unique<Renderable>(viewport_->basic_shader, line_geo, GL_LINES));
 
             for (const auto& grp : viewport_->master_geo_renderable_pairs) {
                 grp.second->draw_aa_bounding_box = RayCubeIntersection(camera_pos, ray_dir, {grp.first->aa_bounding_box.min, grp.first->aa_bounding_box.max});
