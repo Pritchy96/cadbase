@@ -54,10 +54,7 @@ unique_ptr<ImGuiIO> imgui_io;
 GLFWwindow* glfw_window;
 
 unique_ptr<GeometryList> master_geometry;
-shared_ptr<Geometry> loaded_geometry;
 
-// TODO: Do we still need this to be a shared ptr to a vector? What was the reasoning for this?
-// Geometry_list needs this list to add and remove geo from them.
 // TODO: We may wish to rename 'Viewport' as IMGUI now has such a concept.
 shared_ptr<vector<shared_ptr<Viewport>>> viewports;
 
@@ -434,7 +431,7 @@ bool ImportGeoTest( const std::string& pFile) {
     }
 
     vector<vec3> test_geo;
-    float import_scale_factor = 0.05f;
+    float import_scale_factor = 1.0f;
 
     for (int m = 0; m < scene->mNumMeshes; m++) {
         aiMesh* mesh =  scene->mMeshes[m];
@@ -448,14 +445,7 @@ bool ImportGeoTest( const std::string& pFile) {
         }
     }
 
-    //Unload old geo.
-    if (loaded_geometry != nullptr) {
-        loaded_geometry->is_dead = true;
-        loaded_geometry = nullptr;
-    }
-
-	master_geometry->push_back(make_shared<Geometry>(test_geo));
-
+	master_geometry->push_back(make_shared<Geometry>(test_geo, glm::vec3((rand() % 1000) - 500, (rand() % 1000) - 500, (rand() % 1000) - 500)));
     return true;
 }
 
@@ -472,7 +462,9 @@ void SetupTestGeo() {
 	// master_geometry->push_back(make_shared<Geometry>(TEST_TRIANGLE_VERTS, TEST_TRIANGLE_COLS));
 	// master_geometry->push_back(make_shared<Geometry>(test_data_lines, test_data_lines));
 
-    ImportGeoTest("/home/tom/git/cad-base/thirdparty/assimp/test/models/Q3D/E-AT-AT.q3o");
+    for (int i = 0; i < 10; i++) {
+        ImportGeoTest("/home/tom/git/cad-base/thirdparty/assimp/test/models/OBJ/spider.obj");
+    }
 }
 
 void Update() {
