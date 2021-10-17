@@ -9,19 +9,19 @@ using glm::mat4;
 
 Camera::Camera(vec3 initial_target, float initial_zoom) 
     :   initial_target_(initial_target), target_(initial_target), initial_zoom_(initial_zoom), zoom_(initial_zoom), initial_rotation_(glm::mat4(1.0f)), rotation_(glm::mat4(1.0f)) {
-    SetProjection(false);
+    SetProjectionStyle(false);
 
     //TODO: Construct an initial rotation from position + target parameter.
     view_matrix_ = GetViewMatrix();
 }
 
-void Camera::SetProjection(bool ortho_not_perspective_camera) {
+void Camera::SetProjectionStyle(bool ortho_not_perspective_camera) {
     ortho_not_perspective_ = ortho_not_perspective_camera;
     if (ortho_not_perspective_) {
         // TODO: make these externally modifiable, regenerate matrix when i.e FoV is changed.
-        projection_matrix = glm::ortho(ortho_left_, ortho_right_, ortho_bottom_, ortho_top_, z_near_, z_far_);
+        projection_matrix_ = glm::ortho(ortho_left_, ortho_right_, ortho_bottom_, ortho_top_, z_near_, z_far_);
     } else {
-        projection_matrix = glm::perspective(fov_, aspect_ratio_, z_near_, z_far_);
+        projection_matrix_ = glm::perspective(fov_, aspect_ratio_, z_near_, z_far_);
     }
 }
 
@@ -38,10 +38,10 @@ glm::mat4 Camera::GetDistanceMatrix() {
 }
 
  glm::mat4 Camera::GetViewMatrix() {
-     if (matrix_needs_update) {
+     if (view_matrix_needs_update_) {
         camera_transform_ = glm::translate(target_) * (rotation_ * GetDistanceMatrix());
         view_matrix_ = glm::inverse(camera_transform_);
-        matrix_needs_update = false;
+        view_matrix_needs_update_ = false;
     }
 
     return view_matrix_;

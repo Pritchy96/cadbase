@@ -1,7 +1,9 @@
 #include "cad-base/gui/gui_render_window.hpp"
 #include "imgui_internal.h"
 
+#include <array>
 #include <cmath>
+#include <cstdio>
 #include <glm/ext/quaternion_trigonometric.hpp>
 #include <glm/fwd.hpp>
 #include <glm/gtx/dual_quaternion.hpp>
@@ -23,6 +25,7 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
+#include <vector>
 
 GuiRenderWindow::GuiRenderWindow(std::string name, GLFWwindow* glfw_window, std::shared_ptr<Viewport> viewport) : GuiBase(name, glfw_window), viewport_(viewport) {
     arcball_rotate_sensitivity = ARCBALL_ROTATE_SENSITIVITY_INITIAL;
@@ -52,19 +55,19 @@ void GuiRenderWindow::DrawRenderWindowSettings(double deltaTime) {
         ImGui::Text("Render Style:");
 
         if (ImGui::RadioButton("Orthogonal", &ortho_not_persp, 0)) {
-            viewport_->camera->SetProjection(true);
+            viewport_->camera->SetProjectionStyle(true);
         }
         
         ImGui::SameLine();
         
         if (ImGui::RadioButton("Perspective", &ortho_not_persp, 1)) {
-            viewport_->camera->SetProjection(false);
+            viewport_->camera->SetProjectionStyle(false);
         }
 
         ImGui::Separator();
         ImGui::Checkbox("Show Grid", &viewport_->grid->draw_geometry);
         ImGui::Checkbox("Show Render Axis", &viewport_->render_axis->draw_geometry);
-        ImGui::Checkbox("Show Bounding Boxes", &viewport_->geo_renderable_pairs.back().second->draw_aa_bounding_box);   //TODO: loop through all non axis/grid geo and set to true.
+        ImGui::Checkbox("Show Bounding Boxes", &viewport_->master_geo_renderable_pairs.back().second->draw_aa_bounding_box);
         
         ImGui::Separator();
         if (ImGui::Button("Reset Pan")) {
@@ -122,7 +125,7 @@ void GuiRenderWindow::HandleIO() {
     }
 
     //Rotate
-    if(ImGui::IsMouseDragging(ImGuiMouseButton_Left)) {
+    if(ImGui::IsMouseDragging(ImGuiMouseButton_Right)) {
         //Allow for mouse dragging outside of the render window once clicked & held.
         if(viewport_has_focus && mouse_pos != mouse_pos_last) {
             glm::vec3 last_pos_vec = GetArcballVector(mouse_pos_last, glm::vec2(window_size_.x, window_size_.y));
@@ -143,6 +146,31 @@ void GuiRenderWindow::HandleIO() {
         if (viewport_has_focus) {
             viewport_->camera->MoveTarget(glm::vec3(viewport_->camera->GetCameraTransform() * glm::vec4(mouse_delta.x/arcball_pan_sensitivity, -mouse_delta.y/arcball_pan_sensitivity, 0.0f, 0.0f)));
         }
+
+    } else if (ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {  //Object Selection
+        if (image_hovered) {
+            //Convert mouse pos to homogenous coordinates (-1 to 1)
+            //We currently have z set as up, so we need to find y (examples generally have x, y and find z)
+            glm::vec2 mouse_homo = glm::vec2(((mouse_pos.x/(window_size_.x) * 2.0f) - 1.0f), ((mouse_pos.y/(window_size_.y) * 2.0f) - 1.0f));  //NOLINT - not magic numbers just basic math
+            glm::mat4 to_world =   glm::inverse(viewport_->camera->GetProjectionMatrix() * viewport_->camera->GetViewMatrix());
+
+            glm::vec3 camera_pos = viewport_->camera->GetCameraTransform()[3];
+
+            glm::vec4 mouse_world_pos = to_world * glm::vec4(mouse_homo.x, -mouse_homo.y, 1.0f, 1.0f);
+            mouse_world_pos /= mouse_world_pos.w;
+            glm::vec3 ray_dir = glm::normalize(glm::vec3(mouse_world_pos));
+
+            // Debug: draw raycast lines
+            // std::vector<glm::vec3> line;
+            // line.emplace_back(camera_pos);
+            // line.emplace_back(camera_pos + (ray_dir * 10000.0f));
+            // std::shared_ptr<Geometry> line_geo = std::make_shared<Geometry>(line, line);
+            // viewport_->viewport_geo_renderable_pairs.emplace_back(line_geo, std::make_unique<Renderable>(viewport_->basic_shader, line_geo, GL_LINES));
+
+            for (const auto& grp : viewport_->master_geo_renderable_pairs) {
+                grp.second->draw_aa_bounding_box = RayCubeIntersection(camera_pos, ray_dir, {grp.first->aa_bounding_box.min, grp.first->aa_bounding_box.max});
+            }
+        }
     }
 
     for (int i = 0; i < 5; i++) {
@@ -154,6 +182,48 @@ void GuiRenderWindow::HandleIO() {
     if(ImGui::IsMouseReleased(ImGuiMouseButton_Left)) {
         viewport_has_focus = false;
     }
+}
+
+//TODO: Move (into static raycasting util class?)
+bool GuiRenderWindow::RayCubeIntersection(glm::vec3 rayOrigin, glm::vec3 rayDirection, std::array<glm::vec3, 2> boxBounds) {
+    glm::vec3 ray_direction_inv = 1.0f / rayDirection;  //Using the inverse of the ray direction allows for avoidance of some divide-by-zero issues.
+    std::array<int, 3> sign;    //We can use the sign of each ray direction component to select the min or max box bound.
+
+    sign[0] = (ray_direction_inv.x < 0) ? 1 : 0; 
+    sign[1] = (ray_direction_inv.y < 0) ? 1 : 0; 
+    sign[2] = (ray_direction_inv.z < 0) ? 1 : 0; 
+
+    float tmin, tmax, tymin, tymax, tzmin, tzmax; //NOLINT: multiple declarations.
+ 
+    tmin = (boxBounds[sign[0]].x - rayOrigin.x) * ray_direction_inv.x; 
+    tmax = (boxBounds[1 - sign[0]].x - rayOrigin.x) * ray_direction_inv.x; 
+    tymin = (boxBounds[sign[1]].y - rayOrigin.y) * ray_direction_inv.y; 
+    tymax = (boxBounds[1 - sign[1]].y - rayOrigin.y) * ray_direction_inv.y; 
+ 
+    if ((tmin > tymax) || (tymin > tmax)) { 
+        return false; 
+    }
+    if (tymin > tmin) { 
+        tmin = tymin; 
+    }
+    if (tymax < tmax) { 
+        tmax = tymax; 
+    }
+ 
+    tzmin = (boxBounds[sign[2]].z - rayOrigin.z) * ray_direction_inv.z; 
+    tzmax = (boxBounds[1 - sign[2]].z - rayOrigin.z) * ray_direction_inv.z; 
+ 
+    if ((tmin > tzmax) || (tzmin > tmax)) { 
+        return false; 
+    }
+    if (tzmin > tmin) { 
+        tmin = tzmin; 
+    }
+    if (tzmax < tmax) { 
+        tmax = tzmax; 
+    }
+ 
+    return true; 
 }
 
 glm::vec3 GuiRenderWindow::GetArcballVector(glm::vec2 screen_pos, glm::vec2 screen_size) {

@@ -454,8 +454,7 @@ bool ImportGeoTest( const std::string& pFile) {
         loaded_geometry = nullptr;
     }
 
-    loaded_geometry = make_shared<Geometry>(test_geo);
-	master_geometry->push_back(loaded_geometry);
+	master_geometry->push_back(make_shared<Geometry>(test_geo));
 
     return true;
 }

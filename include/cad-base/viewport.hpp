@@ -44,7 +44,9 @@
 
             // TODO: most of these can be made private.
             GLFWwindow *glfw_window;
-            std::vector<std::pair<std::shared_ptr<Geometry>, std::shared_ptr<Renderable>>> geo_renderable_pairs;
+            std::vector<std::pair<std::shared_ptr<Geometry>, std::shared_ptr<Renderable>>> master_geo_renderable_pairs;
+            //Viewport specific stuff that doesn't need i.e selecting etc.
+            std::vector<std::pair<std::shared_ptr<Geometry>, std::shared_ptr<Renderable>>> viewport_geo_renderable_pairs;
 
             GLuint t_shader;      
             GLuint shader_id;    
