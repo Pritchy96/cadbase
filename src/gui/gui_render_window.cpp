@@ -1,6 +1,7 @@
 #include "cad-base/gui/gui_render_window.hpp"
 #include "imgui_internal.h"
 
+#include <array>
 #include <cmath>
 #include <cstdio>
 #include <glm/ext/quaternion_trigonometric.hpp>
@@ -170,10 +171,7 @@ void GuiRenderWindow::HandleIO() {
             std::cout << "Ray Direction: " << glm::to_string(ray_dir) << std::endl;
 
             for (const auto& grp : viewport_->master_geo_renderable_pairs) {
-                glm::vec3 min = grp.first->aa_bounding_box.min;
-                glm::vec3 max = grp.first->aa_bounding_box.max;
-
-                grp.second->draw_aa_bounding_box = RayCubeIntersection(camera_pos, ray_dir, min, max);
+                grp.second->draw_aa_bounding_box = RayCubeIntersection(camera_pos, ray_dir, {grp.first->aa_bounding_box.min, grp.first->aa_bounding_box.max});
             }
         }
     }
@@ -189,40 +187,44 @@ void GuiRenderWindow::HandleIO() {
     }
 }
 
-//TODO: Obviously, temporary.
-bool GuiRenderWindow::RayCubeIntersection(glm::vec3 rayOrigin, glm::vec3 rayDirection, glm::vec3 boxMin, glm::vec3 boxMax) {
-    float tmin = (boxMin.x - rayOrigin.x) / rayDirection.x; 
-    float tmax = (boxMax.x - rayOrigin.x) / rayDirection.x; 
+//TODO: Move (into static raycasting util class?)
+bool GuiRenderWindow::RayCubeIntersection(glm::vec3 rayOrigin, glm::vec3 rayDirection, std::array<glm::vec3, 2> boxBounds) {
+    glm::vec3 ray_direction_inv = 1.0f / rayDirection;  //Using the inverse of the ray direction allows for avoidance of some divide-by-zero issues.
+    std::array<int, 3> sign;    //We can use the sign of each ray direction component to select the min or max box bound.
+
+    sign[0] = (ray_direction_inv.x < 0) ? 1 : 0; 
+    sign[1] = (ray_direction_inv.y < 0) ? 1 : 0; 
+    sign[2] = (ray_direction_inv.z < 0) ? 1 : 0; 
+
+    float tmin, tmax, tymin, tymax, tzmin, tzmax; //NOLINT: multiple declarations.
  
-    if (tmin > tmax) { std::swap(tmin, tmax); }
+    tmin = (boxBounds[sign[0]].x - rayOrigin.x) * ray_direction_inv.x; 
+    tmax = (boxBounds[1 - sign[0]].x - rayOrigin.x) * ray_direction_inv.x; 
+    tymin = (boxBounds[sign[1]].y - rayOrigin.y) * ray_direction_inv.y; 
+    tymax = (boxBounds[1 - sign[1]].y - rayOrigin.y) * ray_direction_inv.y; 
  
-    float tymin = (boxMin.y - rayOrigin.y) / rayDirection.y; 
-    float tymax = (boxMax.y - rayOrigin.y) / rayDirection.y; 
- 
-    if (tymin > tymax) std::swap(tymin, tymax); 
- 
-    if ((tmin > tymax) || (tymin > tmax)) 
+    if ((tmin > tymax) || (tymin > tmax)) { 
         return false; 
- 
-    if (tymin > tmin) 
+    }
+    if (tymin > tmin) { 
         tmin = tymin; 
- 
-    if (tymax < tmax) 
+    }
+    if (tymax < tmax) { 
         tmax = tymax; 
+    }
  
-    float tzmin = (boxMin.z - rayOrigin.z) / rayDirection.z; 
-    float tzmax = (boxMax.z - rayOrigin.z) / rayDirection.z; 
+    tzmin = (boxBounds[sign[2]].z - rayOrigin.z) * ray_direction_inv.z; 
+    tzmax = (boxBounds[1 - sign[2]].z - rayOrigin.z) * ray_direction_inv.z; 
  
-    if (tzmin > tzmax) std::swap(tzmin, tzmax); 
- 
-    if ((tmin > tzmax) || (tzmin > tmax)) 
+    if ((tmin > tzmax) || (tzmin > tmax)) { 
         return false; 
- 
-    if (tzmin > tmin) 
+    }
+    if (tzmin > tmin) { 
         tmin = tzmin; 
- 
-    if (tzmax < tmax) 
+    }
+    if (tzmax < tmax) { 
         tmax = tzmax; 
+    }
  
     return true; 
 }

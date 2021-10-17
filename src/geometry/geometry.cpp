@@ -25,9 +25,6 @@ void Geometry::Update(double deltaT) {
 }
 
 int Geometry::GenerateFlatBuffers() {
-	aa_bounding_box.max = vertexes[0];
-	aa_bounding_box.min = vertexes[0];
-
 	for (auto vertex : vertexes) {
 		flat_verts.push_back(vertex.x);
 		flat_verts.push_back(vertex.y);
