@@ -22,21 +22,17 @@
             Camera(glm::vec3 initial_target, float initial_zoom);
             ~Camera();
 
-            glm::mat4 projection_matrix;
-
-            void SetProjection(bool ortho_not_perspective_camera);
-            bool GetProjection() const { return ortho_not_perspective_; }
-
+            void SetProjectionStyle(bool ortho_not_perspective_camera);
+            bool GetProjectionStyle() const { return ortho_not_perspective_; }
 
             glm::mat4 GetDistanceMatrix();
-
             glm::mat4 GetViewMatrix();
+            glm::mat4 GetProjectionMatrix() { return projection_matrix_; }
 
-            bool matrix_needs_update = true;
 
             void SetRotation(glm::mat4 rotation) {
                 rotation_ = rotation;
-                matrix_needs_update = true;
+                view_matrix_needs_update_ = true;
             }
 
             glm::mat4 GetRotation() {
@@ -45,19 +41,18 @@
 
             void ResetRotation() {
                 rotation_ = initial_rotation_;
-                matrix_needs_update = true;
+                view_matrix_needs_update_ = true;
             }  
 
             void SetTarget(glm::vec3 target) {
                 target_ = target;
-                matrix_needs_update = true;
+                view_matrix_needs_update_ = true;
             }
 
             void MoveTarget(glm::vec3 delta) {
                 target_ += delta;
-                matrix_needs_update = true;
+                view_matrix_needs_update_ = true;
             }
-
 
             glm::vec3 GetTarget() {
                 return target_;
@@ -65,12 +60,12 @@
 
             void ResetTarget() {
                 target_ = initial_target_;
-                matrix_needs_update = true;
+                view_matrix_needs_update_ = true;
             }
 
             void SetZoom(float zoom) {
                 zoom_ = std::fmax(zoom, 1.0f);
-                matrix_needs_update = true;
+                view_matrix_needs_update_ = true;
             }
 
             float GetZoom() const {
@@ -79,7 +74,7 @@
 
             void ResetZoom() {
                 zoom_ = initial_zoom_;
-                matrix_needs_update = true;
+                view_matrix_needs_update_ = true;
             }            
 
             glm::mat4 GetCameraTransform() {
@@ -95,8 +90,12 @@
 
             glm::mat4 initial_rotation_, rotation_;
 
+            bool view_matrix_needs_update_ = true;
+
             glm::mat4 view_matrix_;
             glm::mat4 camera_transform_;    //inverse of the View matrix, stored here so we don't need to recalculate it.
+
+            glm::mat4 projection_matrix_;
 
             const float INITIAL_FOV = 90.0f, INITIAL_ASPECT_RATIO = 4.0f/3.0f, INITIAL_Z_NEAR = 1.0f, INITIAL_Z_FAR = 10000.0f, 
                 INITIAL_ORTHO_LEFT = -300.0f, INITIAL_ORTHO_RIGHT = 300.0f, INITIAL_ORTHO_BOTTOM = -300.0f, INITIAL_ORTHO_TOP = 300.0f;

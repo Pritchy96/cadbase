@@ -29,6 +29,7 @@ class GuiRenderWindow : GuiBase {
             void Draw(double deltaTime) override;
             void DrawRenderWindowSettings(double deltaTime);
             glm::vec3 GetArcballVector(glm::vec2 screen_pos, glm::vec2 screen_size);
+            bool RayCubeIntersection(glm::vec3 rayOrigin, glm::vec3 rayDirection, glm::vec3 boxMin, glm::vec3 boxMax);
         private:   
             std::shared_ptr<Viewport> viewport_;   
             ImVec2 window_size_;

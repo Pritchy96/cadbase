@@ -52,11 +52,11 @@ Viewport::Viewport(GLFWwindow *window, glm::vec3 background_col, int window_widt
 
     render_axis = make_shared<Geometry>(AXIS_LINES, AXIS_COLOURS);
 	// TODO: better to have a GeoList in the viewport with just (this) in it's renderable list?
-	geo_renderable_pairs.emplace_back(render_axis, make_unique<Renderable>(basic_shader, render_axis, GL_LINES));
+	viewport_geo_renderable_pairs.emplace_back(render_axis, make_unique<Renderable>(basic_shader, render_axis, GL_LINES));
 
     grid = make_shared<ViewportGrid>(50, 50, 20, 20, glm::vec3(0.3f, 0.3f, 0.3f), basic_shader);
 	// TODO: better to have a GeoList in the viewport with just (this) in it's renderable list?
-	geo_renderable_pairs.emplace_back(grid, make_unique<Renderable>(basic_shader, grid, GL_LINES));
+	viewport_geo_renderable_pairs.emplace_back(grid, make_unique<Renderable>(basic_shader, grid, GL_LINES));
 }
 
 void Viewport::SetupTransformShader(GLuint transformShader) {
@@ -72,13 +72,14 @@ void Viewport::Update(double deltaTime) {
 
 	glPolygonMode(render_face, render_mode);
 
-    auto geo_renderable = geo_renderable_pairs.begin();
+    //Render master Geo.
+    auto geo_renderable = master_geo_renderable_pairs.begin();
 
-    while(geo_renderable != geo_renderable_pairs.end()) {
+    while(geo_renderable != master_geo_renderable_pairs.end()) {
         // Geo is dead, nuke the map link
         if (geo_renderable->first->is_dead) {
             // iterator.erase gives the next item in the list.
-            geo_renderable = geo_renderable_pairs.erase(geo_renderable);
+            geo_renderable = master_geo_renderable_pairs.erase(geo_renderable);
             continue;
         }
 
@@ -95,7 +96,35 @@ void Viewport::Update(double deltaTime) {
             renderable->valid_geometry_vao = false;
         }
 
-        renderable->Draw(deltaTime, camera->projection_matrix, camera->GetViewMatrix());
+        renderable->Draw(deltaTime, camera->GetProjectionMatrix(), camera->GetViewMatrix());
+        ++geo_renderable;
+    }
+
+    //Render viewport specific stuff.
+    geo_renderable = viewport_geo_renderable_pairs.begin();
+
+    while(geo_renderable != viewport_geo_renderable_pairs.end()) {
+        // Geo is dead, nuke the map link
+        if (geo_renderable->first->is_dead) {
+            // iterator.erase gives the next item in the list.
+            geo_renderable = viewport_geo_renderable_pairs.erase(geo_renderable);
+            continue;
+        }
+
+        if (geo_renderable->second == nullptr) {
+            // Renderable for geo doesn't exist, make one.
+            // TODO: Some logic to choose a render type? (currently default to GL_TRIANGLES)
+            geo_renderable->second = make_unique<Renderable>(basic_shader, geo_renderable->first, GL_TRIANGLES);
+        }
+
+        shared_ptr<Geometry> geometry = geo_renderable->first;
+        shared_ptr<Renderable> renderable = geo_renderable->second;
+
+        if (geometry->buffers_invalid) {
+            renderable->valid_geometry_vao = false;
+        }
+
+        renderable->Draw(deltaTime, camera->GetProjectionMatrix(), camera->GetViewMatrix());
         ++geo_renderable;
     }
 

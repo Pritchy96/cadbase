@@ -18,7 +18,7 @@
                 geometry_list.push_back(geometry);
             
                 for (const std::shared_ptr<Viewport>& v : *viewports_) {
-                        v->geo_renderable_pairs.emplace_back(geometry, nullptr);
+                        v->master_geo_renderable_pairs.emplace_back(geometry, nullptr);
                 }
             }
             
