@@ -12,7 +12,7 @@
 using std::vector;
 using std::shared_ptr;
 
-GuiProject::GuiProject(std::string name, GLFWwindow* glfw_window, shared_ptr<vector<shared_ptr<Viewport>>> viewports) : viewports_(viewports), GuiBase(name, glfw_window) {
+GuiProject::GuiProject(std::string name, GLFWwindow* glfw_window) : GuiBase(name, glfw_window) {
   
 }
 

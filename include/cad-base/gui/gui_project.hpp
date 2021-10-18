@@ -12,12 +12,12 @@
 
 class GuiProject : GuiBase {
         public:
-            GuiProject(std::string name, GLFWwindow* glfw_window, std::shared_ptr<std::vector<std::shared_ptr<Viewport>>> viewports);
+            GuiProject(std::string name, GLFWwindow* glfw_window);
             // ~GuiProject();
 
             void Draw(double deltaTime) override;
         private:   
-            std::shared_ptr<std::vector<std::shared_ptr<Viewport>>> viewports_;
+        
         };
 
 #endif

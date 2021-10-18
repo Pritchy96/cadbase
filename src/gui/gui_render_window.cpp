@@ -50,7 +50,6 @@ void GuiRenderWindow::DrawRenderWindowSettings(double deltaTime) {
         ImGui::OpenPopup("gui_render_window_settings");
     }
 
-
     if (ImGui::BeginPopup("gui_render_window_settings")) {
         ImGui::Text("Render Style:");
 

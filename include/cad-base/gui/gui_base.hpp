@@ -13,7 +13,7 @@ class GuiBase {
             GLFWwindow* glfw_window;
             bool is_alive = true;
             virtual void Draw(double deltaTime) = 0;
-        private:   
+        private:
         
         };
 
