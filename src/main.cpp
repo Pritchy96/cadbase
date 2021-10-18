@@ -49,6 +49,8 @@ unique_ptr<GeometryList> master_geometry;
 
 GLFWwindow* glfw_window;
 
+unique_ptr<GeometryList> master_geometry;
+
 // TODO: We may wish to rename 'Viewport' as IMGUI now has such a concept.
 shared_ptr<vector<shared_ptr<Viewport>>> viewports;
 
