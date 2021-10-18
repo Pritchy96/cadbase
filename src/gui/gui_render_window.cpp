@@ -1,5 +1,4 @@
-#include "cad-base/gui/gui_render_window.hpp"
-#include "imgui_internal.h"
+#include <imgui_internal.h>
 
 #include <array>
 #include <cmath>
@@ -27,7 +26,9 @@
 #include <glm/glm.hpp>
 #include <vector>
 
-GuiRenderWindow::GuiRenderWindow(std::string name, GLFWwindow* glfw_window, std::shared_ptr<Viewport> viewport) : GuiBase(name, glfw_window), viewport_(viewport) {
+#include "cad-base/gui/gui_render_window.hpp"
+
+GuiRenderWindow::GuiRenderWindow(std::string name, GLFWwindow* glfw_window, std::shared_ptr<Viewport> viewport) : name(name), glfw_window(glfw_window), viewport_(viewport) {
     arcball_rotate_sensitivity = ARCBALL_ROTATE_SENSITIVITY_INITIAL;
     arcball_pan_sensitivity = ARCBALL_PAN_SENSITIVITY_INITIAL;
 }

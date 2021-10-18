@@ -19,26 +19,26 @@ GuiMain::GuiMain(GLFWwindow* glfw_window) : glfw_window(glfw_window) {
         //Todo: error handling.
     }
     
-    // Setup window to match screen size/pos.
     main_imgui_viewport_ = ImGui::GetMainViewport();
 
     gui_settings_ = make_unique<GuiProject>("Project", glfw_window);
 }
 
-
 bool GuiMain::SetupImgui() {
     // Setup Dear ImGui context
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
-    ImGuiIO& imgui_io_ = ImGui::GetIO(); (void)imgui_io_;
-    imgui_io_.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+    imgui_io_ = &ImGui::GetIO();
+    imgui_io_->ConfigFlags |= ImGuiConfigFlags_DockingEnable;
     // imgui_io_.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;  // TODO: Currently broken on Linux, needs further investigation
     // imgui_io_.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
     // imgui_io_.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
 
     // Setup Dear ImGui style
     ImGui::StyleColorsDark();
-    ImGui::GetStyle().ScaleAllSizes(gui_scale_factor);
+    ImGui::GetStyle().ScaleAllSizes(gui_scale_factor);  //Do this before SetupGuiTheme() so everything but that modified by SetupGuiTheme() gets scaled.
+    SetupGuiTheme();
+
     // ImGui::SetCurrentFont(ImFont *font)
     ImGui::GetStyle().WindowMinSize = ImVec2(400, 400);
 
@@ -54,7 +54,7 @@ bool GuiMain::SetupImgui() {
     return true;
 }
 
-void GuiMain::SetupGuiMainMenu() {   //NOLINT: Nesting is easy to understand.
+void GuiMain::RenderGuiMainMenu() {   //NOLINT: Nesting is easy to understand.
     if(ImGui::BeginMainMenuBar())   {
         if (ImGui::BeginMenu("File"))   {
 
@@ -203,8 +203,44 @@ void GuiMain::SetupGuiTheme() {
     colors[ImGuiCol_ModalWindowDimBg]       = accent_colour_undefined;
 }
 
-void GuiMain::Update(double deltaTime) {
+void GuiMain::SetLayout() {
 
+    ImGuiID dockspace_id = ImGui::GetID("root_window_dockspace");
+
+    ImGui::DockBuilderRemoveNode(dockspace_id); // clear any previous layout
+    ImGui::DockBuilderAddNode(dockspace_id, dockspace_flags_ | ImGuiDockNodeFlags_DockSpace);
+    ImGui::DockBuilderSetNodeSize(dockspace_id, main_imgui_viewport_->Size);
+
+    ImGuiID dock_id_left_pane, dock_id_grid, dock_id_grid_top_left, dock_id_grid_bottom_left, dock_id_grid_top_right, dock_id_grid_bottom_right;
+    ImGui::DockBuilderSplitNode(dockspace_id, ImGuiDir_Left, 0.15f, &dock_id_left_pane, &dock_id_grid);
+
+    //Construct the grid.
+    ImGui::DockBuilderSplitNode(dock_id_grid, ImGuiDir_Up, 0.5f, &dock_id_grid_top_left, &dock_id_grid_bottom_left);
+    ImGui::DockBuilderSplitNode(dock_id_grid_top_left, ImGuiDir_Left, 0.5f, &dock_id_grid_top_left, &dock_id_grid_top_right);
+    ImGui::DockBuilderSplitNode(dock_id_grid_bottom_left, ImGuiDir_Left, 0.5f, &dock_id_grid_bottom_left, &dock_id_grid_bottom_right);
+
+    //Auto hide main_imgui_viewport_ tab bars.
+    ImGuiDockNode* node = ImGui::DockBuilderGetNode(dock_id_grid_top_left);
+    node->LocalFlags |= ImGuiDockNodeFlags_AutoHideTabBar; 
+    node = ImGui::DockBuilderGetNode(dock_id_grid_top_right);
+    node->LocalFlags |= ImGuiDockNodeFlags_AutoHideTabBar;
+    node = ImGui::DockBuilderGetNode(dock_id_grid_bottom_left);
+    node->LocalFlags |= ImGuiDockNodeFlags_AutoHideTabBar;
+    node = ImGui::DockBuilderGetNode(dock_id_grid_bottom_right);
+    node->LocalFlags |= ImGuiDockNodeFlags_AutoHideTabBar;
+
+    // we now dock our windows into the docking node we made above
+    ImGui::DockBuilderDockWindow("Project", dock_id_left_pane);
+    ImGui::DockBuilderDockWindow("Dear Imgui Demo", dock_id_left_pane);
+    ImGui::DockBuilderDockWindow("Render Window 0", dock_id_grid_top_left);
+    ImGui::DockBuilderDockWindow("Render Window 1", dock_id_grid_top_right);
+    ImGui::DockBuilderDockWindow("Render Window 2", dock_id_grid_bottom_left);
+    ImGui::DockBuilderDockWindow("Render Window 3", dock_id_grid_bottom_right);
+
+    ImGui::DockBuilderFinish(dockspace_id);
+}
+
+void GuiMain::Update(double deltaTime) {
     // We don't want this when drawing UI elements
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_CULL_FACE);
@@ -214,7 +250,7 @@ void GuiMain::Update(double deltaTime) {
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 
-    SetupGuiMainMenu();
+    RenderGuiMainMenu();
     
     ImGui::SetNextWindowPos(main_imgui_viewport_->Pos);
     ImGui::SetNextWindowSize(main_imgui_viewport_->Size);
@@ -237,49 +273,15 @@ void GuiMain::Update(double deltaTime) {
     ImGui::PopStyleVar(2);
 
     // Setup Dockspace
-    // TODO: Have this as an editable default (don't reset every boot unless user clicks a 'reset UI' button)
-    imgui_io_ = make_unique<ImGuiIO>(ImGui::GetIO());
+    ImGuiID dockspace_id = ImGui::GetID("root_window_dockspace");
+
     if (imgui_io_->ConfigFlags & ImGuiConfigFlags_DockingEnable) {
-        ImGuiID dockspace_id = ImGui::GetID("root_window_dockspace");
         ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags_);
 
         //TODO: move this out of the update loop.
         if (first_time_) {
             first_time_ = false;
-
-            SetupGuiTheme();
-
-            ImGui::DockBuilderRemoveNode(dockspace_id); // clear any previous layout
-            ImGui::DockBuilderAddNode(dockspace_id, dockspace_flags_ | ImGuiDockNodeFlags_DockSpace);
-            ImGui::DockBuilderSetNodeSize(dockspace_id, main_imgui_viewport_->Size);
-
-            ImGuiID dock_id_left_pane, dock_id_grid, dock_id_grid_top_left, dock_id_grid_bottom_left, dock_id_grid_top_right, dock_id_grid_bottom_right;
-            ImGui::DockBuilderSplitNode(dockspace_id, ImGuiDir_Left, 0.15f, &dock_id_left_pane, &dock_id_grid);
-
-            //Construct the grid.
-            ImGui::DockBuilderSplitNode(dock_id_grid, ImGuiDir_Up, 0.5f, &dock_id_grid_top_left, &dock_id_grid_bottom_left);
-            ImGui::DockBuilderSplitNode(dock_id_grid_top_left, ImGuiDir_Left, 0.5f, &dock_id_grid_top_left, &dock_id_grid_top_right);
-            ImGui::DockBuilderSplitNode(dock_id_grid_bottom_left, ImGuiDir_Left, 0.5f, &dock_id_grid_bottom_left, &dock_id_grid_bottom_right);
-
-            //Auto hide main_imgui_viewport_ tab bars.
-            ImGuiDockNode* node = ImGui::DockBuilderGetNode(dock_id_grid_top_left);
-            node->LocalFlags |= ImGuiDockNodeFlags_AutoHideTabBar; 
-            node = ImGui::DockBuilderGetNode(dock_id_grid_top_right);
-            node->LocalFlags |= ImGuiDockNodeFlags_AutoHideTabBar;
-            node = ImGui::DockBuilderGetNode(dock_id_grid_bottom_left);
-            node->LocalFlags |= ImGuiDockNodeFlags_AutoHideTabBar;
-            node = ImGui::DockBuilderGetNode(dock_id_grid_bottom_right);
-            node->LocalFlags |= ImGuiDockNodeFlags_AutoHideTabBar;
-
-            // we now dock our windows into the docking node we made above
-            ImGui::DockBuilderDockWindow("Project", dock_id_left_pane);
-            ImGui::DockBuilderDockWindow("Dear Imgui Demo", dock_id_left_pane);
-            ImGui::DockBuilderDockWindow("Render Window 0", dock_id_grid_top_left);
-            ImGui::DockBuilderDockWindow("Render Window 1", dock_id_grid_top_right);
-            ImGui::DockBuilderDockWindow("Render Window 2", dock_id_grid_bottom_left);
-            ImGui::DockBuilderDockWindow("Render Window 3", dock_id_grid_bottom_right);
-
-            ImGui::DockBuilderFinish(dockspace_id);
+            SetLayout();
         }
     }
 

@@ -12,12 +12,12 @@
 using std::vector;
 using std::shared_ptr;
 
-GuiProject::GuiProject(std::string name, GLFWwindow* glfw_window) : GuiBase(name, glfw_window) {
+GuiProject::GuiProject(std::string name, GLFWwindow* glfw_window) : name(name), glfw_window(glfw_window) {
   
 }
 
 void GuiProject::Draw(double deltaTime) {
-    is_alive = ImGui::Begin(name.c_str());
+    ImGui::Begin(name.c_str());
 
     ImGui::Text("Application average: %.3f ms/frame\n(%.1f FPS)\n", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
     ImGui::Separator();

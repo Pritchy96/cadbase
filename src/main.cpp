@@ -41,19 +41,13 @@ using glm::vec3;
 
 const ImVec4 BACKGROUND_COLOUR = ImVec4(0.15f, 0.15f, 0.15f, 1.00f);    //TODO: remove
 
-
 auto old_time = std::chrono::steady_clock::now(), new_time = std::chrono::steady_clock::now();
 double delta_t;	
 
 unique_ptr<GuiMain> gui_main;
-
-
-
-unique_ptr<ImGuiIO> imgui_io;
+unique_ptr<GeometryList> master_geometry;
 
 GLFWwindow* glfw_window;
-
-unique_ptr<GeometryList> master_geometry;
 
 // TODO: We may wish to rename 'Viewport' as IMGUI now has such a concept.
 shared_ptr<vector<shared_ptr<Viewport>>> viewports;
@@ -87,13 +81,9 @@ const vector<vec3> TEST_TRIANGLE_COLS = {
 bool ImportGeoTest( const std::string& pFile);  //TODO: temp prototype.
 
 void GlfwMouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {    //NOLINT: unused params in callback.
-    // ImGui_ImplGlfw_MouseButtonCallback(window, button, action, mods);
     if(ImGui::GetIO().WantCaptureMouse)  return;
 
     puts("Mouse button not captured by IMGUI");
-
-    // double x,y;
-    // glfwGetCursorPos(window, &x, &y);
 }
 
 bool SetupGLFW() {
@@ -108,6 +98,8 @@ bool SetupGLFW() {
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // MacOS compat
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
+    glDepthFunc(GL_LESS); // Depth-testing interprets a smaller value as "closer"
+
     // Create window with graphics context
     const GLFWvidmode* glfwvidmode = glfwGetVideoMode(glfwGetPrimaryMonitor());
     glfw_window = glfwCreateWindow(glfwvidmode->width, glfwvidmode->height, "CAD-BASE", nullptr, nullptr);
@@ -117,12 +109,7 @@ bool SetupGLFW() {
 
     glfwMakeContextCurrent(glfw_window);
 
-    // glfwSetInputMode(glfw_window, GLFW_STICKY_KEYS, GL_TRUE);
-    // glfwSetKeyCallback(glfw_window, input_router->KeyCallback);
 	glfwSetMouseButtonCallback(glfw_window, GlfwMouseButtonCallback);
-	// glfwSetScrollCallback(glfw_window, input_router->ScrollCallback);
-	// glfwSetCursorPosCallback(glfw_window, input_router->CursorCallback);
-	// glfwSetWindowSizeCallback(glfw_window, input_router->WindowSizeCallback);
 
     glfwSwapInterval(1); // Enable vsync
 
@@ -137,7 +124,7 @@ bool SetupGLFW() {
     return true;
 }
 
-bool ImportGeoTest( const std::string& pFile) {
+bool ImportGeoTest(const std::string& pFile) {
     // Create an instance of the Importer class
     Assimp::Importer importer;
 
@@ -185,21 +172,14 @@ bool ImportGeoTest( const std::string& pFile) {
     return true;
 }
 
-void SetupTestGeo() {
+void SetupRenderWindows() {
     // TODO: temp test.
     for (int i= 0; i < 4; i++) { 
-        viewports->push_back(make_shared<Viewport>(glfw_window, glm::vec3(BACKGROUND_COLOUR.x, BACKGROUND_COLOUR.y, BACKGROUND_COLOUR.z), 1000, 1000));
+        viewports->push_back(make_shared<Viewport>(glfw_window, glm::vec3(gui_main->BACKGROUND_COLOUR.x, gui_main->BACKGROUND_COLOUR.y, gui_main->BACKGROUND_COLOUR.z), 1000, 1000));
 
-        // Make our render windows.
+        // Make our render windows - one for each viewport for now.
         std::string name = "Render Window " + std::to_string(i);
         gui_main->gui_render_windows.push_back(make_shared<GuiRenderWindow>(name, glfw_window, viewports->back()));
-    }
-
-	// master_geometry->push_back(make_shared<Geometry>(TEST_TRIANGLE_VERTS, TEST_TRIANGLE_COLS));
-	// master_geometry->push_back(make_shared<Geometry>(test_data_lines, test_data_lines));
-
-    for (int i = 0; i < 10; i++) {
-        ImportGeoTest("/home/tom/git/cad-base/thirdparty/assimp/test/models/OBJ/spider.obj");
     }
 }
 
@@ -216,7 +196,6 @@ void Update() {
     glfwPollEvents();
 
     glEnable(GL_DEPTH_TEST); // Enable depth-testing
-    glDepthFunc(GL_LESS); // Depth-testing interprets a smaller value as "closer"
     glEnable(GL_CULL_FACE);
 
     for (const auto& v : (*viewports)) {
@@ -242,14 +221,15 @@ int main(int argc, const char* argv[]) { // NOLINT: main function.
     }
 
     viewports = make_shared<vector<shared_ptr<Viewport>>>();
-	master_geometry = make_unique<GeometryList>(viewports);
-    
+	master_geometry = make_unique<GeometryList>(viewports);    
     gui_main = make_unique<GuiMain>(glfw_window); 
 
+    SetupRenderWindows();
 
-
-    SetupTestGeo();
-
+    //TODO: Temp tests.
+    for (int i = 0; i < 10; i++) {
+        ImportGeoTest("/home/tom/git/cad-base/thirdparty/assimp/test/models/OBJ/spider.obj");
+    }
 
     // Main loop
     while (!glfwWindowShouldClose(glfw_window)) {

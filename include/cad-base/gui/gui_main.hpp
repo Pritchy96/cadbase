@@ -24,8 +24,9 @@ class GuiMain {
             // ~GuiBase();
 
             bool SetupImgui(); 
-            void SetupGuiMainMenu();
+            void RenderGuiMainMenu();
             void SetupGuiTheme();
+            void SetLayout();
 
             void Update(double deltaTime);
 
@@ -33,6 +34,9 @@ class GuiMain {
             GLFWwindow* glfw_window;
 
             std::vector<std::shared_ptr<GuiRenderWindow>> gui_render_windows;
+
+            const ImVec4 BACKGROUND_COLOUR = ImVec4(0.15f, 0.15f, 0.15f, 1.00f);
+
 
         private:
             // Pass through input.
@@ -43,18 +47,13 @@ class GuiMain {
             ImGuiWindowFlags window_flags_ = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
 
             ImGuiViewport* main_imgui_viewport_;
-            std::unique_ptr<ImGuiIO> imgui_io_;
+            ImGuiIO* imgui_io_;
 
             //GUI
             std::unique_ptr<GuiProject> gui_settings_;
             bool show_demo_window_ = false;
 
-            ImGuiID dockspace_id_;
-
-
             constexpr static const float GUI_INITIAL_SCALE_FACTOR = 2.0f;
-
-            const ImVec4 BACKGROUND_COLOUR = ImVec4(0.15f, 0.15f, 0.15f, 1.00f);
 
             bool first_time_ = true;
         };
