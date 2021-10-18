@@ -2,7 +2,6 @@
 #define GUI_RENDER_WINDOW_HPP
 
 #include "cad-base/viewport.hpp"
-#include "cad-base/gui/gui_base.hpp"
 
 #include <glm/fwd.hpp>
 #include <memory>
@@ -10,10 +9,14 @@
 
 #include <imgui.h>
 
-class GuiRenderWindow : GuiBase {
+class GuiRenderWindow {
         public:
-            GuiRenderWindow(std::string name, GLFWwindow* glfw_window, std::shared_ptr<Viewport> viewport) ;
+            GuiRenderWindow(std::string name, GLFWwindow* glfw_window, std::shared_ptr<Viewport> viewport);
             // ~GuiRenderWindow();
+
+            std::string name;
+            GLFWwindow* glfw_window;
+            bool is_alive = true;
 
             bool viewport_has_focus = false;
             bool clicked_on_image[5] = {false, false, false, false, false};
@@ -26,7 +29,7 @@ class GuiRenderWindow : GuiBase {
             int ortho_not_persp = 1;    //0 is ortho, 1 is perspective.
 
             void HandleIO();
-            void Draw(double deltaTime) override;
+            void Draw(double deltaTime);
             void DrawRenderWindowSettings(double deltaTime);
             glm::vec3 GetArcballVector(glm::vec2 screen_pos, glm::vec2 screen_size);
             bool RayCubeIntersection(glm::vec3 rayOrigin, glm::vec3 rayDirection, std::array<glm::vec3, 2> boxBounds);
