@@ -6,6 +6,7 @@
 #include "cad-base/gui/gui_main.hpp"
 #include "backends/imgui_impl_glfw.h"
 #include "backends/imgui_impl_opengl3.h"
+#include <spdlog/spdlog.h>
 
 #include <nfd.h>
 
@@ -83,15 +84,14 @@ void GuiMain::RenderGuiMainMenu() {   //NOLINT: Nesting is easy to understand.
                 nfdresult_t result = NFD_OpenDialog(NULL, NULL, &out_path);
                     
                 if ( result == NFD_OKAY ) {
-                    puts("Success!");
                     //TODO: ImportGeoTest(out_path);
                     free(out_path);
                 }
                 else if ( result == NFD_CANCEL ) {
-                    puts("User pressed cancel.");
+                    spdlog::info("NFD: User pressed cancel");
                 }
                 else {
-                    printf("Error: %s\n", NFD_GetError() );
+                    spdlog::error("NFD: Error with library: {0}", NFD_GetError());
                 }
             }
             ImGui::EndMenu();

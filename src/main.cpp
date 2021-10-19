@@ -13,11 +13,13 @@
 #include <imgui/backends/imgui_impl_glfw.h>
 #include <imgui_internal.h>
 
-
 #include <assimp/Importer.hpp>      // C++ importer interface
 #include <assimp/scene.h>           // Output data structure
 #include <assimp/postprocess.h>     // Post processing flags
 #include <assimp/mesh.h>
+
+#include <spdlog/spdlog.h>
+#include <spdlog/sinks/stdout_color_sinks.h>
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
@@ -30,6 +32,7 @@
 #include "cad-base/renderable.hpp"
 #include "cad-base/viewport.hpp"
 #include "cad-base/geometry_list.hpp"
+#include "cad-base/gui/gui_logger.hpp"
 
 using std::vector;
 using std::shared_ptr;
@@ -83,7 +86,7 @@ bool ImportGeoTest( const std::string& pFile);  //TODO: temp prototype.
 void GlfwMouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {    //NOLINT: unused params in callback.
     if(ImGui::GetIO().WantCaptureMouse)  return;
 
-    puts("Mouse button not captured by IMGUI");
+    spdlog::warn("Mouse button not captured by IMGUI");
 }
 
 bool SetupGLFW() {
@@ -149,7 +152,7 @@ bool ImportGeoTest(const std::string& pFile) {
 
     // If the import failed, report it
     if (nullptr == scene) {
-        puts(importer.GetErrorString());
+        spdlog::error("Failed to Import Mesh: {0}", importer.GetErrorString());
         return false;
     }
 
@@ -211,8 +214,19 @@ void Update() {
     gui_main->Update(delta_t);
 }
 
+void SetupLogger() {
+    auto console_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
+    // auto gui_sink = make_shared<GuiLogger>();
+    // spdlog::sinks_init_list sink_list = {gui_sink, console_sink};
+
+    spdlog::sinks_init_list sink_list = {console_sink};
+
+    auto logger = make_shared<spdlog::logger>("logger", sink_list);
+    spdlog::set_default_logger(logger); //Means that when we do spdlog::info/warn etc it goes to this logger.
+}
+
 int main(int argc, const char* argv[]) { // NOLINT: main function.
-    puts("Launching Program");
+    SetupLogger();
 
     std::srand(time(nullptr));
 
@@ -244,6 +258,6 @@ int main(int argc, const char* argv[]) { // NOLINT: main function.
     glfwDestroyWindow(glfw_window);
     glfwTerminate();
 
-    puts("Terminating Program");    
+    spdlog::info("Terminating Program");    
     return 0;
 }

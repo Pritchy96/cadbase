@@ -1,4 +1,5 @@
 #include "cad-base/shader.hpp"
+#include <spdlog/spdlog.h>
 #include <iostream>
 #include <ostream>
 
@@ -6,54 +7,55 @@ using std::string;
 using std::vector;
 
 GLuint shader::LoadShaders(char* vertex_file_path, char* fragment_file_path) {
-	puts("Compiling Shaders");
+	spdlog::info("Compiling Shaders");
 
 	GLuint vert_shader_id = glCreateShader(GL_VERTEX_SHADER);
 	GLuint fragment_shader_id = glCreateShader(GL_FRAGMENT_SHADER);
 
 	string vert_shader_code = LoadFileFromDisk(vertex_file_path);
 	string frag_shader_code = LoadFileFromDisk(fragment_file_path);
-	puts("Shaders Read from File");
+	spdlog::info("Shaders read from file");
 
-	GLint result = GL_FALSE; int info_log_size;
+	GLint compile_result = GL_FALSE; int info_log_size;
 
 	// Compile Vertex Shader
-	printf("Compiling shader: %s\n", vertex_file_path);
+	spdlog::info("Compiling Shader: \"{0}\"", vertex_file_path);
 	char const * vert_code_pntr = vert_shader_code.c_str();
 	glShaderSource(vert_shader_id, 1, &vert_code_pntr , nullptr);
 	glCompileShader(vert_shader_id);
 
 	// Check Vertex Shader
-	glGetShaderiv(vert_shader_id, GL_COMPILE_STATUS, &result);
+	glGetShaderiv(vert_shader_id, GL_COMPILE_STATUS, &compile_result);
 	glGetShaderiv(vert_shader_id, GL_INFO_LOG_LENGTH, &info_log_size);
 	vector<char> vertex_shader_error_message(info_log_size);
 	glGetShaderInfoLog(vert_shader_id, info_log_size, nullptr, &vertex_shader_error_message[0]);
 	
-	if (&vertex_shader_error_message[0]) {
-		fprintf(stdout, "%s\n", &vertex_shader_error_message[0]);
+	if (!compile_result) {
+		spdlog::error("Vertex Shader error: {0}", &vertex_shader_error_message[0]);
 	}
-	puts("Vertex Shader Compiled and Checked");
+	spdlog::info("Vertex Shader compiled and checked");
 
 
 	// Compile Fragment Shader
-	printf("Compiling shader: %s\n", fragment_file_path);
+	spdlog::info("Compiling Shader: \"{0}\"", fragment_file_path);
 	char const *fragment_source_pointer = frag_shader_code.c_str();
 	glShaderSource(fragment_shader_id, 1, &fragment_source_pointer , nullptr);
 	glCompileShader(fragment_shader_id);
 
 	// Check Fragment Shader
-	glGetShaderiv(fragment_shader_id, GL_COMPILE_STATUS, &result);
+	glGetShaderiv(fragment_shader_id, GL_COMPILE_STATUS, &compile_result);
 	glGetShaderiv(fragment_shader_id, GL_INFO_LOG_LENGTH, &info_log_size);
 	vector<char> fragment_shader_error_message(info_log_size);
 	glGetShaderInfoLog(fragment_shader_id, info_log_size, nullptr, &fragment_shader_error_message[0]);
 
-	if (&fragment_shader_error_message[0]) {
-		fprintf(stdout, "%s\n", &fragment_shader_error_message[0]);
+	if (!compile_result) {
+		spdlog::error("Fragment Shader error: {0}", &fragment_shader_error_message[0]);
 	}
-	puts("Fragment Shader Compiled and Checked");
+	spdlog::info("Fragment Shader compiled and checked");
+
 
 	// Link the program
-	puts("Linking program");
+	spdlog::info("Linking Shader Program");
 	GLuint program_id = glCreateProgram();
 	glAttachShader(program_id, vert_shader_id);
 	glAttachShader(program_id, fragment_shader_id);
@@ -62,14 +64,15 @@ GLuint shader::LoadShaders(char* vertex_file_path, char* fragment_file_path) {
 	glUseProgram(program_id);
 
 	// Check the program
-	glGetProgramiv(program_id, GL_LINK_STATUS, &result);
+	glGetProgramiv(program_id, GL_LINK_STATUS, &compile_result);
 	glGetProgramiv(program_id, GL_INFO_LOG_LENGTH, &info_log_size);
 	vector<char> program_error_message(std::max(info_log_size, int(1)) );
 	glGetProgramInfoLog(program_id, info_log_size, nullptr, &program_error_message[0]);
 	
-	if (&program_error_message[0]) {
-		fprintf(stdout, "%s\n", &program_error_message[0]);
+	if (!compile_result) {
+		spdlog::error("Shader Program error: {0}", &program_error_message[0]);
 	}
+	spdlog::info("Shader Program created and checked");
 
 	glDeleteShader(vert_shader_id);
 	glDeleteShader(fragment_shader_id);
@@ -91,34 +94,34 @@ string shader::LoadFileFromDisk(char* path) {
 }
 
 GLuint shader::LoadTransformShader(char* path){
-	puts("Compiling Shaders");
+	spdlog::info("Compiling Transform Shaders");
 
 	GLuint vert_shader_id = glCreateShader(GL_VERTEX_SHADER);
 
 	string vert_shader_code = LoadFileFromDisk(path);
-	puts("Shader Read from File");
+	spdlog::info("Transform Shaders read from file");
 
-	GLint result = GL_FALSE; int info_log_size;
+	GLint compile_result = GL_FALSE; int info_log_size;
 
-	// Compile Vertex Shader
-	printf("Compiling shader: %s\n", path);
+	// Compile Shader
+	spdlog::info("Compiling Shader: \"{0}\"", path);
 	char const * vert_code_pntr = vert_shader_code.c_str();
 	glShaderSource(vert_shader_id, 1, &vert_code_pntr , nullptr);
 	glCompileShader(vert_shader_id);
 
-	// Check Vertex Shader
-	glGetShaderiv(vert_shader_id, GL_COMPILE_STATUS, &result);
+	// Check Shader
+	glGetShaderiv(vert_shader_id, GL_COMPILE_STATUS, &compile_result);
 	glGetShaderiv(vert_shader_id, GL_INFO_LOG_LENGTH, &info_log_size);
 	vector<char> vertex_shader_error_message(info_log_size);
 	glGetShaderInfoLog(vert_shader_id, info_log_size, nullptr, &vertex_shader_error_message[0]);
 	
-	if (&vertex_shader_error_message[0]) {
-		fprintf(stdout, "%s\n", &vertex_shader_error_message[0]);
+	if (!compile_result) {
+		spdlog::error("Transform Shader Error: {0}", &vertex_shader_error_message[0]);
 	}
-	puts("Vertex Shader Compiled and Checked");
+	spdlog::info("Transform Shader compiled and checked");
 
 	// Link the program
-	puts("Linking program");
+	spdlog::info("Linking Transform Shader program");
 	GLuint program_id = glCreateProgram();
 	glAttachShader(program_id, vert_shader_id);
 
@@ -133,14 +136,15 @@ GLuint shader::LoadTransformShader(char* path){
 	glUseProgram(program_id);
 
 	// Check the program
-	glGetProgramiv(program_id, GL_LINK_STATUS, &result);
+	glGetProgramiv(program_id, GL_LINK_STATUS, &compile_result);
 	glGetProgramiv(program_id, GL_INFO_LOG_LENGTH, &info_log_size);
 	vector<char> program_error_message(std::max(info_log_size, int(1)) );
 	glGetProgramInfoLog(program_id, info_log_size, nullptr, &program_error_message[0]);
 	
-	if (&program_error_message[0]) {
-		fprintf(stdout, "%s\n", &program_error_message[0]);
+	if (!compile_result) {
+		spdlog::error("Transform Shader Program error: {0}", &program_error_message[0]);
 	}
+		spdlog::info("Transform Shader Program created and checked");
 
 	glDeleteShader(vert_shader_id);
 

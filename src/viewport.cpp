@@ -1,6 +1,7 @@
 #include "cad-base/viewport.hpp"	
 #include "cad-base/geometry/viewport_grid.hpp"
 
+#include <spdlog/spdlog.h>
 #include <glm/fwd.hpp>
 #include <memory>
 #include <vector>
@@ -31,8 +32,8 @@ const vector<vec3> AXIS_COLOURS = {
 };
 
 Viewport::Viewport(GLFWwindow *window, glm::vec3 background_col, int window_width, int window_height) {
-
-    puts("Initialised Viewport");
+    
+    spdlog::info("Viewport Initialised");
 	glfw_window = window;
 	window_width_ = window_width;
 	window_height_ = window_height;
@@ -173,43 +174,43 @@ bool Viewport::CheckFramebufferStatus(GLuint fbo) {
 
     switch(glCheckFramebufferStatus(GL_FRAMEBUFFER))  {
         case GL_FRAMEBUFFER_COMPLETE:
-            std::cout << "Framebuffer complete." << std::endl;
+            spdlog::info("Framebuffer construction complete.");
             return true;
 
         case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:
-            std::cout << "[ERROR] Framebuffer incomplete: Attachment is NOT complete." << std::endl;
+            spdlog::error("Framebuffer incomplete: Attachment is NOT complete.");
             return false;
 
         case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT:
-            std::cout << "[ERROR] Framebuffer incomplete: No image is attached to FBO." << std::endl;
+            spdlog::error("Framebuffer incomplete: No image is attached to FBO.");
             return false;
         /*
         case GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS:
-            std::cout << "[ERROR] Framebuffer incomplete: Attached images have different dimensions." << std::endl;
+            spdlog::error("Framebuffer incomplete: Attached images have different dimensions.");
             return false;
 
         case GL_FRAMEBUFFER_INCOMPLETE_FORMATS:
-            std::cout << "[ERROR] Framebuffer incomplete: Color attached images have different internal formats." << std::endl;
+            spdlog::error("Framebuffer incomplete: Color attached images have different internal formats.");
             return false;
         */
         case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER:
-            std::cout << "[ERROR] Framebuffer incomplete: Draw buffer." << std::endl;
+            spdlog::error("Framebuffer incomplete: Draw buffer.");
             return false;
 
         case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER:
-            std::cout << "[ERROR] Framebuffer incomplete: Read buffer." << std::endl;
+            spdlog::error("Framebuffer incomplete: Read buffer.");
             return false;
 
         case GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE:
-            std::cout << "[ERROR] Framebuffer incomplete: Multisample." << std::endl;
+            spdlog::error("Framebuffer incomplete: Multisample.");
             return false;
 
         case GL_FRAMEBUFFER_UNSUPPORTED:
-            std::cout << "[ERROR] Framebuffer incomplete: Unsupported by FBO implementation." << std::endl;
+            spdlog::error("Framebuffer incomplete: Unsupported by FBO implementation.");
             return false;
 
         default:
-            std::cout << "[ERROR] Framebuffer incomplete: Unknown error." << std::endl;
+            spdlog::error("Framebuffer incomplete: Unknown error.");
             return false;
     }
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
