@@ -2,20 +2,18 @@
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-
-#include "cad-base/gui/gui_main.hpp"
-#include "backends/imgui_impl_glfw.h"
-#include "backends/imgui_impl_opengl3.h"
 #include <spdlog/spdlog.h>
-
 #include <nfd.h>
 
-using std::shared_ptr;
-using std::unique_ptr;
-using std::make_shared;
+#include "cad-base/gui/gui_main.hpp"
+#include "cad-base/gui/gui_logger.hpp"
+
+#include "backends/imgui_impl_glfw.h"
+#include "backends/imgui_impl_opengl3.h"
+
 using std::make_unique;
 
-GuiMain::GuiMain(GLFWwindow* glfw_window) : glfw_window(glfw_window) {
+GuiMain::GuiMain(GLFWwindow* glfw_window, std::shared_ptr<GuiLogger> gui_logger_sink) : glfw_window(glfw_window), gui_logger_sink_(gui_logger_sink) {
     if (!SetupImgui()) {
         //Todo: error handling.
     }
@@ -204,7 +202,6 @@ void GuiMain::SetupGuiTheme() {
 }
 
 void GuiMain::SetLayout() {
-
     ImGuiID dockspace_id = ImGui::GetID("root_window_dockspace");
 
     ImGui::DockBuilderRemoveNode(dockspace_id); // clear any previous layout
@@ -249,7 +246,7 @@ void GuiMain::Update(double deltaTime) {
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
-
+    
     RenderGuiMainMenu();
     
     ImGui::SetNextWindowPos(main_imgui_viewport_->Pos);
@@ -286,6 +283,9 @@ void GuiMain::Update(double deltaTime) {
     }
 
     ImGui::End();
+
+    gui_logger_sink_->Update();
+
 
     // Render Windows
     for (const auto& r : (gui_render_windows)) {

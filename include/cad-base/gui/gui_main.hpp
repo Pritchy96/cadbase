@@ -16,11 +16,11 @@
 
 #include "cad-base/gui/gui_project.hpp"
 #include "cad-base/gui/gui_render_window.hpp"
-
+#include "cad-base/gui/gui_logger.hpp"
 
 class GuiMain {
         public:
-            explicit GuiMain(GLFWwindow* glfw_window);
+            explicit GuiMain(GLFWwindow* glfw_window, std::shared_ptr<GuiLogger> gui_logger_sink_);
             // ~GuiBase();
 
             bool SetupImgui(); 
@@ -52,6 +52,8 @@ class GuiMain {
             //GUI
             std::unique_ptr<GuiProject> gui_settings_;
             bool show_demo_window_ = false;
+
+            std::shared_ptr<GuiLogger> gui_logger_sink_; //Need a reference to this so we can draw it.
 
             constexpr static const float GUI_INITIAL_SCALE_FACTOR = 2.0f;
 

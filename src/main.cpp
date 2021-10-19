@@ -50,6 +50,8 @@ double delta_t;
 unique_ptr<GuiMain> gui_main;
 unique_ptr<GeometryList> master_geometry;
 
+shared_ptr<GuiLogger> gui_logger_sink;
+
 GLFWwindow* glfw_window;
 
 // TODO: We may wish to rename 'Viewport' as IMGUI now has such a concept.
@@ -84,7 +86,9 @@ const vector<vec3> TEST_TRIANGLE_COLS = {
 bool ImportGeoTest( const std::string& pFile);  //TODO: temp prototype.
 
 void GlfwMouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {    //NOLINT: unused params in callback.
-    if(ImGui::GetIO().WantCaptureMouse)  return;
+    if(ImGui::GetIO().WantCaptureMouse) {  
+        return;
+    }
 
     spdlog::warn("Mouse button not captured by IMGUI");
 }
@@ -216,10 +220,8 @@ void Update() {
 
 void SetupLogger() {
     auto console_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
-    // auto gui_sink = make_shared<GuiLogger>();
-    // spdlog::sinks_init_list sink_list = {gui_sink, console_sink};
-
-    spdlog::sinks_init_list sink_list = {console_sink};
+    gui_logger_sink = make_shared<GuiLogger>();
+    spdlog::sinks_init_list sink_list = {gui_logger_sink, console_sink};
 
     auto logger = make_shared<spdlog::logger>("logger", sink_list);
     spdlog::set_default_logger(logger); //Means that when we do spdlog::info/warn etc it goes to this logger.
@@ -236,7 +238,7 @@ int main(int argc, const char* argv[]) { // NOLINT: main function.
 
     viewports = make_shared<vector<shared_ptr<Viewport>>>();
 	master_geometry = make_unique<GeometryList>(viewports);    
-    gui_main = make_unique<GuiMain>(glfw_window); 
+    gui_main = make_unique<GuiMain>(glfw_window, gui_logger_sink); 
 
     SetupRenderWindows();
 

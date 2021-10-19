@@ -1,8 +1,20 @@
-#include <imgui_internal.h>
-
 #include <array>
 #include <cmath>
 #include <cstdio>
+#include <memory>
+#include <string>
+#include <algorithm>
+#include <vector>
+
+#include <imgui.h>
+#include <imgui_internal.h>
+#include <imgui/backends/imgui_impl_opengl3.h>
+#include <imgui/backends/imgui_impl_glfw.h>
+
+#include <GL/glew.h>
+#include <GLFW/glfw3.h>
+
+#include <glm/glm.hpp>
 #include <glm/ext/quaternion_trigonometric.hpp>
 #include <glm/fwd.hpp>
 #include <glm/gtx/dual_quaternion.hpp>
@@ -11,20 +23,8 @@
 #include <glm/gtx/transform.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtx/quaternion.hpp>
-
 #include <glm/trigonometric.hpp>
-#include <memory>
-#include <string>
-#include <algorithm>
 
-#include <imgui.h>
-#include <imgui/backends/imgui_impl_opengl3.h>
-#include <imgui/backends/imgui_impl_glfw.h>
-
-#include <GL/glew.h>
-#include <GLFW/glfw3.h>
-#include <glm/glm.hpp>
-#include <vector>
 
 #include "cad-base/gui/gui_render_window.hpp"
 
@@ -34,8 +34,7 @@ GuiRenderWindow::GuiRenderWindow(std::string name, GLFWwindow* glfw_window, std:
 }
 
 void GuiRenderWindow::DrawRenderWindowSettings(double deltaTime) {
-  //Set options dropdown position
-
+    //Set options dropdown position
     ImVec2 settings_button_pos = ImVec2(OPTIONS_DROPDOWN_OFFSET, OPTIONS_DROPDOWN_OFFSET);
     ImGui::SetCursorPos(settings_button_pos);
 
