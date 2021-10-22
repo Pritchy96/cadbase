@@ -1,8 +1,20 @@
-#include <imgui_internal.h>
-
 #include <array>
 #include <cmath>
 #include <cstdio>
+#include <memory>
+#include <string>
+#include <algorithm>
+#include <vector>
+
+#include <imgui.h>
+#include <imgui_internal.h>
+#include <imgui/backends/imgui_impl_opengl3.h>
+#include <imgui/backends/imgui_impl_glfw.h>
+
+#include <GL/glew.h>
+#include <GLFW/glfw3.h>
+
+#include <glm/glm.hpp>
 #include <glm/ext/quaternion_trigonometric.hpp>
 #include <glm/fwd.hpp>
 #include <glm/gtx/dual_quaternion.hpp>
@@ -11,22 +23,11 @@
 #include <glm/gtx/transform.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtx/quaternion.hpp>
-
 #include <glm/trigonometric.hpp>
-#include <memory>
-#include <string>
-#include <algorithm>
 
-#include <imgui.h>
-#include <imgui/backends/imgui_impl_opengl3.h>
-#include <imgui/backends/imgui_impl_glfw.h>
-
-#include <GL/glew.h>
-#include <GLFW/glfw3.h>
-#include <glm/glm.hpp>
-#include <vector>
 
 #include "cad-base/gui/gui_render_window.hpp"
+#include "spdlog/spdlog.h"
 
 GuiRenderWindow::GuiRenderWindow(std::string name, GLFWwindow* glfw_window, std::shared_ptr<Viewport> viewport) : name(name), glfw_window(glfw_window), viewport_(viewport) {
     arcball_rotate_sensitivity = ARCBALL_ROTATE_SENSITIVITY_INITIAL;
@@ -34,8 +35,7 @@ GuiRenderWindow::GuiRenderWindow(std::string name, GLFWwindow* glfw_window, std:
 }
 
 void GuiRenderWindow::DrawRenderWindowSettings(double deltaTime) {
-  //Set options dropdown position
-
+    //Set options dropdown position
     ImVec2 settings_button_pos = ImVec2(OPTIONS_DROPDOWN_OFFSET, OPTIONS_DROPDOWN_OFFSET);
     ImGui::SetCursorPos(settings_button_pos);
 
@@ -118,7 +118,6 @@ void GuiRenderWindow::HandleIO() {
         || clicked_on_image[ImGuiMouseButton_Middle] 
         || clicked_on_image[ImGuiMouseButton_Right]);
 
-
     //Zoom
     if ((image_hovered || viewport_has_focus) && io.MouseWheel != 0) {
         viewport_->camera->SetZoom(viewport_->camera->GetZoom() + io.MouseWheel);
@@ -168,7 +167,13 @@ void GuiRenderWindow::HandleIO() {
             // viewport_->viewport_geo_renderable_pairs.emplace_back(line_geo, std::make_unique<Renderable>(viewport_->basic_shader, line_geo, GL_LINES));
 
             for (const auto& grp : viewport_->master_geo_renderable_pairs) {
-                grp.second->draw_aa_bounding_box = RayCubeIntersection(camera_pos, ray_dir, {grp.first->aa_bounding_box.min, grp.first->aa_bounding_box.max});
+                if (RayCubeIntersection(camera_pos, ray_dir, {grp.first->aa_bounding_box.min, grp.first->aa_bounding_box.max})) {
+                    grp.first->MoveOrigin(glm::vec3(100.0f, 0, 0));
+                    grp.second->draw_aa_bounding_box = true;
+
+                } else {
+                    grp.second->draw_aa_bounding_box = false;
+                }
             }
         }
     }

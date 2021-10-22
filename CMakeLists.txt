@@ -44,8 +44,13 @@ target_link_libraries(${APP_NAME} GLEW::GLEW)
 
 #assimp
 set(ASSIMP_SRC_DIR ${THIRDPARTY_DIR}/assimp)
-include_directories(ASSIMP_SRC_DIR}/include)
+include_directories(${ASSIMP_SRC_DIR}/include)
 add_subdirectory(${ASSIMP_SRC_DIR})
+
+#assimp
+set(SPDLOG_SRC_DIR ${THIRDPARTY_DIR}/spdlog)
+include_directories(${SPDLOG_SRC_DIR}/include)
+add_subdirectory(${SPDLOG_SRC_DIR})
 
 # Native File Dialog
 set(NFD_SRC_DIR ${THIRDPARTY_DIR}/nativefiledialog)
@@ -61,7 +66,6 @@ else()
 		${NFD_SRC_DIR}/src/nfd_zenity.c
 	)
 endif()
-target_link_libraries(cad-base nativefiledialog)
 include_directories(${NFD_SRC_DIR}/src/include)
 
 #Dear ImGui
@@ -79,7 +83,9 @@ set(IMGUI_SOURCES
     ${IMGUI_SRC_DIR}/imstb_truetype.h
 )
 add_library(imgui STATIC ${IMGUI_SOURCES})
-target_link_libraries(${APP_NAME} imgui assimp)
+
+# Link third party libs
+target_link_libraries(${APP_NAME} imgui assimp nativefiledialog spdlog)
 
 # Copy over shader files.
 add_custom_target(copy_assets

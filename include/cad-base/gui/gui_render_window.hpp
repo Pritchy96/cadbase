@@ -17,7 +17,7 @@ class GuiRenderWindow {
             std::string name;
             GLFWwindow* glfw_window;
             bool is_alive = true;
-
+            
             bool viewport_has_focus = false;
             bool clicked_on_image[5] = {false, false, false, false, false};
             
@@ -39,7 +39,6 @@ class GuiRenderWindow {
 
             const float ARCBALL_ROTATE_SENSITIVITY_INITIAL = 4.0f; 
             const float ARCBALL_PAN_SENSITIVITY_INITIAL = 100.0f; 
-
     };
 
 #endif

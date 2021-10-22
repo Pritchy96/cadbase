@@ -28,6 +28,11 @@ void Geometry::Update(double deltaT) {
 }
 
 int Geometry::GenerateFlatBuffers() {
+	flat_verts.clear();
+	flat_cols.clear();
+	aa_bounding_box.min = glm::vec3(INT16_MAX);
+	aa_bounding_box.max = glm::vec3(-INT16_MAX);
+
 	for (auto vertex : vertexes) {
 
 		glm::vec3 offset_vertex = vertex + origin_;	//TODO: should we pass this through to GLSL and do this there or something?
