@@ -91,11 +91,14 @@ void Viewport::Update(double deltaTime) {
         shared_ptr<Geometry> geometry = geo_renderable->first;
         shared_ptr<Renderable> renderable = geo_renderable->second;
 
+        renderable->Draw(deltaTime, camera->GetProjectionMatrix(), camera->GetViewMatrix());
+
+        //Do this after drawing so geo updated this frame is loaded into the VAO 
+        //(Geo is updated after renderables are drawn above)
         if (geometry->buffers_invalid) {
             renderable->valid_geometry_vao = false;
+            renderable->valid_aa_bounding_box_vao = false;
         }
-
-        renderable->Draw(deltaTime, camera->GetProjectionMatrix(), camera->GetViewMatrix());
         ++geo_renderable;
     }
 
@@ -121,9 +124,11 @@ void Viewport::Update(double deltaTime) {
 
         if (geometry->buffers_invalid) {
             renderable->valid_geometry_vao = false;
+            renderable->valid_aa_bounding_box_vao = false;
         }
 
         renderable->Draw(deltaTime, camera->GetProjectionMatrix(), camera->GetViewMatrix());
+
         ++geo_renderable;
     }
 

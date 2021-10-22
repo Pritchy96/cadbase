@@ -27,6 +27,7 @@
 
 
 #include "cad-base/gui/gui_render_window.hpp"
+#include "spdlog/spdlog.h"
 
 GuiRenderWindow::GuiRenderWindow(std::string name, GLFWwindow* glfw_window, std::shared_ptr<Viewport> viewport) : name(name), glfw_window(glfw_window), viewport_(viewport) {
     arcball_rotate_sensitivity = ARCBALL_ROTATE_SENSITIVITY_INITIAL;
@@ -117,7 +118,6 @@ void GuiRenderWindow::HandleIO() {
         || clicked_on_image[ImGuiMouseButton_Middle] 
         || clicked_on_image[ImGuiMouseButton_Right]);
 
-
     //Zoom
     if ((image_hovered || viewport_has_focus) && io.MouseWheel != 0) {
         viewport_->camera->SetZoom(viewport_->camera->GetZoom() + io.MouseWheel);
@@ -167,7 +167,13 @@ void GuiRenderWindow::HandleIO() {
             // viewport_->viewport_geo_renderable_pairs.emplace_back(line_geo, std::make_unique<Renderable>(viewport_->basic_shader, line_geo, GL_LINES));
 
             for (const auto& grp : viewport_->master_geo_renderable_pairs) {
-                grp.second->draw_aa_bounding_box = RayCubeIntersection(camera_pos, ray_dir, {grp.first->aa_bounding_box.min, grp.first->aa_bounding_box.max});
+                if (RayCubeIntersection(camera_pos, ray_dir, {grp.first->aa_bounding_box.min, grp.first->aa_bounding_box.max})) {
+                    grp.first->MoveOrigin(glm::vec3(100.0f, 0, 0));
+                    grp.second->draw_aa_bounding_box = true;
+
+                } else {
+                    grp.second->draw_aa_bounding_box = false;
+                }
             }
         }
     }
