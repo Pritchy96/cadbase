@@ -35,7 +35,7 @@ void GuiLogger::AddLog(const char* fmt, ...) {
 }
 
 void GuiLogger::Update() {
-if (!ImGui::Begin("Log")) {
+    if (!ImGui::Begin("Log")) {
         ImGui::End();
         return;
     }
