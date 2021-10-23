@@ -8,10 +8,12 @@ This is an incomplete list - for now, please refer to either the codebase or the
     - Fully realised Arcball camera - right click Rotate, middle click Pan, scroll Zoom.
     - Movable, dockable, independent windows.
     - Raycast picking - Left click to select an object.
+        - Click & Hold to move Geometry
     - Import Geometry from a variety of standard 3D file formats using Assimp - .obj, .blend, .3ds etc.
     - Master Geometry <-> Renderable linking allows for granular control of what the user sees; a hide boolean in the geometry object hides the object in all viewports, conversely a hide bool in the renderable hides the object in that viewport alone.
     - Isometric/Perspective camera toggling.
     - Toggleable grid.
+    - Rudimentary in-app logger. 
 
 #   Requirements
      git
