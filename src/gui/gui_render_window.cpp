@@ -4,6 +4,7 @@
 #include <memory>
 #include <string>
 #include <algorithm>
+#include <utility>
 #include <vector>
 
 #include <imgui.h>
@@ -29,7 +30,8 @@
 #include "cad-base/gui/gui_render_window.hpp"
 #include "spdlog/spdlog.h"
 
-GuiRenderWindow::GuiRenderWindow(std::string name, GLFWwindow* glfw_window, std::shared_ptr<Viewport> viewport) : name(name), glfw_window(glfw_window), viewport_(viewport) {
+GuiRenderWindow::GuiRenderWindow(std::string name, GLFWwindow* glfw_window, std::shared_ptr<Viewport> viewport, std::shared_ptr<GuiData> gui_data) 
+                                    : name(name), glfw_window(glfw_window), viewport_(viewport), gui_data(gui_data) {
     arcball_rotate_sensitivity = ARCBALL_ROTATE_SENSITIVITY_INITIAL;
     arcball_pan_sensitivity = ARCBALL_PAN_SENSITIVITY_INITIAL;
 }
@@ -67,7 +69,8 @@ void GuiRenderWindow::DrawRenderWindowSettings(double deltaTime) {
         ImGui::Separator();
         ImGui::Checkbox("Show Grid", &viewport_->grid->draw_geometry);
         ImGui::Checkbox("Show Render Axis", &viewport_->render_axis->draw_geometry);
-        ImGui::Checkbox("Show Bounding Boxes", &viewport_->master_geo_renderable_pairs.back().second->draw_aa_bounding_box);
+        //TODO: Implement proper "Render all geo's bounding boxes in this viewport" option
+        // ImGui::Checkbox("Show Bounding Boxes", &viewport_->master_geo_renderable_pairs.back().second->draw_aa_bounding_box);
         
         ImGui::Separator();
         if (ImGui::Button("Reset Pan")) {
@@ -159,21 +162,30 @@ void GuiRenderWindow::HandleIO() {
             mouse_world_pos /= mouse_world_pos.w;
             glm::vec3 ray_dir = glm::normalize(glm::vec3(mouse_world_pos));
 
-            // Debug: draw raycast lines
-            // std::vector<glm::vec3> line;
-            // line.emplace_back(camera_pos);
-            // line.emplace_back(camera_pos + (ray_dir * 10000.0f));
-            // std::shared_ptr<Geometry> line_geo = std::make_shared<Geometry>(line, line);
-            // viewport_->viewport_geo_renderable_pairs.emplace_back(line_geo, std::make_unique<Renderable>(viewport_->basic_shader, line_geo, GL_LINES));
+            //Visually unselect previously selected renderable, clear out the selection.
+            if (gui_data->selected_renderable != nullptr) {
+                gui_data->selected_renderable->geometry->draw_aa_bounding_box = false;
+                gui_data->selected_renderable = nullptr;
+            }
 
             for (const auto& grp : viewport_->master_geo_renderable_pairs) {
+            //TODO: add a minimum distance? stops selecting objects that are < min clipping distance.
                 if (RayCubeIntersection(camera_pos, ray_dir, {grp.first->aa_bounding_box.min, grp.first->aa_bounding_box.max})) {
-                    grp.first->MoveOrigin(glm::vec3(100.0f, 0, 0));
-                    grp.second->draw_aa_bounding_box = true;
-
-                } else {
-                    grp.second->draw_aa_bounding_box = false;
+                    gui_data->selected_renderable = grp.second;
+                    gui_data->selected_renderable->geometry->draw_aa_bounding_box = true;
+                    break;
                 }
+            }
+        }
+    } else if (ImGui::IsMouseDragging(ImGuiMouseButton_Left)) {
+        if (image_hovered) {
+
+            //TODO: use Persp matrix and distance from camera > selected object to make movement of object 1:1 with movement of object.
+            glm::vec4 mouse_delta_world = viewport_->camera->GetRotation() * glm::vec4(mouse_delta.x, 0.0f, -mouse_delta.y, 1.0f);
+            mouse_delta_world /= mouse_delta_world.w;
+
+            if (gui_data->selected_renderable != nullptr) {
+                gui_data->selected_renderable->geometry->MoveOrigin(mouse_delta_world);
             }
         }
     }

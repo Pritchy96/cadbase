@@ -186,7 +186,7 @@ void SetupRenderWindows() {
 
         // Make our render windows - one for each viewport for now.
         std::string name = "Render Window " + std::to_string(i);
-        gui_main->gui_render_windows.push_back(make_shared<GuiRenderWindow>(name, glfw_window, viewports->back()));
+        gui_main->gui_render_windows.push_back(make_shared<GuiRenderWindow>(name, glfw_window, viewports->back(), gui_main->gui_data));
     }
 }
 

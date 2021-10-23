@@ -46,7 +46,7 @@
             //Only if corresponding bool in renderable is true.
             //Setting these false here will make whatever it is invisible in ALL viewports
             bool draw_geometry = true;
-            bool draw_aa_bounding_box = true;
+            bool draw_aa_bounding_box = false;
             
             bool is_dead = false;
 
