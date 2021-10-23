@@ -2,6 +2,7 @@
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <memory>
 #include <spdlog/spdlog.h>
 #include <nfd.h>
 
@@ -21,6 +22,8 @@ GuiMain::GuiMain(GLFWwindow* glfw_window, std::shared_ptr<GuiLogger> gui_logger_
     main_imgui_viewport_ = ImGui::GetMainViewport();
 
     gui_settings_ = make_unique<GuiProject>("Project", glfw_window);
+
+    gui_data = std::make_shared<GuiData>();
 }
 
 bool GuiMain::SetupImgui() {
@@ -328,3 +331,5 @@ void GuiMain::Update(double deltaTime) {
     }
 
 }
+
+

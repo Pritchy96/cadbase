@@ -75,6 +75,9 @@ void Renderable::Draw(double deltaT, glm::mat4 projectionMatrix, glm::mat4 viewM
 		glDrawArrays(render_type, 0, geometry->flat_verts.size()/3);
 	}
 	
+	//TODO: Is this better to be "geo AND renderable bool" or "geo OR renderable bool"
+	//Maybe make it "and" but have a seperate "override" for each which is or'd
+	//I.e ((geometry->draw_aa_bounding_box && draw_aa_bounding_box) || geometry->draw_aa_bounding_box_force || draw_aa_bounding_box_force)
 	if (geometry->draw_aa_bounding_box && draw_aa_bounding_box) {
 		//TODO: is there a better way to do this than to have two VAOs?
 		glBindVertexArray(GetAABoundingBoxVao());

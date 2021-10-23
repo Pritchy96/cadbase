@@ -31,7 +31,7 @@
             //Only if corresponding bool in geometry is true.
             //Setting these false here will make whatever it is invisible in this viewport ONLY.
             bool draw_geometry = true;
-            bool draw_aa_bounding_box = false;
+            bool draw_aa_bounding_box = true;
 
             virtual void Draw(double deltaT, glm::mat4 projectionMatrix, glm::mat4 viewMatrix);
 

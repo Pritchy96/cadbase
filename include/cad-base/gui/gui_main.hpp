@@ -15,6 +15,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "cad-base/gui/gui_project.hpp"
+#include "cad-base/gui/gui_data.hpp"
 #include "cad-base/gui/gui_render_window.hpp"
 #include "cad-base/gui/gui_logger.hpp"
 
@@ -34,6 +35,7 @@ class GuiMain {
             GLFWwindow* glfw_window;
 
             std::vector<std::shared_ptr<GuiRenderWindow>> gui_render_windows;
+            std::shared_ptr<GuiData> gui_data;
 
             const ImVec4 BACKGROUND_COLOUR = ImVec4(0.15f, 0.15f, 0.15f, 1.00f);
 
@@ -59,5 +61,7 @@ class GuiMain {
 
             bool first_time_ = true;
         };
+
+
 
 #endif
