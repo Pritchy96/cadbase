@@ -1,7 +1,9 @@
 #ifndef GUIRENDERTEXTURE_HPP
 #define GUIRENDERTEXTURE_HPP
 
-    #include <glm/fwd.hpp>
+    #include "cad-base/gui/gui_data.hpp"
+#include "cad-base/raycast/ray.hpp"
+#include <glm/fwd.hpp>
     #include <iostream>
     #include <cstdio>
     #include <cstdlib>
@@ -24,15 +26,23 @@
     #include "cad-base/renderable.hpp"
     #include "cad-base/camera.hpp"
 
+    class NaviCube; //Forward declaration of NaviCube.
+
     class GuiRenderTexture {
         public:
-            GuiRenderTexture(GLFWwindow *window, glm::vec4 background_col, int window_width, int window_height);
+                GuiRenderTexture(GLFWwindow *window, glm::vec4 background_col, int window_width, int window_height, std::shared_ptr<GuiData> gui_data);
             ~GuiRenderTexture() = default;
 
             void Update();  
             virtual void Draw();
 
+            glm::vec3 GetArcballVector(glm::vec2 screen_pos, glm::vec2 screen_size);
+            bool RayCubeIntersection(Ray ray, std::array<glm::vec3, 2> boxBounds);
+            void HandleIO();
+            void SetupFBO();
+
             std::shared_ptr<glm::vec2> window_size;
+            std::shared_ptr<GuiData> gui_data;
 
             Camera* camera;
             glm::vec4 background_colour;
@@ -54,8 +64,10 @@
         private:
             GLFWwindow *glfw_window_;
             
-            void SetupFBO();
             bool CheckFramebufferStatus(GLuint fbo);
+
+            const float ARCBALL_ROTATE_SENSITIVITY_INITIAL = 4.0f; 
+            const float ARCBALL_PAN_SENSITIVITY_INITIAL = 100.0f; 
     };
 
 #endif

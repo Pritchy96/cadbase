@@ -1,7 +1,8 @@
 #ifndef VIEWPORT_HPP
 #define VIEWPORT_HPP
 
-    #include <glm/fwd.hpp>
+    #include "cad-base/gui/gui_data.hpp"
+#include <glm/fwd.hpp>
     #include <iostream>
     #include <cstdio>
     #include <cstdlib>
@@ -28,7 +29,7 @@
 
     class Viewport: public GuiRenderTexture, public std::enable_shared_from_this<Viewport> {
         public:
-            Viewport(GLFWwindow *window, glm::vec4 background_col, int window_width, int window_height);
+            Viewport(GLFWwindow *window, glm::vec4 background_col, int viewport_width, int viewport_height, std::shared_ptr<GuiData> gui_data);
             ~Viewport() = default;
 
             std::shared_ptr<Viewport> GetSharedPtr() {

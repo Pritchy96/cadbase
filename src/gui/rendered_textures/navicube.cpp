@@ -12,8 +12,8 @@ using std::make_unique;
 
 using glm::vec3;
 
-NaviCube::NaviCube(GLFWwindow *window, glm::vec4 background_col, int window_width, int window_height) 
-    : GuiRenderTexture(window, background_col, window_width, window_height) {
+NaviCube::NaviCube(GLFWwindow *window, glm::vec4 background_col, int window_width, int window_height, shared_ptr<GuiData> gui_data) 
+    : GuiRenderTexture(window, background_col, window_width, window_height, gui_data) {
 
     camera->SetProjectionStyle(true);
 

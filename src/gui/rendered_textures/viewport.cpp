@@ -1,5 +1,6 @@
 #include "cad-base/gui/rendered_textures/viewport.hpp"	
 #include "cad-base/geometry/viewport_grid.hpp"
+#include "cad-base/gui/gui_data.hpp"
 #include "cad-base/gui/rendered_textures/gui_render_texture.hpp"
 
 #include <spdlog/spdlog.h>
@@ -32,8 +33,8 @@ const vector<vec3> AXIS_COLOURS = {
 	vec3(0.0f, 0.0f, 1.0f)
 };
 
-Viewport::Viewport(GLFWwindow *window, glm::vec4 background_col, int window_width, int window_height) 
-    : GuiRenderTexture(window, background_col, window_width, window_height) {
+Viewport::Viewport(GLFWwindow *window, glm::vec4 background_col, int viewport_width, int viewport_height, shared_ptr<GuiData> gui_data) 
+    : GuiRenderTexture(window, background_col, viewport_width, viewport_height, gui_data) {
 
     spdlog::info("Viewport Initialised");
 
@@ -44,7 +45,7 @@ Viewport::Viewport(GLFWwindow *window, glm::vec4 background_col, int window_widt
 	viewport_geo_renderable_pairs.emplace_back(grid, make_unique<Renderable>(basic_shader, grid, GL_LINES));
 }
 
-void Viewport::Draw() { 
+void Viewport::Draw() {
     //Call base class Draw method.
     GuiRenderTexture::Draw();
 

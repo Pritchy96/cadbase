@@ -179,11 +179,13 @@ bool ImportGeoTest(const std::string& pFile) {
 void SetupRenderWindows() {
     // TODO: temp test.
     for (int i= 0; i < 1; i++) { 
-        viewports->push_back(make_shared<Viewport>(glfw_window, glm::vec4(gui_main->BACKGROUND_COLOUR.x, gui_main->BACKGROUND_COLOUR.y, gui_main->BACKGROUND_COLOUR.z, 1.0f), 1000, 1000));
+        viewports->push_back(make_shared<Viewport>(glfw_window, 
+            glm::vec4(gui_main->BACKGROUND_COLOUR.x, gui_main->BACKGROUND_COLOUR.y, gui_main->BACKGROUND_COLOUR.z, 1.0f),
+            1000, 1000, gui_main->gui_data));
 
         // Make our render windows - one for each viewport for now.
         std::string name = "Render Window " + std::to_string(i);
-        gui_main->gui_render_windows.push_back(make_shared<GuiRenderWindow>(name, glfw_window, viewports->back(), gui_main->gui_data));
+        gui_main->gui_render_windows.push_back(make_shared<GuiRenderWindow>(name, glfw_window, viewports->back()));
     }
 }
 

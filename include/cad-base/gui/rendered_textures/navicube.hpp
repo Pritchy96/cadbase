@@ -27,7 +27,7 @@
 
     class NaviCube : public GuiRenderTexture {
         public:
-            NaviCube(GLFWwindow *window, glm::vec4 background_col, int window_width, int window_height);
+            NaviCube(GLFWwindow *window, glm::vec4 background_col, int window_width, int window_height, std::shared_ptr<GuiData> gui_data);
             ~NaviCube() = default;
 
         private:
