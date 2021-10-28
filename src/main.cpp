@@ -175,13 +175,13 @@ bool ImportGeoTest(const std::string& pFile) {
         }
     }
 
-	master_geometry->push_back(make_shared<Geometry>(test_geo, glm::vec3((rand() % 1000) - 500, (rand() % 1000) - 500, (rand() % 1000) - 500)));
+	master_geometry->push_back(make_shared<Geometry>(test_geo, "Test Geo: " + std::to_string(rand()), glm::vec3((rand() % 1000) - 500, (rand() % 1000) - 500, (rand() % 1000) - 500)));
     return true;
 }
 
 void SetupRenderWindows() {
     // TODO: temp test.
-    for (int i= 0; i < 4; i++) { 
+    for (int i= 0; i < 1; i++) { 
         viewports->push_back(make_shared<Viewport>(glfw_window, glm::vec3(gui_main->BACKGROUND_COLOUR.x, gui_main->BACKGROUND_COLOUR.y, gui_main->BACKGROUND_COLOUR.z), 1000, 1000));
 
         // Make our render windows - one for each viewport for now.

@@ -1,83 +1,74 @@
-#include "cad-base/viewport.hpp"	
-#include "cad-base/geometry/viewport_grid.hpp"
+#include "cad-base/navicube.hpp"	
 
 #include <spdlog/spdlog.h>
 #include <glm/fwd.hpp>
 #include <memory>
 #include <vector>
 
-using std::vector;
 using std::shared_ptr;
 using std::make_shared;
 using std::make_unique;
 
 using glm::vec3;
 
-const vector<vec3> AXIS_LINES = {
-    vec3(0.0f, 0.0f, 0.0f),	// x
-	vec3(100.0f, 0.0f, 0.0f),
-	vec3(0.0f, 0.0f, 0.0f),	// y	
-	vec3(0.0f, 100.0f, 0.0f), 
-	vec3(0.0f, 0.0f, 0.0f),	// z
-	vec3(0.0f, 0.0f, 100.0f),
-};
-
-const vector<vec3> AXIS_COLOURS = {
-    vec3(1.0f, 0.0f, 0.0f),	// x
-	vec3(1.0f, 0.0f, 0.0f),	
-	vec3(0.0f, 1.0f, 0.0f), // y
-	vec3(0.0f, 1.0f, 0.0f),
-	vec3(0.0f, 0.0f, 1.0f),	// z
-	vec3(0.0f, 0.0f, 1.0f)
-};
-
-Viewport::Viewport(GLFWwindow *window, glm::vec3 background_col, int window_width, int window_height) {
-    
+NaviCube::NaviCube(GLFWwindow *window, glm::vec4 background_col, int window_width, int window_height) {
     spdlog::info("Viewport Initialised");
-	glfw_window = window;
-	window_size_ = make_shared<glm::vec2>(window_width, window_height);
+	glfw_window_ = window;
+	window_size = make_shared<glm::vec2>(window_width, window_height);
 	background_colour = background_col;
 
-	camera = new Camera(glm::vec3(0.0f, 0.0f, 0.0f), 50.0f, window_size_);
+	camera = new Camera(glm::vec3(0.0f, 0.0f, 0.0f), 200.0f, window_size);
+    camera->SetProjectionStyle(true);
 
 	// TODO: Move everything dependent on this (gl calls, shader loads etc) to an init() function so this context setting can be done 
 	// in main.cpp
-	glfwMakeContextCurrent(glfw_window);
+	glfwMakeContextCurrent(glfw_window_);
 
 	// TODO: file paths are currently relative to excution path, not main location.
 	// TODO: load these once, keep in static file?
 	basic_shader = shader::LoadShaders((char*)"./shaders/basic_camera.vertshader", (char*)"./shaders/basic_camera.fragshader");
 
+    shared_ptr<Geometry> geo = make_shared<Geometry>(face_1_, "Face 1");
+	navicube_geo_renderable_pairs.emplace_back(geo, make_unique<Renderable>(basic_shader, geo, GL_TRIANGLES));
+
+    geo = make_shared<Geometry>(face_2_, "Face 2");
+	navicube_geo_renderable_pairs.emplace_back(geo, make_unique<Renderable>(basic_shader, geo, GL_TRIANGLES));
+    
+    geo = make_shared<Geometry>(face_3_, "Face 3");
+	navicube_geo_renderable_pairs.emplace_back(geo, make_unique<Renderable>(basic_shader, geo, GL_TRIANGLES));
+
+    geo = make_shared<Geometry>(face_4_, "Face 4");
+	navicube_geo_renderable_pairs.emplace_back(geo, make_unique<Renderable>(basic_shader, geo, GL_TRIANGLES));
+
+    geo = make_shared<Geometry>(face_5_, "Face 5");
+	navicube_geo_renderable_pairs.emplace_back(geo, make_unique<Renderable>(basic_shader, geo, GL_TRIANGLES));
+
+    geo = make_shared<Geometry>(face_6_, "Face 6");
+	navicube_geo_renderable_pairs.emplace_back(geo, make_unique<Renderable>(basic_shader, geo, GL_TRIANGLES));
+
     SetupFBO();
-
-    render_axis = make_shared<Geometry>(AXIS_LINES, AXIS_COLOURS, "Render Axis");
-	viewport_geo_renderable_pairs.emplace_back(render_axis, make_unique<Renderable>(basic_shader, render_axis, GL_LINES));
-
-    grid = make_shared<ViewportGrid>(50, 50, 20, 20, glm::vec3(0.3f, 0.3f, 0.3f), basic_shader);
-	viewport_geo_renderable_pairs.emplace_back(grid, make_unique<Renderable>(basic_shader, grid, GL_LINES));
 }
 
-void Viewport::SetupTransformShader(GLuint transformShader) {
-	t_shader = transformShader;
-}
-
-void Viewport::Update(double deltaTime) {
+void NaviCube::Update(double deltaTime) {
     glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 
-    glViewport(0, 0, WIDTH, HEIGHT);
-    glClearColor(background_colour.r, background_colour.g, background_colour.b, 1.0f);
+    glEnable(GL_DEPTH_TEST); // Enable depth-testing
+    // glEnable(GL_CULL_FACE);
+
+    glViewport(0, 0, window_size->x, window_size->y);
+    glClearColor(background_colour.r, background_colour.g, background_colour.b, background_colour.a);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	glPolygonMode(render_face, render_mode);
 
     //Render master Geo.
-    auto geo_renderable = master_geo_renderable_pairs.begin();
+    auto geo_renderable = navicube_geo_renderable_pairs.begin();
 
-    while(geo_renderable != master_geo_renderable_pairs.end()) {
+    while(geo_renderable != navicube_geo_renderable_pairs.end()) {
         // Geo is dead, nuke the map link
         if (geo_renderable->first->is_dead) {
             // iterator.erase gives the next item in the list.
-            geo_renderable = master_geo_renderable_pairs.erase(geo_renderable);
+            geo_renderable = navicube_geo_renderable_pairs.erase(geo_renderable);
             continue;
         }
 
@@ -101,37 +92,7 @@ void Viewport::Update(double deltaTime) {
         ++geo_renderable;
     }
 
-    //Render viewport specific stuff.
-    geo_renderable = viewport_geo_renderable_pairs.begin();
-
-    while(geo_renderable != viewport_geo_renderable_pairs.end()) {
-        // Geo is dead, nuke the map link
-        if (geo_renderable->first->is_dead) {
-            // iterator.erase gives the next item in the list.
-            geo_renderable = viewport_geo_renderable_pairs.erase(geo_renderable);
-            continue;
-        }
-
-        if (geo_renderable->second == nullptr) {
-            // Renderable for geo doesn't exist, make one.
-            // TODO: Some logic to choose a render type? (currently default to GL_TRIANGLES)
-            geo_renderable->second = make_unique<Renderable>(basic_shader, geo_renderable->first, GL_TRIANGLES);
-        }
-
-        shared_ptr<Geometry> geometry = geo_renderable->first;
-        shared_ptr<Renderable> renderable = geo_renderable->second;
-
-        if (geometry->buffers_invalid) {
-            renderable->valid_geometry_vao = false;
-            renderable->valid_aa_bounding_box_vao = false;
-        }
-
-        renderable->Draw(deltaTime, camera->GetProjectionMatrix(), camera->GetViewMatrix());
-
-        ++geo_renderable;
-    }
-
-    //Render debug stuff.
+    //Render debug Geo.
     geo_renderable = debug_geo_renderable_pairs.begin();
 
     while(geo_renderable != debug_geo_renderable_pairs.end()) {
@@ -151,22 +112,27 @@ void Viewport::Update(double deltaTime) {
         shared_ptr<Geometry> geometry = geo_renderable->first;
         shared_ptr<Renderable> renderable = geo_renderable->second;
 
+        renderable->Draw(deltaTime, camera->GetProjectionMatrix(), camera->GetViewMatrix());
+
+        //Do this after drawing so geo updated this frame is loaded into the VAO 
+        //(Geo is updated after renderables are drawn above)
         if (geometry->buffers_invalid) {
             renderable->valid_geometry_vao = false;
             renderable->valid_aa_bounding_box_vao = false;
         }
-
-        renderable->Draw(deltaTime, camera->GetProjectionMatrix(), camera->GetViewMatrix());
-
         ++geo_renderable;
     }
+
 
     // Bind default framebuffer again.
     glBindVertexArray(0);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    glDisable(GL_DEPTH_TEST); // Disable depth testing for rest of UI.
+    glDisable(GL_CULL_FACE);
 }
 
-void Viewport::SetupFBO() {
+void NaviCube::SetupFBO() {
     //Colour texture
 	glGenTextures(1, &colour_texture);
 	glBindTexture(GL_TEXTURE_2D, colour_texture);
@@ -174,7 +140,7 @@ void Viewport::SetupFBO() {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, WIDTH, HEIGHT, 0, GL_RGBA,GL_UNSIGNED_BYTE , 0);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, window_size->x, window_size->y, 0, GL_RGBA,GL_UNSIGNED_BYTE , 0);
 	glBindTexture(GL_TEXTURE_2D, 0);
 
     // Depth texture - Slower than depth buffer, but can sample it later in shader
@@ -185,7 +151,7 @@ void Viewport::SetupFBO() {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, WIDTH, HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, window_size->x, window_size->y, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
 	glBindTexture(GL_TEXTURE_2D, 0);
 
 	glGenFramebuffers(1, &fbo);
@@ -202,7 +168,7 @@ void Viewport::SetupFBO() {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-bool Viewport::CheckFramebufferStatus(GLuint fbo) {
+bool NaviCube::CheckFramebufferStatus(GLuint fbo) {
     // check FBO status
     glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 
@@ -249,8 +215,3 @@ bool Viewport::CheckFramebufferStatus(GLuint fbo) {
     }
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
-
-// void Viewport::WindowSizeCallback(GLFWwindow* glfw_window, int width, int height) {
-//  	this->window_height_ = height;
-// 	this->window_width_ = width;
-// }

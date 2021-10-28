@@ -3,6 +3,7 @@
 
     // #include "stdafx.h"
     #include <glm/fwd.hpp>
+#include <string>
 #include <vector>
     #include <GL/glew.h>
     #include <GLFW/glfw3.h>
@@ -16,8 +17,8 @@
     class Geometry {
         public:
             Geometry() = default;
-            explicit Geometry(std::vector<glm::vec3> vert_data, glm::vec3 origin = glm::vec3(0.0f));
-            Geometry(std::vector<glm::vec3> vert_data, std::vector<glm::vec3> colour_data, glm::vec3 origin = glm::vec3(0.0f));
+            explicit Geometry(std::vector<glm::vec3> vert_data, std::string name, glm::vec3 origin = glm::vec3(0.0f));
+            Geometry(std::vector<glm::vec3> vert_data, std::vector<glm::vec3> colour_data, std::string name, glm::vec3 origin = glm::vec3(0.0f));
 
             void Update(double deltaT);
 
@@ -36,6 +37,7 @@
             virtual ~Geometry() = default;
             virtual int GenerateFlatBuffers();
 
+            std::string name;
 
             // TODO: replace these with accessors into flatverts.
             std::vector<glm::vec3> vertexes, colours;

@@ -7,14 +7,14 @@
 using std::vector;
 using glm::vec3;
 
-Geometry::Geometry(vector<vec3> vert_data, glm::vec3 origin) : origin_(origin) {
+Geometry::Geometry(vector<vec3> vert_data, std::string name, glm::vec3 origin) : origin_(origin), name(name) {
 	vertexes = vert_data;
 	colours = vert_data;
 
 	GenerateFlatBuffers();
 }
 
-Geometry::Geometry(vector<vec3> vert_data, vector<vec3> colour_data, glm::vec3 origin) : origin_(origin) {
+Geometry::Geometry(vector<vec3> vert_data, vector<vec3> colour_data, std::string name, glm::vec3 origin) : origin_(origin), name(name) {
 	vertexes = vert_data;
 	colours = colour_data;
 

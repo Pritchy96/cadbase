@@ -15,15 +15,16 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/rotate_vector.hpp>
 #include <glm/gtc/matrix_inverse.hpp>
+#include <memory>
 
     class Camera {
         public:
 
-            Camera(glm::vec3 initial_target, float initial_zoom);
+            Camera(glm::vec3 initial_target, float initial_zoom, std::shared_ptr<glm::vec2> window_size);
             ~Camera();
 
             void SetProjectionStyle(bool ortho_not_perspective_camera);
-            bool GetProjectionStyle() const { return ortho_not_perspective_; }
+            bool IsOrthoCamera() const { return ortho_not_perspective_; }
 
             glm::mat4 GetDistanceMatrix();
             glm::mat4 GetViewMatrix();
@@ -80,6 +81,14 @@
             glm::mat4 GetCameraTransform() {
                 return camera_transform_;
             }
+
+            float GetOrthoFustrumWidth() {
+                return ortho_fustrum_width_;
+            }
+
+            float GetOrthoFustrumHeight() {
+                return ortho_fustrum_height_;
+            }
     
 
         private: 
@@ -97,10 +106,12 @@
 
             glm::mat4 projection_matrix_;
 
-            const float INITIAL_FOV = 90.0f, INITIAL_ASPECT_RATIO = 4.0f/3.0f, INITIAL_Z_NEAR = 1.0f, INITIAL_Z_FAR = 10000.0f, 
-                INITIAL_ORTHO_LEFT = -300.0f, INITIAL_ORTHO_RIGHT = 300.0f, INITIAL_ORTHO_BOTTOM = -300.0f, INITIAL_ORTHO_TOP = 300.0f;
-            float fov_ = INITIAL_FOV, aspect_ratio_ = INITIAL_ASPECT_RATIO, z_near_ = INITIAL_Z_NEAR, z_far_ = INITIAL_Z_FAR, 
-                ortho_left_ = INITIAL_ORTHO_LEFT, ortho_right_ = INITIAL_ORTHO_RIGHT, ortho_bottom_ = INITIAL_ORTHO_BOTTOM, ortho_top_ = INITIAL_ORTHO_TOP;
-    };
+            float ortho_fustrum_width_, ortho_fustrum_height_;
+
+            std::shared_ptr<glm::vec2> window_size_;
+
+            const float INITIAL_FOV = 90.0f, INITIAL_Z_NEAR = 1.0f, INITIAL_Z_FAR = 10000.0f;
+            float fov_ = INITIAL_FOV, z_near_ = INITIAL_Z_NEAR, z_far_ = INITIAL_Z_FAR;  
+        };
     
 #endif

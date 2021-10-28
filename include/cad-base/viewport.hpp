@@ -47,6 +47,7 @@
             std::vector<std::pair<std::shared_ptr<Geometry>, std::shared_ptr<Renderable>>> master_geo_renderable_pairs;
             //Viewport specific stuff that doesn't need i.e selecting etc.
             std::vector<std::pair<std::shared_ptr<Geometry>, std::shared_ptr<Renderable>>> viewport_geo_renderable_pairs;
+            std::vector<std::pair<std::shared_ptr<Geometry>, std::shared_ptr<Renderable>>> debug_geo_renderable_pairs;
 
             GLuint t_shader;      
             GLuint shader_id;    
@@ -69,8 +70,8 @@
 
             Camera* camera;
         private:
-            int window_width_, window_height_;
-
+            std::shared_ptr<glm::vec2> window_size_; 
+            
             void SetupFBO(); 
             void SetupTransformShader(GLuint transformShader);  
             bool CheckFramebufferStatus(GLuint fbo);
