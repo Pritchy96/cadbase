@@ -20,7 +20,7 @@
             explicit Geometry(std::vector<glm::vec3> vert_data, std::string name, glm::vec3 origin = glm::vec3(0.0f));
             Geometry(std::vector<glm::vec3> vert_data, std::vector<glm::vec3> colour_data, std::string name, glm::vec3 origin = glm::vec3(0.0f));
 
-            void Update(double deltaT);
+            void Update();
 
             glm::vec3 GetOrigin() { return origin_; }
 

@@ -33,7 +33,7 @@
             bool draw_geometry = true;
             bool draw_aa_bounding_box = true;
 
-            virtual void Draw(double deltaT, glm::mat4 projectionMatrix, glm::mat4 viewMatrix);
+            virtual void Draw(glm::mat4 projectionMatrix, glm::mat4 viewMatrix);
 
             std::shared_ptr<Geometry> geometry;
             GLuint shader, render_type;

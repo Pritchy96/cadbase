@@ -1,9 +1,9 @@
 #ifndef GUI_RENDER_WINDOW_HPP
 #define GUI_RENDER_WINDOW_HPP
 
-#include "cad-base/navicube.hpp"
 #include "cad-base/raycast/ray.hpp"
-#include "cad-base/viewport.hpp"
+#include "cad-base/gui/rendered_textures/viewport.hpp"
+#include "cad-base/gui/rendered_textures/navicube.hpp"
 #include "cad-base/gui/gui_data.hpp"
 
 #include <glm/fwd.hpp>
@@ -37,8 +37,8 @@ class GuiRenderWindow {
             void HandleViewportIO();
             void HandleNaviCubeIO();
 
-            void Draw(double deltaTime);
-            void DrawRenderWindowSettings(double deltaTime);
+            void Draw();
+            void DrawRenderWindowSettings();
             glm::vec3 GetArcballVector(glm::vec2 screen_pos, glm::vec2 screen_size);
             bool RayCubeIntersection(Ray ray, std::array<glm::vec3, 2> boxBounds);
         private:   

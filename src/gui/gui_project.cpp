@@ -1,5 +1,5 @@
 #include "cad-base/gui/gui_project.hpp"
-#include "cad-base/viewport.hpp"
+#include "cad-base/gui/rendered_textures/viewport.hpp"
 
 #include <GLFW/glfw3.h>
 #include <imgui.h>
@@ -16,7 +16,7 @@ GuiProject::GuiProject(std::string name, GLFWwindow* glfw_window) : name(name), 
   
 }
 
-void GuiProject::Draw(double deltaTime) {
+void GuiProject::Draw() {
     ImGui::Begin(name.c_str());
 
     ImGui::Text("Application average: %.3f ms/frame\n(%.1f FPS)\n", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);

@@ -34,17 +34,17 @@
 
 #include "cad-base/gui/gui_render_window.hpp"
 #include "cad-base/raycast/ray.hpp"
-#include "cad-base/navicube.hpp"
+#include "cad-base/gui/rendered_textures/navicube.hpp"
 
 GuiRenderWindow::GuiRenderWindow(std::string name, GLFWwindow* glfw_window, std::shared_ptr<Viewport> viewport, std::shared_ptr<GuiData> gui_data) 
                                     : name(name), glfw_window(glfw_window), viewport_(viewport), gui_data(gui_data) {
     arcball_rotate_sensitivity = ARCBALL_ROTATE_SENSITIVITY_INITIAL;
     arcball_pan_sensitivity = ARCBALL_PAN_SENSITIVITY_INITIAL;
 
-    navicube_ = std::make_shared<NaviCube>(glfw_window, glm::vec4(viewport_->background_colour, 0.0f), 200, 200);
+    navicube_ = std::make_shared<NaviCube>(glfw_window, viewport_->background_colour, 200, 200);
 }
 
-void GuiRenderWindow::DrawRenderWindowSettings(double deltaTime) {
+void GuiRenderWindow::DrawRenderWindowSettings() {
     //Set options dropdown position
     ImVec2 settings_button_pos = ImVec2(OPTIONS_DROPDOWN_OFFSET, OPTIONS_DROPDOWN_OFFSET);
     ImGui::SetCursorPos(settings_button_pos);
@@ -78,7 +78,7 @@ void GuiRenderWindow::DrawRenderWindowSettings(double deltaTime) {
         ImGui::Checkbox("Show Grid", &viewport_->grid->draw_geometry);
         ImGui::Checkbox("Show Render Axis", &viewport_->render_axis->draw_geometry);
         //TODO: Implement proper "Render all geo's bounding boxes in this viewport" option
-        // ImGui::Checkbox("Show Bounding Boxes", &viewport_->master_geo_renderable_pairs.back().second->draw_aa_bounding_box);
+        // ImGui::Checkbox("Show Bounding Boxes", &viewport_->geo_renderable_pairs.back().second->draw_aa_bounding_box);
         
         ImGui::Separator();
         if (ImGui::Button("Reset Pan")) {
@@ -207,7 +207,7 @@ void GuiRenderWindow::HandleViewportIO() {
             float closest_renderable_distance = MAXFLOAT;
             std::shared_ptr<Renderable> closest_renderable;
 
-            for (const auto& grp : viewport_->master_geo_renderable_pairs) {
+            for (const auto& grp : viewport_->geo_renderable_pairs) {
             //TODO: Ensure closest_renderable_distance > minimum distance? stops selecting objects that are < min clipping distance.
                 if (RayCubeIntersection(ray, {grp.first->aa_bounding_box.min, grp.first->aa_bounding_box.max})) {
 
@@ -268,8 +268,6 @@ void GuiRenderWindow::HandleNaviCubeIO() {
     glm::vec2 mouse_pos_last = mouse_pos - (mouse_delta * arcball_rotate_sensitivity);
 
     glm::vec2 cursorPos = glm::vec2(ImGui::GetCursorScreenPos().x, ImGui::GetCursorScreenPos().y);
-
-    ImGui::GetCurrentWindow()->DrawList->AddRect(ImGui::GetItemRectMin(), ImGui::GetItemRectMax(), IM_COL32( 255, 255, 0, 255 ));
 
     bool image_hovered = ImGui::IsItemHovered();
 
@@ -355,7 +353,7 @@ void GuiRenderWindow::HandleNaviCubeIO() {
             float closest_renderable_distance = MAXFLOAT;
             std::shared_ptr<Renderable> closest_renderable;
 
-            for (const auto& grp : navicube_->navicube_geo_renderable_pairs) {
+            for (const auto& grp : navicube_->geo_renderable_pairs) {
             //TODO: Ensure closest_renderable_distance > minimum distance? stops selecting objects that are < min clipping distance.
                 if (RayCubeIntersection(ray, {grp.first->aa_bounding_box.min, grp.first->aa_bounding_box.max})) {
 
@@ -450,7 +448,7 @@ glm::vec3 GuiRenderWindow::GetArcballVector(glm::vec2 screen_pos, glm::vec2 scre
     return vector;
 }
 
-void GuiRenderWindow::Draw(double deltaTime) {
+void GuiRenderWindow::Draw() {
     is_alive = ImGui::Begin(name.c_str());
     // Using a Child allow to fill all the space of the window.
     ImGui::BeginChild("Render Window Child");
@@ -463,12 +461,12 @@ void GuiRenderWindow::Draw(double deltaTime) {
     HandleViewportIO();
 
 
-    navicube_->Update(deltaTime);
+    navicube_->Update();
     ImGui::SetCursorPos(ImVec2(window_size_.x - 220, 20));
     ImGui::Image((ImTextureID)navicube_->colour_texture, ImVec2(200, 200), ImVec2(0, 1), ImVec2(1, 0));
     HandleNaviCubeIO();
 
-    DrawRenderWindowSettings(deltaTime);
+    DrawRenderWindowSettings();
 
     ImGui::EndChild();
     ImGui::End();

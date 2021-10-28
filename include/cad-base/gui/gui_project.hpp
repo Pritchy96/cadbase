@@ -1,7 +1,7 @@
 #ifndef GUI_PROJECT_HPP
 #define GUI_PROJECT_HPP
 
-#include "cad-base/viewport.hpp"
+#include "cad-base/gui/rendered_textures/viewport.hpp"
 
 #include <memory>
 #include <string>
@@ -14,7 +14,7 @@ class GuiProject {
             GuiProject(std::string name, GLFWwindow* glfw_window);
             // ~GuiProject();
 
-            void Draw(double deltaTime);
+            void Draw();
 
             std::string name;
             GLFWwindow* glfw_window;

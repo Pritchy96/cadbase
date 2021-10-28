@@ -21,7 +21,7 @@ Geometry::Geometry(vector<vec3> vert_data, vector<vec3> colour_data, std::string
 	GenerateFlatBuffers();
 }
 
-void Geometry::Update(double deltaT) {
+void Geometry::Update() {
 	if (buffers_invalid) {
 		GenerateFlatBuffers();
 	}

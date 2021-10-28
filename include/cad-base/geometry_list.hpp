@@ -6,7 +6,7 @@
 #include <memory>
 
 #include "cad-base/geometry/geometry.hpp"
-#include "cad-base/viewport.hpp"
+#include "cad-base/gui/rendered_textures/viewport.hpp"
 
     class GeometryList {
         public:
@@ -18,7 +18,7 @@
                 geometry_list.push_back(geometry);
             
                 for (const std::shared_ptr<Viewport>& v : *viewports_) {
-                        v->master_geo_renderable_pairs.emplace_back(geometry, nullptr);
+                        v->geo_renderable_pairs.emplace_back(geometry, nullptr);
                 }
             }
             

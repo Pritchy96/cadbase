@@ -29,7 +29,7 @@ class GuiMain {
             void SetupGuiTheme();
             void SetLayout();
 
-            void Update(double deltaTime);
+            void Update();
 
             float gui_scale_factor = GUI_INITIAL_SCALE_FACTOR;
             GLFWwindow* glfw_window;
