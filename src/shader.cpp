@@ -1,7 +1,8 @@
-#include "cad-base/shader.hpp"
 #include <spdlog/spdlog.h>
 #include <iostream>
 #include <ostream>
+
+#include "cad-base/shader.hpp"
 
 using std::string;
 using std::vector;

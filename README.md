@@ -6,6 +6,7 @@ This is an incomplete list - for now, please refer to either the codebase or the
 
     - Master Geometry list rendered to multiple GL Renderables - one for each window.
     - Fully realised Arcball camera - right click Rotate, middle click Pan, scroll Zoom.
+    - Navicube to snap to cardinal direction (wip)
     - Movable, dockable, independent windows.
     - Raycast picking - Left click to select an object.
         - Click & Hold to move Geometry

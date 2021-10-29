@@ -30,7 +30,7 @@
 #include "cad-base/shader.hpp"
 #include "cad-base/geometry/geometry.hpp"
 #include "cad-base/renderable.hpp"
-#include "cad-base/viewport.hpp"
+#include "cad-base/gui/rendered_textures/viewport.hpp"
 #include "cad-base/geometry_list.hpp"
 #include "cad-base/gui/gui_logger.hpp"
 
@@ -43,9 +43,6 @@ using std::make_unique;
 using glm::vec3;
 
 const ImVec4 BACKGROUND_COLOUR = ImVec4(0.15f, 0.15f, 0.15f, 1.00f);    //TODO: remove
-
-auto old_time = std::chrono::steady_clock::now(), new_time = std::chrono::steady_clock::now();
-double delta_t;	
 
 unique_ptr<GuiMain> gui_main;
 unique_ptr<GeometryList> master_geometry;
@@ -175,26 +172,24 @@ bool ImportGeoTest(const std::string& pFile) {
         }
     }
 
-	master_geometry->push_back(make_shared<Geometry>(test_geo, glm::vec3((rand() % 1000) - 500, (rand() % 1000) - 500, (rand() % 1000) - 500)));
+	master_geometry->push_back(make_shared<Geometry>(test_geo, "Test Geo: " + std::to_string(rand()), glm::vec3((rand() % 1000) - 500, (rand() % 1000) - 500, (rand() % 1000) - 500)));
     return true;
 }
 
 void SetupRenderWindows() {
     // TODO: temp test.
-    for (int i= 0; i < 4; i++) { 
-        viewports->push_back(make_shared<Viewport>(glfw_window, glm::vec3(gui_main->BACKGROUND_COLOUR.x, gui_main->BACKGROUND_COLOUR.y, gui_main->BACKGROUND_COLOUR.z), 1000, 1000));
+    for (int i= 0; i < 1; i++) { 
+        viewports->push_back(make_shared<Viewport>(glfw_window, 
+            glm::vec4(gui_main->BACKGROUND_COLOUR.x, gui_main->BACKGROUND_COLOUR.y, gui_main->BACKGROUND_COLOUR.z, 1.0f),
+            1000, 1000, gui_main->gui_data));
 
         // Make our render windows - one for each viewport for now.
         std::string name = "Render Window " + std::to_string(i);
-        gui_main->gui_render_windows.push_back(make_shared<GuiRenderWindow>(name, glfw_window, viewports->back(), gui_main->gui_data));
+        gui_main->gui_render_windows.push_back(make_shared<GuiRenderWindow>(name, glfw_window, viewports->back()));
     }
 }
 
 void Update() {
-    old_time = new_time;
-    new_time = std::chrono::steady_clock::now();
-    delta_t = std::chrono::duration_cast<std::chrono::milliseconds>(new_time - old_time).count();
-
     // Poll and handle events (inputs, window resize, etc.)
     // You can read the imgui_io.WantCaptureMouse, imgui_io.WantCaptureKeyboard flags to tell if dear imgui wants to use your inputs.
     // - When imgui_io.WantCaptureMouse is true, do not dispatch mouse input data to your main application.
@@ -206,16 +201,16 @@ void Update() {
     glEnable(GL_CULL_FACE);
 
     for (const auto& v : (*viewports)) {
-        v->Update(delta_t);
+        v->Update();
     }
 
     auto geo_ptr = master_geometry->begin();
     while (geo_ptr != master_geometry->end()) {
-        (*geo_ptr)->Update(delta_t);
+        (*geo_ptr)->Update();
         geo_ptr++;
     }
 
-    gui_main->Update(delta_t);
+    gui_main->Update();
 }
 
 void SetupLogger() {

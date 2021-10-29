@@ -1,8 +1,7 @@
 #ifndef GUI_LOGGER_HPP
 #define GUI_LOGGER_HPP
 
-
-#include "imgui.h"
+#include <imgui.h>
 #include <spdlog/sinks/base_sink.h>
 
 class GuiLogger : public spdlog::sinks::base_sink<spdlog::details::null_mutex>   {
@@ -17,7 +16,6 @@ class GuiLogger : public spdlog::sinks::base_sink<spdlog::details::null_mutex>  
         ImGuiTextFilter     filter;
         ImVector<int>       line_offsets; // Index to lines offset. We maintain this with AddLog() calls.
         bool                auto_scroll = true;  // Keep scrolling if already at the bottom.
-
 };
 
 #endif

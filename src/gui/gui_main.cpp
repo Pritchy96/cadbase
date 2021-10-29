@@ -249,7 +249,7 @@ void GuiMain::SetLayout() {
     ImGui::DockBuilderFinish(dockspace_id);
 }
 
-void GuiMain::Update(double deltaTime) {
+void GuiMain::Update() {
     // We don't want this when drawing UI elements
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_CULL_FACE);
@@ -301,11 +301,11 @@ void GuiMain::Update(double deltaTime) {
 
     // Render Windows
     for (const auto& r : (gui_render_windows)) {
-        r->Draw(deltaTime);
+        r->Draw();
     }
 
     // Settings Window
-    gui_settings_->Draw(deltaTime);
+    gui_settings_->Draw();
 
     if(show_demo_window_) {
         ImGui::ShowDemoWindow(&show_demo_window_);
@@ -329,7 +329,6 @@ void GuiMain::Update(double deltaTime) {
         ImGui::UpdatePlatformWindows();
         ImGui::RenderPlatformWindowsDefault();
     }
-
 }
 
 

@@ -1,5 +1,6 @@
-#include "cad-base/renderable.hpp"
 #include <memory>
+
+#include "cad-base/renderable.hpp"
 
 using std::shared_ptr;
 
@@ -55,8 +56,7 @@ GLuint Renderable::GetAABoundingBoxVao() {
 	return aa_bounding_box_vao;
 }
 
-
-void Renderable::Draw(double deltaT, glm::mat4 projectionMatrix, glm::mat4 viewMatrix){
+void Renderable::Draw(glm::mat4 projectionMatrix, glm::mat4 viewMatrix){
 	//If we can't draw anything, return
 	if (!(geometry->draw_geometry && draw_geometry) && !(geometry->draw_aa_bounding_box && draw_aa_bounding_box)) {
 		return;

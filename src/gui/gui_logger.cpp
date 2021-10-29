@@ -1,8 +1,8 @@
-#include "cad-base/gui/gui_logger.hpp"
-#include "imgui.h"
-
 #include <iostream>
 #include <spdlog/sinks/base_sink.h>
+
+#include "cad-base/gui/gui_logger.hpp"
+#include "imgui.h"
 
 void GuiLogger::sink_it_(const spdlog::details::log_msg& msg) {
     // log_msg is a struct containing the log entry info like level, timestamp, thread id etc.
