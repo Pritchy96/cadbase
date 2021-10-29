@@ -109,12 +109,15 @@ void Viewport::HandleIO() {
     }
 }
 
-void Viewport::SelectRenderable(shared_ptr<Renderable> selected_renderable) {
+void Viewport::DeselectRenderable() {
     // Handle de-selecting previous selection before selecting new one.
     if (gui_data->selected_renderable != nullptr) {
         gui_data->selected_renderable->geometry->draw_aa_bounding_box = false;
     }
-    
+}
+
+
+void Viewport::SelectRenderable(shared_ptr<Renderable> selected_renderable) {    
     gui_data->selected_renderable = selected_renderable;
     spdlog::info(selected_renderable->geometry->name);
     gui_data->selected_renderable->geometry->draw_aa_bounding_box = true;

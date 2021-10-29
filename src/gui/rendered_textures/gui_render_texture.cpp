@@ -232,8 +232,9 @@ void GuiRenderTexture::HandleIO() {
         }
     } else if (ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {  //Object Selection
         if (image_hovered) {
+            DeselectRenderable();
             glm::vec2 window_offset = glm::vec2(ImGui::GetItemRectMin().x, ImGui::GetItemRectMin().y);
-            glm::vec2 mouse_pos =    glm::vec2(io.MousePos.x, io.MousePos.y)  - window_offset;
+            glm::vec2 mouse_pos =     glm::vec2(io.MousePos.x, io.MousePos.y)  - window_offset;
             CastRay(mouse_pos);
         }
     }
@@ -302,7 +303,7 @@ void GuiRenderTexture::CastRay(glm::vec2 mouse_pos) {
             //We only want to pick the intersecting renderable closest to the camera.
             glm::vec3 box_center = (glm::abs((grp.first->aa_bounding_box.max - grp.first->aa_bounding_box.min)) / 2.0f) + grp.first->aa_bounding_box.min;    //NOLINT: Not a magic number.
 
-            float distance_from_camera = glm::distance(box_center, camera_pos);
+            float distance_from_camera = glm::distance(box_center, -camera_pos);
 
             if (distance_from_camera < closest_renderable_distance) {
                 closest_renderable = grp.second;

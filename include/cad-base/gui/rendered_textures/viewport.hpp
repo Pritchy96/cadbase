@@ -39,7 +39,8 @@
             void Draw() override;
             void HandleIO() override;
             void SelectRenderable(std::shared_ptr<Renderable> selected_renderable) override;
-            
+            void DeselectRenderable() override;
+
             //Viewport specific stuff that doesn't need i.e selecting etc.
             std::vector<std::pair<std::shared_ptr<Geometry>, std::shared_ptr<Renderable>>> viewport_geo_renderable_pairs;
 

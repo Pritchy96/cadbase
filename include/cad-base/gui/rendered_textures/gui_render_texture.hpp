@@ -44,6 +44,8 @@
             void CastRay(glm::vec2 mouse_pos);
             bool RayCubeIntersection(Ray ray, std::array<glm::vec3, 2> boxBounds);
             virtual void SelectRenderable(std::shared_ptr<Renderable> closest_renderable) = 0;
+            virtual void DeselectRenderable() = 0;
+
 
             std::shared_ptr<glm::vec2> window_size;
             std::shared_ptr<Camera> camera;

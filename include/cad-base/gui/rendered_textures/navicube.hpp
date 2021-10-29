@@ -30,6 +30,7 @@
             NaviCube(GLFWwindow *window, glm::vec4 background_col, int window_width, int window_height);
             //~NaviCube() = default;
             void SelectRenderable(std::shared_ptr<Renderable> selected_renderable) override;
+            void DeselectRenderable() override;
 
         private:
             constexpr const static float CUBE_SIZE = 100;
