@@ -20,48 +20,45 @@
 #include "cad-base/gui/gui_logger.hpp"
 
 class GuiMain {
-        public:
-            explicit GuiMain(GLFWwindow* glfw_window, std::shared_ptr<GuiLogger> gui_logger_sink_);
-            // ~GuiBase();
+    public:
+        explicit GuiMain(GLFWwindow* glfw_window, std::shared_ptr<GuiLogger> gui_logger_sink_);
+        // ~GuiBase();
 
-            bool SetupImgui(); 
-            void RenderGuiMainMenu();
-            void SetupGuiTheme();
-            void SetLayout();
+        bool SetupImgui(); 
+        void RenderGuiMainMenu();
+        void SetupGuiTheme();
+        void SetLayout();
 
-            void Update();
+        void Update();
 
-            float gui_scale_factor = GUI_INITIAL_SCALE_FACTOR;
-            GLFWwindow* glfw_window;
+        float gui_scale_factor = GUI_INITIAL_SCALE_FACTOR;
+        GLFWwindow* glfw_window;
 
-            std::vector<std::shared_ptr<GuiRenderWindow>> gui_render_windows;
-            std::shared_ptr<GuiData> gui_data;
+        std::vector<std::shared_ptr<GuiRenderWindow>> gui_render_windows;
+        std::shared_ptr<GuiData> gui_data;
 
-            const ImVec4 BACKGROUND_COLOUR = ImVec4(0.15f, 0.15f, 0.15f, 1.00f);
-
-
-        private:
-            // Pass through input.
-            ImGuiDockNodeFlags dockspace_flags_ = ImGuiDockNodeFlags_PassthruCentralNode;
-
-            // We are using the ImGuiWindowFlags_NoDocking flag to make the parent window not dockable into,
-            // because it would be confusing to have two docking targets within each other.
-            ImGuiWindowFlags window_flags_ = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
-
-            ImGuiViewport* main_imgui_viewport_;
-            ImGuiIO* imgui_io_;
-
-            //GUI
-            std::unique_ptr<GuiProject> gui_settings_;
-            bool show_demo_window_ = false;
-
-            std::shared_ptr<GuiLogger> gui_logger_sink_; //Need a reference to this so we can draw it.
-
-            constexpr static const float GUI_INITIAL_SCALE_FACTOR = 2.0f;
-
-            bool first_time_ = true;
-        };
+        const ImVec4 BACKGROUND_COLOUR = ImVec4(0.15f, 0.15f, 0.15f, 1.00f);
 
 
+    private:
+        // Pass through input.
+        ImGuiDockNodeFlags dockspace_flags_ = ImGuiDockNodeFlags_PassthruCentralNode;
 
+        // We are using the ImGuiWindowFlags_NoDocking flag to make the parent window not dockable into,
+        // because it would be confusing to have two docking targets within each other.
+        ImGuiWindowFlags window_flags_ = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
+
+        ImGuiViewport* main_imgui_viewport_;
+        ImGuiIO* imgui_io_;
+
+        //GUI
+        std::unique_ptr<GuiProject> gui_settings_;
+        bool show_demo_window_ = false;
+
+        std::shared_ptr<GuiLogger> gui_logger_sink_; //Need a reference to this so we can draw it.
+
+        constexpr static const float GUI_INITIAL_SCALE_FACTOR = 2.0f;
+
+        bool first_time_ = true;
+};
 #endif

@@ -1,10 +1,10 @@
-#include "cad-base/gui/rendered_textures/navicube.hpp"
-#include "cad-base/gui/rendered_textures/gui_render_texture.hpp"
-
 #include <spdlog/spdlog.h>
 #include <glm/fwd.hpp>
 #include <memory>
 #include <vector>
+
+#include "cad-base/gui/rendered_textures/navicube.hpp"
+#include "cad-base/gui/rendered_textures/gui_render_texture.hpp"
 
 using std::shared_ptr;
 using std::make_shared;

@@ -1,14 +1,14 @@
-#include "cad-base/gui/rendered_textures/gui_render_texture.hpp"
-#include "cad-base/camera.hpp"
-#include "cad-base/gui/gui_data.hpp"
-#include "cad-base/raycast/ray.hpp"
-#include "imgui.h"
-
 #include <glm/gtx/string_cast.hpp>
 #include <spdlog/spdlog.h>
 #include <glm/fwd.hpp>
 #include <memory>
 #include <vector>
+
+#include "cad-base/gui/rendered_textures/gui_render_texture.hpp"
+#include "cad-base/camera.hpp"
+#include "cad-base/gui/gui_data.hpp"
+#include "cad-base/raycast/ray.hpp"
+#include "imgui.h"
 
 using std::shared_ptr;
 using std::make_shared;

@@ -1,5 +1,6 @@
-#include "cad-base/renderable.hpp"
 #include <memory>
+
+#include "cad-base/renderable.hpp"
 
 using std::shared_ptr;
 

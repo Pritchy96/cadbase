@@ -1,8 +1,8 @@
-#include "cad-base/arcball.hpp"
-#include "cad-base/camera.hpp"
 #include <glm/fwd.hpp>
 #include <memory>
 
+#include "cad-base/arcball.hpp"
+#include "cad-base/camera.hpp"
 
 Arcball::Arcball(std::vector<std::shared_ptr<Camera>> affected_camera) : affected_cameras(affected_camera) {
     arcball_rotate_sensitivity = ARCBALL_ROTATE_SENSITIVITY_INITIAL;

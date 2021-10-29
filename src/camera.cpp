@@ -1,5 +1,3 @@
-#include "cad-base/camera.hpp"
-#include "spdlog/spdlog.h"
 #include <cmath>
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/fwd.hpp>
@@ -7,6 +5,9 @@
 #include <glm/gtx/string_cast.hpp>
 #include <glm/gtx/transform.hpp>
 #include <memory>
+
+#include "cad-base/camera.hpp"
+#include "spdlog/spdlog.h"
 
 using glm::vec3;
 using glm::mat4;

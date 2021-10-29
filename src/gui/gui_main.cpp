@@ -329,7 +329,6 @@ void GuiMain::Update() {
         ImGui::UpdatePlatformWindows();
         ImGui::RenderPlatformWindowsDefault();
     }
-
 }
 
 

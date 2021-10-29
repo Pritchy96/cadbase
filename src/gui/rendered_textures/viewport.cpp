@@ -1,14 +1,15 @@
-#include "cad-base/gui/rendered_textures/viewport.hpp"	
-#include "cad-base/geometry/viewport_grid.hpp"
-#include "cad-base/gui/gui_data.hpp"
-#include "cad-base/gui/rendered_textures/gui_render_texture.hpp"
-
 #include <spdlog/spdlog.h>
 #include <glm/fwd.hpp>
 #include <memory>
 #include <vector>
 
+#include "cad-base/gui/rendered_textures/viewport.hpp"	
+#include "cad-base/geometry/viewport_grid.hpp"
+#include "cad-base/gui/gui_data.hpp"
+#include "cad-base/gui/rendered_textures/gui_render_texture.hpp"
+
 using std::vector;
+
 using std::shared_ptr;
 using std::make_shared;
 using std::make_unique;

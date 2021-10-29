@@ -1,8 +1,9 @@
-#include "cad-base/geometry/geometry.hpp"
 #include <glm/fwd.hpp>
 #include <glm/glm.hpp>
 #include <glm/common.hpp>
 #include <vector>
+
+#include "cad-base/geometry/geometry.hpp"
 
 using std::vector;
 using glm::vec3;
