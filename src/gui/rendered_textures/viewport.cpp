@@ -94,9 +94,9 @@ void Viewport::HandleIO() {
     if (ImGui::IsMouseDragging(ImGuiMouseButton_Middle)) {  //Pan
         arcball->Pan();
     } else if (ImGui::IsMouseDragging(ImGuiMouseButton_Left)) {
-        //TODO: move to viewport.
-        /*
         if (image_hovered) {
+            glm::vec2 mouse_delta = glm::vec2(io.MouseDelta.x, io.MouseDelta.y);
+
             //TODO: use Persp matrix and distance from camera > selected object to make movement of object 1:1 with movement of object.
             glm::vec4 mouse_delta_world = camera->GetRotation() * glm::vec4(mouse_delta.x, 0.0f, -mouse_delta.y, 1.0f);
             mouse_delta_world /= mouse_delta_world.w;
@@ -105,7 +105,6 @@ void Viewport::HandleIO() {
                 gui_data->selected_renderable->geometry->MoveOrigin(mouse_delta_world);
             }
         }
-        */
     }
 }
 
@@ -115,7 +114,6 @@ void Viewport::DeselectRenderable() {
         gui_data->selected_renderable->geometry->draw_aa_bounding_box = false;
     }
 }
-
 
 void Viewport::SelectRenderable(shared_ptr<Renderable> selected_renderable) {    
     gui_data->selected_renderable = selected_renderable;

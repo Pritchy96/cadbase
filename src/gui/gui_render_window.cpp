@@ -31,6 +31,7 @@
 #include <glm/gtx/quaternion.hpp>
 #include <glm/trigonometric.hpp>
 
+#include "cad-base/camera.hpp"
 #include "cad-base/gui/gui_render_window.hpp"
 #include "cad-base/gui/rendered_textures/viewport.hpp"
 #include "cad-base/raycast/ray.hpp"
@@ -117,6 +118,7 @@ void GuiRenderWindow::Draw() {
         viewport_->window_size->x = window_size_.x;
         viewport_->window_size->y = window_size_.y;
         viewport_->SetupFBO();  //Need to reset the texture sizes.
+        viewport_->camera->SetProjectionStyle(viewport_->camera->IsOrthoCamera());  //Need to rebuild camera projection matrix
     }
 
     // Because we use the texture from OpenGL, we need to invert the V from the UV.

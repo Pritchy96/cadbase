@@ -258,11 +258,10 @@ void GuiRenderTexture::CastRay(glm::vec2 mouse_pos) {
     //Convert mouse pos to homogenous coordinates (-1 to 1)
     //We currently have z set as up, so we need to find y (examples generally have x, y and find z)
     glm::vec2 mouse_homo = glm::vec2(((mouse_pos.x/(window_size->x) * 2.0f) - 1.0f), ((mouse_pos.y/(window_size->y) * 2.0f) - 1.0f));  //NOLINT - not magic numbers just basic math
-    glm::mat4 camera_transform = glm::inverse(camera->GetProjectionMatrix() * camera->GetViewMatrix());
-    glm::vec3 camera_pos = camera_transform[3];
+    glm::mat4 view_to_world = glm::inverse(camera->GetProjectionMatrix() * camera->GetViewMatrix());
+    glm::vec3 camera_pos = camera->GetCameraTransform()[3];
     Ray ray;
         
-    spdlog::info("Mouse Homo: {0}", glm::to_string(mouse_homo));
     if (camera->IsOrthoCamera()) {  //Ortho
         //Get mouse coordinates in frustrum dimensions, rotated by the camera rotation
         glm::vec3 mouse_pos_viewport = camera->GetCameraTransform()
@@ -275,7 +274,7 @@ void GuiRenderTexture::CastRay(glm::vec2 mouse_pos) {
         ray.direction =  glm::normalize(camera->GetTarget() - glm::vec3(camera->GetCameraTransform()[3]));
     } else {    //Perspective
         ray.origin = camera_pos;
-        glm::vec4 mouse_homo_world_pos = camera_transform * glm::vec4(mouse_homo.x, -mouse_homo.y, 1.0f, 1.0f);
+        glm::vec4 mouse_homo_world_pos = view_to_world * glm::vec4(mouse_homo.x, -mouse_homo.y, 1.0f, 1.0f);
         mouse_homo_world_pos /= mouse_homo_world_pos.w;
         ray.direction = glm::normalize(glm::vec3(mouse_homo_world_pos));
     }

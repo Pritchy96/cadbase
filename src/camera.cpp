@@ -32,7 +32,7 @@ void Camera::SetProjectionStyle(bool ortho_not_perspective_camera) {
 
         projection_matrix_ = glm::ortho(-ortho_fustrum_width_/2, ortho_fustrum_width_/2, -ortho_fustrum_height_/2, ortho_fustrum_height_/2, z_near_, z_far_);
     } else {
-        projection_matrix_ = glm::perspective(fov_, (window_size_->x/window_size_->y), z_near_, z_far_);
+        projection_matrix_ = glm::perspective(glm::radians(fov_), (window_size_->x/window_size_->y), z_near_, z_far_);
     }
 }
 
