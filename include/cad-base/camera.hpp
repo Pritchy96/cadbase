@@ -21,10 +21,15 @@
         public:
 
             Camera(glm::vec3 initial_target, float initial_zoom, std::shared_ptr<glm::vec2> window_size);
-            ~Camera();
+            // ~Camera();
 
             void SetProjectionStyle(bool ortho_not_perspective_camera);
             bool IsOrthoCamera() const { return ortho_not_perspective_; }
+
+            //Camera Settings
+            bool can_pan = true;
+            bool can_rotate = true;
+            bool can_zoom = true;
 
             glm::mat4 GetDistanceMatrix();
             glm::mat4 GetViewMatrix();

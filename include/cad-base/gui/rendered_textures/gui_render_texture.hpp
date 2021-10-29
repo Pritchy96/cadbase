@@ -25,26 +25,30 @@
     #include "cad-base/geometry/geometry.hpp"
     #include "cad-base/renderable.hpp"
     #include "cad-base/camera.hpp"
-
-    class NaviCube; //Forward declaration of NaviCube.
+    #include "cad-base/arcball.hpp"
 
     class GuiRenderTexture {
         public:
-                GuiRenderTexture(GLFWwindow *window, glm::vec4 background_col, int window_width, int window_height, std::shared_ptr<GuiData> gui_data);
+            GuiRenderTexture(GLFWwindow *window, glm::vec4 background_col, int window_width, int window_height);
             ~GuiRenderTexture() = default;
 
             void Update();  
             virtual void Draw();
 
-            glm::vec3 GetArcballVector(glm::vec2 screen_pos, glm::vec2 screen_size);
-            bool RayCubeIntersection(Ray ray, std::array<glm::vec3, 2> boxBounds);
-            void HandleIO();
             void SetupFBO();
 
-            std::shared_ptr<glm::vec2> window_size;
-            std::shared_ptr<GuiData> gui_data;
+            virtual void HandleIO();
 
-            Camera* camera;
+            glm::vec3 GetArcballVector(glm::vec2 screen_pos, glm::vec2 screen_size);
+
+            void CastRay(glm::vec2 mouse_pos);
+            bool RayCubeIntersection(Ray ray, std::array<glm::vec3, 2> boxBounds);
+            virtual void SelectRenderable(std::shared_ptr<Renderable> closest_renderable) = 0;
+
+            std::shared_ptr<glm::vec2> window_size;
+            std::shared_ptr<Camera> camera;
+            std::shared_ptr<Arcball> arcball;
+
             glm::vec4 background_colour;
             GLuint shader_id;    
             GLuint basic_shader;
@@ -59,15 +63,13 @@
 
             bool clicked_on_texture[5] = {false, false, false, false, false};
             bool texture_has_focus = false;
-            float arcball_rotate_sensitivity, arcball_pan_sensitivity;
 
         private:
             GLFWwindow *glfw_window_;
             
             bool CheckFramebufferStatus(GLuint fbo);
 
-            const float ARCBALL_ROTATE_SENSITIVITY_INITIAL = 4.0f; 
-            const float ARCBALL_PAN_SENSITIVITY_INITIAL = 100.0f; 
+
     };
 
 #endif

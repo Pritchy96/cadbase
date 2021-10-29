@@ -2,7 +2,7 @@
 #define VIEWPORT_HPP
 
     #include "cad-base/gui/gui_data.hpp"
-#include <glm/fwd.hpp>
+    #include <glm/fwd.hpp>
     #include <iostream>
     #include <cstdio>
     #include <cstdlib>
@@ -37,16 +37,14 @@
             }
 
             void Draw() override;
-
-            // void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
-            // void MouseButtonCallback( GLFWwindow* window, int button, int action, int mods );
-            // void CursorCallback( GLFWwindow* window, double x, double y );
-            // void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset);
-            // void WindowSizeCallback(GLFWwindow* glfw_window, int width, int height);
-
+            void HandleIO() override;
+            void SelectRenderable(std::shared_ptr<Renderable> selected_renderable) override;
+            
             //Viewport specific stuff that doesn't need i.e selecting etc.
             std::vector<std::pair<std::shared_ptr<Geometry>, std::shared_ptr<Renderable>>> viewport_geo_renderable_pairs;
 
+            std::shared_ptr<GuiData> gui_data;
+    
             std::shared_ptr<Geometry> render_axis;
             std::shared_ptr<ViewportGrid> grid;
     };

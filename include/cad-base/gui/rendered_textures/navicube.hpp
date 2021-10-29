@@ -27,11 +27,14 @@
 
     class NaviCube : public GuiRenderTexture {
         public:
-            NaviCube(GLFWwindow *window, glm::vec4 background_col, int window_width, int window_height, std::shared_ptr<GuiData> gui_data);
-            ~NaviCube() = default;
+            NaviCube(GLFWwindow *window, glm::vec4 background_col, int window_width, int window_height);
+            //~NaviCube() = default;
+            void SelectRenderable(std::shared_ptr<Renderable> selected_renderable) override;
 
         private:
             constexpr const static float CUBE_SIZE = 100;
+
+            std::shared_ptr<Renderable> selected_face_;
 
             //1 & 2, 3 & 4, 5 & 6 are opposite pairs.
             std::vector<glm::vec3> face_1_ = {

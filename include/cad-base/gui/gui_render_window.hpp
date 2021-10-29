@@ -29,6 +29,7 @@ class GuiRenderWindow {
             void DrawRenderWindowSettings();
         private:   
             std::shared_ptr<Viewport> viewport_;
+            std::shared_ptr<NaviCube> navicube_;
             ImVec2 window_size_;
     };
 

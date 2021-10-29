@@ -31,7 +31,6 @@
 #include <glm/gtx/quaternion.hpp>
 #include <glm/trigonometric.hpp>
 
-
 #include "cad-base/gui/gui_render_window.hpp"
 #include "cad-base/gui/rendered_textures/viewport.hpp"
 #include "cad-base/raycast/ray.hpp"
@@ -39,7 +38,11 @@
 
 GuiRenderWindow::GuiRenderWindow(std::string name, GLFWwindow* glfw_window, std::shared_ptr<Viewport> viewport) 
                                     : name(name), glfw_window(glfw_window), viewport_(viewport) {
-    // navicube_ = std::make_shared<NaviCube>(glfw_window, viewport_->background_colour, 200, 200);
+    navicube_ = std::make_shared<NaviCube>(glfw_window, glm::vec4(glm::vec3(viewport_->background_colour), 0.0f), 200, 200);
+    
+    //Make the viewport rotation affect the navicube and vice-versa.
+    viewport_->arcball->affected_cameras.emplace_back(navicube_->camera);
+    navicube_->arcball->affected_cameras.emplace_back(viewport_->camera);
 }
 
 void GuiRenderWindow::DrawRenderWindowSettings() {
@@ -102,7 +105,6 @@ void GuiRenderWindow::DrawRenderWindowSettings() {
     }
 }
 
-
 void GuiRenderWindow::Draw() {
     is_alive = ImGui::Begin(name.c_str());
     // Using a Child allow to fill all the space of the window.
@@ -121,10 +123,10 @@ void GuiRenderWindow::Draw() {
     ImGui::Image((ImTextureID)viewport_->colour_texture, window_size_, ImVec2(0, 1), ImVec2(1, 0));
     viewport_->HandleIO();
 
-    // navicube->Update();
-    // ImGui::SetCursorPos(ImVec2(window_size_.x - 220, 20));
-    // ImGui::Image((ImTextureID)viewport_->navicube->colour_texture, ImVec2(200, 200), ImVec2(0, 1), ImVec2(1, 0));
-    // HandleNaviCubeIO();
+    navicube_->Update();
+    ImGui::SetCursorPos(ImVec2(window_size_.x - 220, 20));
+    ImGui::Image((ImTextureID)navicube_->colour_texture, ImVec2(200, 200), ImVec2(0, 1), ImVec2(1, 0));
+    navicube_->HandleIO();
 
     DrawRenderWindowSettings();
 

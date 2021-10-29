@@ -1,4 +1,5 @@
 #include "cad-base/gui/rendered_textures/gui_render_texture.hpp"
+#include "cad-base/camera.hpp"
 #include "cad-base/gui/gui_data.hpp"
 #include "cad-base/raycast/ray.hpp"
 #include "imgui.h"
@@ -15,15 +16,16 @@ using std::make_unique;
 
 using glm::vec3;
 
-GuiRenderTexture::GuiRenderTexture(GLFWwindow *window, glm::vec4 background_col, int window_width, int window_height, shared_ptr<GuiData> gui_data) : gui_data(gui_data) {
-    arcball_rotate_sensitivity = ARCBALL_ROTATE_SENSITIVITY_INITIAL;
-    arcball_pan_sensitivity = ARCBALL_PAN_SENSITIVITY_INITIAL;
-    
+GuiRenderTexture::GuiRenderTexture(GLFWwindow *window, glm::vec4 background_col, int window_width, int window_height) {
 	glfw_window_ = window;
 	window_size = make_shared<glm::vec2>(window_width, window_width);
 	background_colour = background_col;
 
-	camera = new Camera(glm::vec3(0.0f, 0.0f, 0.0f), 200.0f, window_size);
+	camera = make_shared<Camera>(Camera(glm::vec3(0.0f, 0.0f, 0.0f), 200.0f, window_size));
+
+    std::vector<shared_ptr<Camera>> cameras = {camera};
+
+    arcball = make_shared<Arcball>(cameras);
 
 	// TODO: Move everything dependent on this (gl calls, shader loads etc) to an init() function so this context setting can be done 
 	// in main.cpp
@@ -208,17 +210,8 @@ bool GuiRenderTexture::CheckFramebufferStatus(GLuint fbo) {
 
 void GuiRenderTexture::HandleIO() {
     ImGuiIO& io = ImGui::GetIO();
-    //TODO: we can apparently declare a macro in IMGUI.cpp and specify glm vectors to be used by ImGui? Investigate.
-    glm::vec2 mouse_delta = glm::vec2(io.MouseDelta.x, io.MouseDelta.y);
-
-    glm::vec2 offset = glm::vec2(ImGui::GetItemRectMin().x, ImGui::GetItemRectMin().y);
-    //Get mouse pos in terms of the viewport window space.
-    glm::vec2 mouse_pos =    glm::vec2(io.MousePos.x, io.MousePos.y)  - offset;
-    glm::vec2 mouse_pos_last = mouse_pos - (mouse_delta * arcball_rotate_sensitivity);
-
     bool image_hovered = ImGui::IsItemHovered();
     
-
     //Store a bool to see if the mouse has clicked on the image with any given mouse button.
     //This is because clicking + dragging may mean we're hovered over another image but we still want to rotate
     //the image we've initially clicked on.
@@ -232,115 +225,16 @@ void GuiRenderTexture::HandleIO() {
         || clicked_on_texture[ImGuiMouseButton_Middle] 
         || clicked_on_texture[ImGuiMouseButton_Right]);
 
-    //Zoom
-    if ((image_hovered || texture_has_focus) && io.MouseWheel != 0) {
-        camera->SetZoom(camera->GetZoom() + io.MouseWheel);
-    }
-
-    //Rotate
-    if(ImGui::IsMouseDragging(ImGuiMouseButton_Right)) {
+    if(ImGui::IsMouseDragging(ImGuiMouseButton_Right)) {  //Rotate
         //Allow for mouse dragging outside of the render window once clicked & held.
-        if(texture_has_focus && mouse_pos != mouse_pos_last) {
-            glm::vec3 last_pos_vec = GetArcballVector(mouse_pos_last, glm::vec2(window_size->x, window_size->y));
-            glm::vec3 pos_vec = GetArcballVector(mouse_pos, glm::vec2(window_size->x, window_size->y));
-
-            //Take the cross product of your start and end points (unit length vectors from the centre of the sphere) to form a rotational axis perpendicular to both of them. 
-            glm::vec3 cross_vector = glm::cross(pos_vec, last_pos_vec);
-
-            //Then to find the angle it must be rotated about this axis, take their dot product, which gives you the cosine of that angle.
-            float angle = acos(glm::dot(last_pos_vec, pos_vec));
-            
-            //Apply this multiplication to the pre-existing rotation applied when generating the view matrix. 
-            camera->SetRotation(glm::rotate(camera->GetRotation(), angle, cross_vector));
+        if(texture_has_focus && io.MouseDelta.x != 0) {
+            arcball->Rotate(window_size);
         }
-
-    //Pan
-    } else if (ImGui::IsMouseDragging(ImGuiMouseButton_Middle)) {
-        if (texture_has_focus) {
-            camera->MoveTarget(glm::vec3(camera->GetCameraTransform() * glm::vec4(mouse_delta.x/arcball_pan_sensitivity, -mouse_delta.y/arcball_pan_sensitivity, 0.0f, 0.0f)));
-        }
-
     } else if (ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {  //Object Selection
         if (image_hovered) {
-            //Convert mouse pos to homogenous coordinates (-1 to 1)
-            //We currently have z set as up, so we need to find y (examples generally have x, y and find z)
-            glm::vec2 mouse_homo = glm::vec2(((mouse_pos.x/(window_size->x) * 2.0f) - 1.0f), ((mouse_pos.y/(window_size->y) * 2.0f) - 1.0f));  //NOLINT - not magic numbers just basic math
-            glm::mat4 camera_transform = glm::inverse(camera->GetProjectionMatrix() * camera->GetViewMatrix());
-            glm::vec3 camera_pos = camera_transform[3];
-            Ray ray;
-             
-
-            spdlog::info("Mouse Homo: {0}", glm::to_string(mouse_homo));
-            if (camera->IsOrthoCamera()) {  //Ortho
-                //Get mouse coordinates in frustrum dimensions, rotated by the camera rotation
-                glm::vec3 mouse_pos_viewport = camera->GetCameraTransform()
-                * glm::vec4((mouse_homo.x * camera->GetOrthoFustrumWidth()) / 2.0f, 
-                    (-mouse_homo.y * camera->GetOrthoFustrumHeight()) / 2.0f,
-                        0.0f, 1.0f);
-
-                ray.origin = camera_pos + mouse_pos_viewport;
-                //Ray direction is just along the camera direction: ortho view has no distortion like perspective cameras
-                ray.direction =  glm::normalize(camera->GetTarget() - glm::vec3(camera->GetCameraTransform()[3]));
-            } else {    //Perspective
-                ray.origin = camera_pos;
-                glm::vec4 mouse_homo_world_pos = camera_transform * glm::vec4(mouse_homo.x, -mouse_homo.y, 1.0f, 1.0f);
-                mouse_homo_world_pos /= mouse_homo_world_pos.w;
-                ray.direction = glm::normalize(glm::vec3(mouse_homo_world_pos));
-            }
-
-            {   //DEBUG
-                spdlog::info("Ray Origin: {0}, Ray Dir: {1}", glm::to_string(ray.origin), glm::to_string(ray.direction));
-                // Debug: draw raycast lines
-                std::vector<glm::vec3> line;
-                line.emplace_back(ray.origin);
-                line.emplace_back(ray.origin + (ray.direction * 100000.0f));
-                std::vector<glm::vec3> line_colour;
-                line_colour.emplace_back(glm::vec3(1.0f, 0.0f, 0.0f));
-                line_colour.emplace_back(glm::vec3(1.0f, 0.0f, 0.0f));
-                std::shared_ptr<Geometry> line_geo = std::make_shared<Geometry>(line, line_colour, "");
-                debug_geo_renderable_pairs.emplace_back(line_geo, std::make_unique<Renderable>(basic_shader, line_geo, GL_LINES));
-            }
-
-            //Visually unselect previously selected renderable, clear out the selection.
-            if (gui_data->selected_renderable != nullptr) {
-                gui_data->selected_renderable->geometry->draw_aa_bounding_box = false;
-                gui_data->selected_renderable = nullptr;
-            }
-
-            float closest_renderable_distance = MAXFLOAT;
-            std::shared_ptr<Renderable> closest_renderable;
-
-            for (const auto& grp : geo_renderable_pairs) {
-            //TODO: Ensure closest_renderable_distance > minimum distance? stops selecting objects that are < min clipping distance.
-                if (RayCubeIntersection(ray, {grp.first->aa_bounding_box.min, grp.first->aa_bounding_box.max})) {
-
-                    //We only want to pick the intersecting renderable closest to the camera.
-                    glm::vec3 box_center = (glm::abs((grp.first->aa_bounding_box.max - grp.first->aa_bounding_box.min)) / 2.0f) + grp.first->aa_bounding_box.min;    //NOLINT: Not a magic number.
-
-                    float distance_from_camera = glm::distance(box_center, camera_pos);
-
-                    if (distance_from_camera < closest_renderable_distance) {
-                        closest_renderable = grp.second;
-                        closest_renderable_distance = distance_from_camera;
-                    }
-                }
-            }
-
-            if (closest_renderable != nullptr) {
-                gui_data->selected_renderable = closest_renderable;
-                spdlog::info(closest_renderable->geometry->name);
-                gui_data->selected_renderable->geometry->draw_aa_bounding_box = true;
-            }
-        }
-    } else if (ImGui::IsMouseDragging(ImGuiMouseButton_Left)) {
-        if (image_hovered) {
-            //TODO: use Persp matrix and distance from camera > selected object to make movement of object 1:1 with movement of object.
-            glm::vec4 mouse_delta_world = camera->GetRotation() * glm::vec4(mouse_delta.x, 0.0f, -mouse_delta.y, 1.0f);
-            mouse_delta_world /= mouse_delta_world.w;
-
-            if (gui_data->selected_renderable != nullptr) {
-                gui_data->selected_renderable->geometry->MoveOrigin(mouse_delta_world);
-            }
+            glm::vec2 window_offset = glm::vec2(ImGui::GetItemRectMin().x, ImGui::GetItemRectMin().y);
+            glm::vec2 mouse_pos =    glm::vec2(io.MousePos.x, io.MousePos.y)  - window_offset;
+            CastRay(mouse_pos);
         }
     }
 
@@ -356,6 +250,69 @@ void GuiRenderTexture::HandleIO() {
 
     if (ImGui::IsKeyDown('C')) {
         debug_geo_renderable_pairs.clear();
+    }
+}
+
+void GuiRenderTexture::CastRay(glm::vec2 mouse_pos) {
+    //Convert mouse pos to homogenous coordinates (-1 to 1)
+    //We currently have z set as up, so we need to find y (examples generally have x, y and find z)
+    glm::vec2 mouse_homo = glm::vec2(((mouse_pos.x/(window_size->x) * 2.0f) - 1.0f), ((mouse_pos.y/(window_size->y) * 2.0f) - 1.0f));  //NOLINT - not magic numbers just basic math
+    glm::mat4 camera_transform = glm::inverse(camera->GetProjectionMatrix() * camera->GetViewMatrix());
+    glm::vec3 camera_pos = camera_transform[3];
+    Ray ray;
+        
+    spdlog::info("Mouse Homo: {0}", glm::to_string(mouse_homo));
+    if (camera->IsOrthoCamera()) {  //Ortho
+        //Get mouse coordinates in frustrum dimensions, rotated by the camera rotation
+        glm::vec3 mouse_pos_viewport = camera->GetCameraTransform()
+        * glm::vec4((mouse_homo.x * camera->GetOrthoFustrumWidth()) / 2.0f, 
+            (-mouse_homo.y * camera->GetOrthoFustrumHeight()) / 2.0f,
+                0.0f, 1.0f);
+
+        ray.origin = camera_pos + mouse_pos_viewport;
+        //Ray direction is just along the camera direction: ortho view has no distortion like perspective cameras
+        ray.direction =  glm::normalize(camera->GetTarget() - glm::vec3(camera->GetCameraTransform()[3]));
+    } else {    //Perspective
+        ray.origin = camera_pos;
+        glm::vec4 mouse_homo_world_pos = camera_transform * glm::vec4(mouse_homo.x, -mouse_homo.y, 1.0f, 1.0f);
+        mouse_homo_world_pos /= mouse_homo_world_pos.w;
+        ray.direction = glm::normalize(glm::vec3(mouse_homo_world_pos));
+    }
+
+    // {   //DEBUG
+    //     spdlog::info("Ray Origin: {0}, Ray Dir: {1}", glm::to_string(ray.origin), glm::to_string(ray.direction));
+    //     // Debug: draw raycast lines
+    //     std::vector<glm::vec3> line;
+    //     line.emplace_back(ray.origin);
+    //     line.emplace_back(ray.origin + (ray.direction * 100000.0f));
+    //     std::vector<glm::vec3> line_colour;
+    //     line_colour.emplace_back(glm::vec3(1.0f, 0.0f, 0.0f));
+    //     line_colour.emplace_back(glm::vec3(1.0f, 0.0f, 0.0f));
+    //     std::shared_ptr<Geometry> line_geo = std::make_shared<Geometry>(line, line_colour, "");
+    //     debug_geo_renderable_pairs.emplace_back(line_geo, std::make_unique<Renderable>(basic_shader, line_geo, GL_LINES));
+    // }
+
+    float closest_renderable_distance = MAXFLOAT;
+    std::shared_ptr<Renderable> closest_renderable;
+
+    for (const auto& grp : geo_renderable_pairs) {
+    //TODO: Ensure closest_renderable_distance > minimum distance? stops selecting objects that are < min clipping distance.
+        if (RayCubeIntersection(ray, {grp.first->aa_bounding_box.min, grp.first->aa_bounding_box.max})) {
+
+            //We only want to pick the intersecting renderable closest to the camera.
+            glm::vec3 box_center = (glm::abs((grp.first->aa_bounding_box.max - grp.first->aa_bounding_box.min)) / 2.0f) + grp.first->aa_bounding_box.min;    //NOLINT: Not a magic number.
+
+            float distance_from_camera = glm::distance(box_center, camera_pos);
+
+            if (distance_from_camera < closest_renderable_distance) {
+                closest_renderable = grp.second;
+                closest_renderable_distance = distance_from_camera;
+            }
+        }
+    }
+
+    if (closest_renderable != nullptr) {
+        SelectRenderable(closest_renderable);
     }
 }
 
@@ -379,7 +336,7 @@ bool GuiRenderTexture::RayCubeIntersection(Ray ray, std::array<glm::vec3, 2> box
         return false; 
     }
     if (tymin > tmin) { 
-        tmin = tymin; 
+        tmin = tymin;
     }
     if (tymax < tmax) { 
         tmax = tymax; 
@@ -399,23 +356,4 @@ bool GuiRenderTexture::RayCubeIntersection(Ray ray, std::array<glm::vec3, 2> box
     }
  
     return true; 
-}
-
-glm::vec3 GuiRenderTexture::GetArcballVector(glm::vec2 screen_pos, glm::vec2 screen_size) {
-    //Convert mouse pos to homogenous coordinates (-1 to 1)
-    //We currently have z set as up, so we need to find y (examples generally have x, y and find z)
-    glm::vec3 vector = glm::vec3(((screen_pos.x/(screen_size.x) * 2.0f) - 1.0f), 0, ((screen_pos.y/(screen_size.y) * 2.0f) - 1.0f));
-
-    vector.z = -vector.z;
-
-    //Perform Pythagoras to get Y
-    float squared = pow(vector.x, 2) + pow(vector.z, 2);
-    
-    if (squared < 1) {
-        vector.y = sqrt(1 - squared);  // Pythagoras
-    } else {
-        vector = glm::normalize(vector);  // Nearest point
-    }
-
-    return vector;
 }

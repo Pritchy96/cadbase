@@ -34,7 +34,7 @@ const vector<vec3> AXIS_COLOURS = {
 };
 
 Viewport::Viewport(GLFWwindow *window, glm::vec4 background_col, int viewport_width, int viewport_height, shared_ptr<GuiData> gui_data) 
-    : GuiRenderTexture(window, background_col, viewport_width, viewport_height, gui_data) {
+    : GuiRenderTexture(window, background_col, viewport_width, viewport_height), gui_data(gui_data) {
 
     spdlog::info("Viewport Initialised");
 
@@ -78,4 +78,44 @@ void Viewport::Draw() {
 
         ++geo_renderable;
     }
+}
+
+void Viewport::HandleIO() {
+    GuiRenderTexture::HandleIO();
+
+    ImGuiIO& io = ImGui::GetIO();
+    bool image_hovered = ImGui::IsItemHovered();
+
+    //Zoom
+    if ((image_hovered || texture_has_focus) && io.MouseWheel != 0) {
+        arcball->Zoom();
+    }
+
+    if (ImGui::IsMouseDragging(ImGuiMouseButton_Middle)) {  //Pan
+        arcball->Pan();
+    } else if (ImGui::IsMouseDragging(ImGuiMouseButton_Left)) {
+        //TODO: move to viewport.
+        /*
+        if (image_hovered) {
+            //TODO: use Persp matrix and distance from camera > selected object to make movement of object 1:1 with movement of object.
+            glm::vec4 mouse_delta_world = camera->GetRotation() * glm::vec4(mouse_delta.x, 0.0f, -mouse_delta.y, 1.0f);
+            mouse_delta_world /= mouse_delta_world.w;
+
+            if (gui_data->selected_renderable != nullptr) {
+                gui_data->selected_renderable->geometry->MoveOrigin(mouse_delta_world);
+            }
+        }
+        */
+    }
+}
+
+void Viewport::SelectRenderable(shared_ptr<Renderable> selected_renderable) {
+    // Handle de-selecting previous selection before selecting new one.
+    if (gui_data->selected_renderable != nullptr) {
+        gui_data->selected_renderable->geometry->draw_aa_bounding_box = false;
+    }
+    
+    gui_data->selected_renderable = selected_renderable;
+    spdlog::info(selected_renderable->geometry->name);
+    gui_data->selected_renderable->geometry->draw_aa_bounding_box = true;
 }

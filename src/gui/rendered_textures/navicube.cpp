@@ -12,10 +12,12 @@ using std::make_unique;
 
 using glm::vec3;
 
-NaviCube::NaviCube(GLFWwindow *window, glm::vec4 background_col, int window_width, int window_height, shared_ptr<GuiData> gui_data) 
-    : GuiRenderTexture(window, background_col, window_width, window_height, gui_data) {
+NaviCube::NaviCube(GLFWwindow *window, glm::vec4 background_col, int window_width, int window_height) 
+    : GuiRenderTexture(window, background_col, window_width, window_height) {
 
     camera->SetProjectionStyle(true);
+    camera->can_pan = false;
+    camera->can_zoom = false;
 
     shared_ptr<Geometry> geo = make_shared<Geometry>(face_1_, "Face 1");
 	geo_renderable_pairs.emplace_back(geo, make_unique<Renderable>(basic_shader, geo, GL_TRIANGLES));
@@ -34,4 +36,15 @@ NaviCube::NaviCube(GLFWwindow *window, glm::vec4 background_col, int window_widt
 
     geo = make_shared<Geometry>(face_6_, "Face 6");
 	geo_renderable_pairs.emplace_back(geo, make_unique<Renderable>(basic_shader, geo, GL_TRIANGLES));
+}
+
+void NaviCube::SelectRenderable(std::shared_ptr<Renderable> selected_renderable) {
+    // Handle de-selecting previous selection before selecting new one.
+    if (selected_face_ != nullptr) {
+        selected_face_->geometry->draw_aa_bounding_box = false;
+    }
+    
+    selected_face_ = selected_renderable;
+    spdlog::info("Selected NaviCube Face: {0}", selected_renderable->geometry->name);
+    selected_face_->geometry->draw_aa_bounding_box = true;
 }
