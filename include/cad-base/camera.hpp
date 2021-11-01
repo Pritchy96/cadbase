@@ -6,7 +6,6 @@
 #include <imgui.h>
 #include <glm/fwd.hpp>
 #include <glm/geometric.hpp>
-#include <glm/gtx/dual_quaternion.hpp>
 #include <iostream>
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>

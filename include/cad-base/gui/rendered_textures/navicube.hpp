@@ -30,6 +30,7 @@ class NaviCube : public GuiRenderTexture {
         NaviCube(GLFWwindow *window, glm::vec4 background_col, int window_width, int window_height);
         void SelectRenderable(std::shared_ptr<Renderable> selected_renderable) override;
         void DeselectRenderable() override;
+        glm::quat RotationBetweenVectors(glm::vec3 start, glm::vec3 dest);
 
     private:
         constexpr const static float CUBE_SIZE = 100;

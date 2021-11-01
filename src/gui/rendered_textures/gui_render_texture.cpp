@@ -279,19 +279,6 @@ void GuiRenderTexture::CastRay(glm::vec2 mouse_pos) {
         ray.direction = glm::normalize(glm::vec3(mouse_homo_world_pos));
     }
 
-    // {   //DEBUG
-    //     spdlog::info("Ray Origin: {0}, Ray Dir: {1}", glm::to_string(ray.origin), glm::to_string(ray.direction));
-    //     // Debug: draw raycast lines
-    //     std::vector<glm::vec3> line;
-    //     line.emplace_back(ray.origin);
-    //     line.emplace_back(ray.origin + (ray.direction * 100000.0f));
-    //     std::vector<glm::vec3> line_colour;
-    //     line_colour.emplace_back(glm::vec3(1.0f, 0.0f, 0.0f));
-    //     line_colour.emplace_back(glm::vec3(1.0f, 0.0f, 0.0f));
-    //     std::shared_ptr<Geometry> line_geo = std::make_shared<Geometry>(line, line_colour, "");
-    //     debug_geo_renderable_pairs.emplace_back(line_geo, std::make_unique<Renderable>(basic_shader, line_geo, GL_LINES));
-    // }
-
     float closest_renderable_distance = MAXFLOAT;
     std::shared_ptr<Renderable> closest_renderable;
 
@@ -302,7 +289,7 @@ void GuiRenderTexture::CastRay(glm::vec2 mouse_pos) {
             //We only want to pick the intersecting renderable closest to the camera.
             glm::vec3 box_center = (glm::abs((grp.first->aa_bounding_box.max - grp.first->aa_bounding_box.min)) / 2.0f) + grp.first->aa_bounding_box.min;    //NOLINT: Not a magic number.
 
-            float distance_from_camera = glm::distance(box_center, -camera_pos);
+            float distance_from_camera = glm::distance(box_center, camera_pos);
 
             if (distance_from_camera < closest_renderable_distance) {
                 closest_renderable = grp.second;
@@ -314,6 +301,18 @@ void GuiRenderTexture::CastRay(glm::vec2 mouse_pos) {
     if (closest_renderable != nullptr) {
         SelectRenderable(closest_renderable);
     }
+}
+void GuiRenderTexture::DrawDebugRay(Ray ray, glm::vec4 ray_colour) {
+    // spdlog::info("Ray Origin: {0}, Ray Dir: {1}", glm::to_string(ray.origin), glm::to_string(ray.direction));
+    // Debug: draw raycast lines
+    std::vector<glm::vec3> line;
+    line.emplace_back(ray.origin);
+    line.emplace_back(ray.origin + (ray.direction * 100000.0f));
+    std::vector<glm::vec3> line_colour;
+    line_colour.emplace_back(ray_colour);
+    line_colour.emplace_back(ray_colour);
+    std::shared_ptr<Geometry> line_geo = std::make_shared<Geometry>(line, line_colour, "");
+    debug_geo_renderable_pairs.emplace_back(line_geo, std::make_unique<Renderable>(basic_shader, line_geo, GL_LINES));
 }
 
 //TODO: Move (into static raycasting util class?)

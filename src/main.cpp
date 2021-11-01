@@ -54,32 +54,6 @@ GLFWwindow* glfw_window;
 // TODO: We may wish to rename 'Viewport' as IMGUI now has such a concept.
 shared_ptr<vector<shared_ptr<Viewport>>> viewports;
 
-const vector<vec3> TEST_DATA_LINES = {
-	glm::vec3(00.0, 00.0, 00.0),
-	glm::vec3(20.0, 00.0, 00.0),
-	glm::vec3(00.0, 20.0, 00.0),
-
-	glm::vec3(00.0, 00.0, 00.0),
-	glm::vec3(00.0, 00.0, 20.0), 
-	glm::vec3(20.0, 00.0, 00.0),
-
-	glm::vec3(00.0, 00.0, 00.0),
-	glm::vec3(00.0, 20.0, 00.0),
-	glm::vec3(00.0, 00.0, 20.0)	
-};
-
-const vector<vec3> TEST_TRIANGLE_VERTS = {
-    vec3(-10.0f, -10.0f, 0.0f),
-    vec3(10.0f, -10.0f, 0.0f),
-    vec3(0.0f,  10.0f, 0.0f)
-};
-
-const vector<vec3> TEST_TRIANGLE_COLS = {
-    vec3(1.0f, 0.0f, 0.0f),
-    vec3(0.0f, 1.0f, 0.0f),
-    vec3(0.0f,  0.0f, 1.0f)
-};
-
 bool ImportGeoTest( const std::string& pFile);  //TODO: temp prototype.
 
 void GlfwMouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {    //NOLINT: unused params in callback.
