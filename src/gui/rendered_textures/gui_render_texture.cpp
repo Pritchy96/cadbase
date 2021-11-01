@@ -1,6 +1,10 @@
+#include <glm/gtx/quaternion.hpp>
+#include <glm/gtx/rotate_vector.hpp>
 #include <glm/gtx/string_cast.hpp>
 #include <spdlog/spdlog.h>
 #include <glm/fwd.hpp>
+#include <glm/gtx/quaternion.hpp>
+
 #include <memory>
 #include <vector>
 
@@ -49,6 +53,10 @@ void GuiRenderTexture::Update() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	glPolygonMode(render_face, render_mode);
+
+    if (camera->is_slerping) {
+        camera->UpdateSLERP();
+    }
 
     Draw();
 

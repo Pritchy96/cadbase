@@ -1,13 +1,12 @@
-
-#include <glm/ext/quaternion_trigonometric.hpp>
-
 #include <glm/common.hpp>
 #include <glm/geometric.hpp>
 #include <glm/gtx/quaternion.hpp>
 #include <glm/gtx/string_cast.hpp>
-#include <spdlog/spdlog.h>
 #include <glm/fwd.hpp>
 #include <glm/ext.hpp>
+#include <glm/ext/quaternion_trigonometric.hpp>
+
+#include <spdlog/spdlog.h>
 
 #include <memory>
 #include <vector>
@@ -15,8 +14,7 @@
 #include "cad-base/gui/rendered_textures/navicube.hpp"
 #include "cad-base/gui/rendered_textures/gui_render_texture.hpp"
 #include "cad-base/raycast/ray.hpp"
-
-
+#include "cad-base/viewport_input.hpp"
 
 using std::shared_ptr;
 using std::make_shared;
@@ -24,12 +22,14 @@ using std::make_unique;
 
 using glm::vec3;    
 
-NaviCube::NaviCube(GLFWwindow *window, glm::vec4 background_col, int window_width, int window_height) 
-    : GuiRenderTexture(window, background_col, window_width, window_height) {
+NaviCube::NaviCube(GLFWwindow *window, glm::vec4 background_col, int window_width, int window_height, std::vector<std::shared_ptr<Camera>> affected_cameras) 
+    : GuiRenderTexture(window, background_col, window_width, window_height),
+      ViewportInput(affected_cameras) {
 
     camera->SetProjectionStyle(true);
     camera->can_pan = false;
     camera->can_zoom = false;
+    this->affected_cameras.emplace_back(camera);
 
     shared_ptr<Geometry> geo = make_shared<Geometry>(face_1_, "Face 1");
 	geo_renderable_pairs.emplace_back(geo, make_unique<Renderable>(basic_shader, geo, GL_TRIANGLES));
@@ -96,13 +96,8 @@ void NaviCube::SelectRenderable(std::shared_ptr<Renderable> selected_renderable)
     selected_face_ = selected_renderable;
     spdlog::info("Selected NaviCube Face: {0}", selected_renderable->geometry->name); 
 
-    glm::vec3 camera_pos = camera->GetCameraTransform()[3];
     glm::vec3 camera_forward = glm::normalize(camera->GetCameraTransform()[2]);
     glm::vec3 camera_up = camera->GetCameraTransform()[1];
-
-    // spdlog::info("Full Matrix: {0}", glm::to_string(camera->GetViewMatrix()));
-    // spdlog::info("Camera Foward (Calculated): {0}", glm::to_string(camera_forward));
-    // spdlog::info("Camera Foward (From Mat): {0}\n", glm::to_string();
 
     //Some (kinda dumb) maths to figure out the surface normal of the face, taking advantage of the fact that the navicube is just a box with center (0, 0, 0)
     //also figure out the new up direction 
@@ -113,10 +108,6 @@ void NaviCube::SelectRenderable(std::shared_ptr<Renderable> selected_renderable)
     //We use this to snap to the nearest cardinal direction as our new up vector.
     glm::vec3 new_up;
     glm::vec3 camera_up_abs = glm::abs(camera_up);
-
-    // spdlog::info("Summed triangle: {0}", glm::to_string(summed_triangle));
-    // spdlog::info("Camera up: {0}", glm::to_string(camera_up));
-    // spdlog::info("Camera up abs: {0}", glm::to_string(camera_up_abs));
 
     if (std::abs(summed_triangle.x) == (3 * CUBE_SIZE)) {
         surface_normal = glm::normalize(glm::vec3(summed_triangle.x, 0.0f, 0.0f));
@@ -144,39 +135,6 @@ void NaviCube::SelectRenderable(std::shared_ptr<Renderable> selected_renderable)
         }
     }
 
-    spdlog::info("Camera View: {0}", glm::to_string(camera->GetViewMatrix()));
-
-    // spdlog::info("New up Vector: {0}", glm::to_string(new_up));
-    // spdlog::info("Surface Normal: {0}", glm::to_string(surface_normal));
-
-    // Ray camera_forward_ray;
-    // camera_forward_ray.origin = camera->GetTarget();
-    // camera_forward_ray.direction = camera_forward;
-    // DrawDebugRay(camera_forward_ray);
-
-    Ray surface_ray;
-    surface_ray.origin = camera->GetTarget();
-    surface_ray.direction = surface_normal;
-    DrawDebugRay(surface_ray, glm::vec4(1.0f, 1.0f, 0.0f, 1.0f));
-
-    // Ray camera_up_ray;
-    // camera_up_ray.origin = camera_pos;
-    // camera_up_ray.direction = camera_up;
-    // DrawDebugRay(camera_up_ray, glm::vec4(0.0f, 0.6f, 0.6f, 1.0f));
-
-    Ray new_up_ray;
-    new_up_ray.origin = camera->GetTarget();
-    new_up_ray.direction = new_up;
-    DrawDebugRay(new_up_ray, glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
-
-    // Take the cross product of your start and end points (unit length vectors from the centre of the sphere) to form a rotational axis perpendicular to both of them. 
-    glm::vec3 cross_vector = glm::cross(camera_forward, surface_normal);
-
-    Ray cross_vector_ray;
-    cross_vector_ray.origin = camera->GetTarget();
-    cross_vector_ray.direction = cross_vector;
-    DrawDebugRay(cross_vector_ray, glm::vec4(0.0f, 0.0f, 1.0f, 1.0f));
-
     //Rotate camera so that it's normal is perpendicular to clicked face.
     glm::quat camera_rotation_quat = RotationBetweenVectors(camera_forward, surface_normal);
 
@@ -185,5 +143,8 @@ void NaviCube::SelectRenderable(std::shared_ptr<Renderable> selected_renderable)
 	glm::quat up_vector_quat = RotationBetweenVectors(current_up, new_up);
 	
 	// Generate new rotation
-    camera->SetRotation(glm::toMat4(up_vector_quat * camera_rotation_quat) * camera->GetRotation());
+    for (std::shared_ptr<Camera> c : affected_cameras) {
+        c->SLERPCameraRotation(up_vector_quat * camera_rotation_quat * glm::quat(camera->GetRotation()), 0.2f);
+    }
+
 }

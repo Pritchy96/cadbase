@@ -39,10 +39,14 @@
 
 GuiRenderWindow::GuiRenderWindow(std::string name, GLFWwindow* glfw_window, std::shared_ptr<Viewport> viewport) 
                                     : name(name), glfw_window(glfw_window), viewport_(viewport) {
-    navicube_ = std::make_shared<NaviCube>(glfw_window, glm::vec4(glm::vec3(viewport_->background_colour), 0.0f), 200, 200);
+
+    std::vector<std::shared_ptr<Camera>> cameras = {viewport->camera};
+    navicube_ = std::make_shared<NaviCube>(glfw_window, glm::vec4(glm::vec3(viewport_->background_colour), 0.0f), 200, 200, cameras);
     
     //Make the viewport rotation affect the navicube and vice-versa.
     viewport_->arcball->affected_cameras.emplace_back(navicube_->camera);
+
+    navicube_->affected_cameras.emplace_back(viewport_->camera);
     navicube_->arcball->affected_cameras.emplace_back(viewport_->camera);
 }
 
@@ -100,6 +104,10 @@ void GuiRenderWindow::DrawRenderWindowSettings() {
             viewport_->camera->ResetRotation();
             viewport_->camera->ResetTarget();
             viewport_->camera->ResetZoom();
+
+            navicube_->camera->ResetRotation();
+            navicube_->camera->ResetTarget();
+            navicube_->camera->ResetZoom();
         }
 
         ImGui::EndPopup();
@@ -122,7 +130,7 @@ void GuiRenderWindow::Draw() {
     }
 
     // Because we use the texture from OpenGL, we need to invert the V from the UV.
-    ImGui::Image((ImTextureID)navicube_->colour_texture, window_size_, ImVec2(0, 1), ImVec2(1, 0));
+    ImGui::Image((ImTextureID)viewport_->colour_texture, window_size_, ImVec2(0, 1), ImVec2(1, 0));
     viewport_->HandleIO();
 
     navicube_->Update();

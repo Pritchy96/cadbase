@@ -3,15 +3,15 @@
 
 #include "cad-base/arcball.hpp"
 #include "cad-base/camera.hpp"
+#include "cad-base/viewport_input.hpp"
 
-Arcball::Arcball(std::vector<std::shared_ptr<Camera>> affected_camera) : affected_cameras(affected_camera) {
+Arcball::Arcball(std::vector<std::shared_ptr<Camera>> affected_cameras) : ViewportInput(affected_cameras) {
     arcball_rotate_sensitivity = ARCBALL_ROTATE_SENSITIVITY_INITIAL;
     arcball_pan_sensitivity = ARCBALL_PAN_SENSITIVITY_INITIAL;
 }
 
 
 glm::vec3 Arcball::GetArcballVector(glm::vec2 screen_pos, glm::vec2 screen_size) {
-
     //Convert mouse pos to homogenous coordinates (-1 to 1)
     //We currently have z set as up, so we need to find y (examples generally have x, y and find z)
     glm::vec3 vector = glm::vec3(((screen_pos.x/(screen_size.x) * 2.0f) - 1.0f), 0, ((screen_pos.y/(screen_size.y) * 2.0f) - 1.0f));

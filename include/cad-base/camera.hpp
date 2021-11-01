@@ -23,15 +23,13 @@ class Camera {
         void SetProjectionStyle(bool ortho_not_perspective_camera);
         bool IsOrthoCamera() const { return ortho_not_perspective_; }
 
-        //Camera Settings
-        bool can_pan = true;
-        bool can_rotate = true;
-        bool can_zoom = true;
-
         glm::mat4 GetDistanceMatrix();
         glm::mat4 GetViewMatrix();
         glm::mat4 GetProjectionMatrix() { return projection_matrix_; }
 
+        //Spherical Linerarly intERPolate camera rotation.
+        void SLERPCameraRotation(glm::quat new_rotation, float time_duration);
+        void UpdateSLERP();
 
         void SetRotation(glm::mat4 rotation) {
             rotation_ = rotation;
@@ -91,6 +89,18 @@ class Camera {
         float GetOrthoFustrumHeight() {
             return ortho_fustrum_height_;
         }
+
+        //Camera Settings
+        bool can_pan = true;
+        bool can_rotate = true;
+        bool can_zoom = true;
+
+        //SLERP variables
+        float slerp_time_total;
+        float slerp_time_elapsed;
+        glm::quat slerp_initial_rotation;
+        glm::quat slerp_target_rotation;
+        bool is_slerping = false;
 
     private: 
         bool ortho_not_perspective_;
