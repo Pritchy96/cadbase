@@ -140,7 +140,7 @@ void GuiRenderTexture::SetupFBO() {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, window_size->x, window_size->y, 0, GL_RGBA,GL_UNSIGNED_BYTE , 0);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, window_size->x, window_size->y, 0, GL_RGBA, GL_UNSIGNED_BYTE , 0);
 	glBindTexture(GL_TEXTURE_2D, 0);
 
     // Depth texture - Slower than depth buffer, but can sample it later in shader
@@ -230,7 +230,7 @@ void GuiRenderTexture::HandleIO() {
     }
 
     texture_has_focus = (clicked_on_texture[ImGuiMouseButton_Left] 
-        || clicked_on_texture[ImGuiMouseButton_Middle] 
+        || clicked_on_texture[ImGuiMouseButton_Middle]
         || clicked_on_texture[ImGuiMouseButton_Right]);
 
     if(ImGui::IsMouseDragging(ImGuiMouseButton_Right)) {  //Rotate
@@ -310,6 +310,7 @@ void GuiRenderTexture::CastRay(glm::vec2 mouse_pos) {
         SelectRenderable(closest_renderable);
     }
 }
+
 void GuiRenderTexture::DrawDebugRay(Ray ray, glm::vec4 ray_colour) {
     // spdlog::info("Ray Origin: {0}, Ray Dir: {1}", glm::to_string(ray.origin), glm::to_string(ray.direction));
     // Debug: draw raycast lines

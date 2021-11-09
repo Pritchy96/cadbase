@@ -19,7 +19,7 @@ class Arcball : public ViewportInput {
         
     private:
         const float ARCBALL_ROTATE_SENSITIVITY_INITIAL = 4.0f; 
-        const float ARCBALL_PAN_SENSITIVITY_INITIAL = 100.0f; 
+        const float ARCBALL_PAN_SENSITIVITY_INITIAL = 20.0f; 
 };
 
 #endif

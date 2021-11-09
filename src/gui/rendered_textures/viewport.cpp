@@ -87,13 +87,15 @@ void Viewport::HandleIO() {
     ImGuiIO& io = ImGui::GetIO();
     bool image_hovered = ImGui::IsItemHovered();
 
-    //Zoom
+    //Zoom  
     if ((image_hovered || texture_has_focus) && io.MouseWheel != 0) {
         arcball->Zoom();
     }
 
     if (ImGui::IsMouseDragging(ImGuiMouseButton_Middle)) {  //Pan
-        arcball->Pan();
+        if (image_hovered) {
+            arcball->Pan();
+        }
     } else if (ImGui::IsMouseDragging(ImGuiMouseButton_Left)) {
         if (image_hovered) {
             glm::vec2 mouse_delta = glm::vec2(io.MouseDelta.x, io.MouseDelta.y);

@@ -47,7 +47,13 @@ set(ASSIMP_SRC_DIR ${THIRDPARTY_DIR}/assimp)
 include_directories(${ASSIMP_SRC_DIR}/include)
 add_subdirectory(${ASSIMP_SRC_DIR})
 
-#assimp
+#stb
+set(STB_SRC_DIR ${THIRDPARTY_DIR}/stb)
+include_directories(${STB_SRC_DIR})
+link_directories(${STB_SRC_DIR}) 
+
+
+#spdlog
 set(SPDLOG_SRC_DIR ${THIRDPARTY_DIR}/spdlog)
 include_directories(${SPDLOG_SRC_DIR}/include)
 add_subdirectory(${SPDLOG_SRC_DIR})

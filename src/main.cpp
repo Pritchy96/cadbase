@@ -40,13 +40,10 @@ using std::unique_ptr;
 using std::make_shared;
 using std::make_unique;
 
-using glm::vec3;
-
 const ImVec4 BACKGROUND_COLOUR = ImVec4(0.15f, 0.15f, 0.15f, 1.00f);    //TODO: remove
 
 unique_ptr<GuiMain> gui_main;
 unique_ptr<GeometryList> master_geometry;
-
 shared_ptr<GuiLogger> gui_logger_sink;
 
 GLFWwindow* glfw_window;
@@ -131,7 +128,7 @@ bool ImportGeoTest(const std::string& pFile) {
         return false;
     }
 
-    vector<vec3> test_geo;
+    vector<glm::vec3> test_geo;
     float import_scale_factor = 1.0f;
 
     for (int m = 0; m < scene->mNumMeshes; m++) {

@@ -8,19 +8,23 @@
 
 #include <spdlog/spdlog.h>
 
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb_include.h>
+#include <stb_image.h>
+
+#include <cmath>
 #include <memory>
 #include <vector>
 
 #include "cad-base/gui/rendered_textures/navicube.hpp"
 #include "cad-base/gui/rendered_textures/gui_render_texture.hpp"
 #include "cad-base/raycast/ray.hpp"
+#include "cad-base/textured_renderable.hpp"
 #include "cad-base/viewport_input.hpp"
 
 using std::shared_ptr;
 using std::make_shared;
 using std::make_unique;
-
-using glm::vec3;    
 
 NaviCube::NaviCube(GLFWwindow *window, glm::vec4 background_col, int window_width, int window_height, std::vector<std::shared_ptr<Camera>> affected_cameras) 
     : GuiRenderTexture(window, background_col, window_width, window_height),
@@ -30,24 +34,26 @@ NaviCube::NaviCube(GLFWwindow *window, glm::vec4 background_col, int window_widt
     camera->can_pan = false;
     camera->can_zoom = false;
     this->affected_cameras.emplace_back(camera);
-
-    shared_ptr<Geometry> geo = make_shared<Geometry>(face_1_, "Face 1");
-	geo_renderable_pairs.emplace_back(geo, make_unique<Renderable>(basic_shader, geo, GL_TRIANGLES));
-
-    geo = make_shared<Geometry>(face_2_, "Face 2");
-	geo_renderable_pairs.emplace_back(geo, make_unique<Renderable>(basic_shader, geo, GL_TRIANGLES));
     
-    geo = make_shared<Geometry>(face_3_, "Face 3");
-	geo_renderable_pairs.emplace_back(geo, make_unique<Renderable>(basic_shader, geo, GL_TRIANGLES));
+    LoadFaceTextures();
 
-    geo = make_shared<Geometry>(face_4_, "Face 4");
-	geo_renderable_pairs.emplace_back(geo, make_unique<Renderable>(basic_shader, geo, GL_TRIANGLES));
+    shared_ptr<Geometry> geo = make_shared<Geometry>(FACE_VERTS_1, SQUARE_UVS, "Face 1");
+    geo_renderable_pairs.emplace_back(geo, make_unique<TexturedRenderable>(basic_shader, face_textures_[0], geo, GL_TRIANGLES));
 
-    geo = make_shared<Geometry>(face_5_, "Face 5");
-	geo_renderable_pairs.emplace_back(geo, make_unique<Renderable>(basic_shader, geo, GL_TRIANGLES));
+    geo = make_shared<Geometry>(FACE_VERTS_2, SQUARE_UVS, "Face 2");
+    geo_renderable_pairs.emplace_back(geo, make_unique<TexturedRenderable>(basic_shader, face_textures_[1], geo, GL_TRIANGLES));
 
-    geo = make_shared<Geometry>(face_6_, "Face 6");
-	geo_renderable_pairs.emplace_back(geo, make_unique<Renderable>(basic_shader, geo, GL_TRIANGLES));
+    geo = make_shared<Geometry>(FACE_VERTS_3, SQUARE_UVS, "Face 3");
+    geo_renderable_pairs.emplace_back(geo, make_unique<TexturedRenderable>(basic_shader, face_textures_[2], geo, GL_TRIANGLES));
+
+    geo = make_shared<Geometry>(FACE_VERTS_4, SQUARE_UVS, "Face 4");
+    geo_renderable_pairs.emplace_back(geo, make_unique<TexturedRenderable>(basic_shader, face_textures_[3], geo, GL_TRIANGLES));
+
+    geo = make_shared<Geometry>(FACE_VERTS_5, SQUARE_UVS, "Face 5");
+    geo_renderable_pairs.emplace_back(geo, make_unique<TexturedRenderable>(basic_shader, face_textures_[4], geo, GL_TRIANGLES));
+
+    geo = make_shared<Geometry>(FACE_VERTS_6, SQUARE_UVS, "Face 6");
+    geo_renderable_pairs.emplace_back(geo, make_unique<TexturedRenderable>(basic_shader, face_textures_[5], geo, GL_TRIANGLES));
 }
 
 void NaviCube::DeselectRenderable() {
@@ -58,21 +64,49 @@ void NaviCube::DeselectRenderable() {
     }
 }
 
+void NaviCube::LoadFaceTextures() {
+    glGenTextures(NUM_FACES, face_textures_);
+    
+    for (unsigned int i = 0; i < NUM_FACES; i++) {
+
+        glBindTexture(GL_TEXTURE_2D, face_textures_[i]);
+
+        int width, height, comp;
+        unsigned char* image = stbi_load(FACE_TEXTURE_PATHS[i].c_str(), &width, &height, &comp, STBI_rgb);
+
+        if(image == nullptr)
+            throw(std::string("Failed to load texture"));
+
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
+
+        // Trilinear filtering
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        // Generate Mipmaps
+        glGenerateMipmap(GL_TEXTURE_2D);
+
+        glBindTexture(GL_TEXTURE_2D, 0);
+    }
+}
+
 //From: https://github.com/opengl-tutorials/ogl/blob/master/common/quaternion_utils.cpp
 //TODO: Why does this work, but camera->SetRotation(glm::rotate(camera->GetRotation(), angle, cross_vector)); doesn't?
-glm::quat NaviCube::RotationBetweenVectors(vec3 start, vec3 dest) {
+glm::quat NaviCube::RotationBetweenVectors(glm::vec3 start, glm::vec3 dest) {
 	start = normalize(start);
 	dest = normalize(dest);
 
 	float cos_theta = dot(start, dest);
-	vec3 rotation_axis;
+	glm::vec3 rotation_axis;
 
-	if (cos_theta < -1 + 0.001f){
+	if (cos_theta < -1 + 0.001f) {
 		// Special case when vectors in opposite directions - there is no "ideal" rotation axis
 		// So guess one; any will do as long as it's perpendicular to start
-		rotation_axis = cross(vec3(0.0f, 0.0f, 1.0f), start);
-		if (glm::length2(rotation_axis) < 0.01 ) //Parallel, try again
-			rotation_axis = cross(vec3(1.0f, 0.0f, 0.0f), start);
+		rotation_axis = cross(glm::vec3(0.0f, 0.0f, 1.0f), start);
+		if (glm::length2(rotation_axis) < 0.01) { //Parallel, try again
+			rotation_axis = cross(glm::vec3(1.0f, 0.0f, 0.0f), start);
+        }
 
 		rotation_axis = normalize(rotation_axis);
 		return glm::angleAxis(glm::radians(180.0f), rotation_axis);
@@ -81,7 +115,7 @@ glm::quat NaviCube::RotationBetweenVectors(vec3 start, vec3 dest) {
 	rotation_axis = glm::cross(start, dest);
 
     //Optimised Implementation from Stan Melax's Game Programming Gems 1 article
-	float s = sqrt( (1+cos_theta)*2 );
+	float s = std::sqrt((1+cos_theta) * 2);
 	float invs = 1 / s;
 
 	return {
@@ -92,15 +126,15 @@ glm::quat NaviCube::RotationBetweenVectors(vec3 start, vec3 dest) {
 	};
 }
 
-void NaviCube::SelectRenderable(std::shared_ptr<Renderable> selected_renderable) {    
+void NaviCube::SelectRenderable(std::shared_ptr<Renderable> selected_renderable) {
     selected_face_ = selected_renderable;
-    spdlog::info("Selected NaviCube Face: {0}", selected_renderable->geometry->name); 
+    spdlog::info("Selected NaviCube Face: {0}", selected_renderable->geometry->name);
 
     glm::vec3 camera_forward = glm::normalize(camera->GetCameraTransform()[2]);
     glm::vec3 camera_up = camera->GetCameraTransform()[1];
 
     //Some (kinda dumb) maths to figure out the surface normal of the face, taking advantage of the fact that the navicube is just a box with center (0, 0, 0)
-    //also figure out the new up direction 
+    //also figure out the new up direction
     glm::vec3 summed_triangle = selected_face_->geometry->vertexes.at(0) + selected_face_->geometry->vertexes.at(1) + selected_face_->geometry->vertexes.at(2);
     glm::vec3 surface_normal;
 
@@ -139,12 +173,11 @@ void NaviCube::SelectRenderable(std::shared_ptr<Renderable> selected_renderable)
     glm::quat camera_rotation_quat = RotationBetweenVectors(camera_forward, surface_normal);
 
     // Set up vector to closest cardinal direction to camera original up.
-    vec3 current_up = camera_rotation_quat * camera_up;
+    glm::vec3 current_up = camera_rotation_quat * camera_up;
 	glm::quat up_vector_quat = RotationBetweenVectors(current_up, new_up);
 	
 	// Generate new rotation
     for (std::shared_ptr<Camera> c : affected_cameras) {
         c->SLERPCameraRotation(up_vector_quat * camera_rotation_quat * glm::quat(camera->GetRotation()), 0.2f);
     }
-
 }
