@@ -1,3 +1,4 @@
+#include "assimp/code/AssetLib/glTF2/glTF2Exporter.h"
 #include <glm/common.hpp>
 #include <glm/geometric.hpp>
 #include <glm/gtx/quaternion.hpp>
@@ -37,23 +38,30 @@ NaviCube::NaviCube(GLFWwindow *window, glm::vec4 background_col, int window_widt
     
     LoadFaceTextures();
 
+    //TODO: we need to restructure the program so we get data from the scene and render it, Calls to glUseShader are apparently extremely expensive,
+    //So we need to figure otu some way to sort data within a GuiRenderTexture/Renderable/whatever so we can just loop through the list of them at a top level,
+    //Grab all the renderables that want to be rendered in a specific way, and then render them all in one batch.
+	GLuint texture_shader = shader::LoadShaders((char*)"./shaders/basic_textured.vertshader", (char*)"./shaders/basic_textured.fragshader");
+    //TODO: feed this in from the ImGui Theming.
+    glm::vec4 tint = glm::vec4(0.25f, 0.38f, 0.36f, 1.00f);
+
     shared_ptr<Geometry> geo = make_shared<Geometry>(FACE_VERTS_1, SQUARE_UVS, "Face 1");
-    geo_renderable_pairs.emplace_back(geo, make_unique<TexturedRenderable>(basic_shader, face_textures_[0], geo, GL_TRIANGLES));
+    geo_renderable_pairs.emplace_back(geo, make_unique<TexturedRenderable>(texture_shader, basic_shader, face_textures_[0], geo, tint, GL_TRIANGLES));
 
     geo = make_shared<Geometry>(FACE_VERTS_2, SQUARE_UVS, "Face 2");
-    geo_renderable_pairs.emplace_back(geo, make_unique<TexturedRenderable>(basic_shader, face_textures_[1], geo, GL_TRIANGLES));
+    geo_renderable_pairs.emplace_back(geo, make_unique<TexturedRenderable>(texture_shader, basic_shader, face_textures_[1], geo, tint, GL_TRIANGLES));
 
     geo = make_shared<Geometry>(FACE_VERTS_3, SQUARE_UVS, "Face 3");
-    geo_renderable_pairs.emplace_back(geo, make_unique<TexturedRenderable>(basic_shader, face_textures_[2], geo, GL_TRIANGLES));
+    geo_renderable_pairs.emplace_back(geo, make_unique<TexturedRenderable>(texture_shader, basic_shader, face_textures_[2], geo, tint, GL_TRIANGLES));
 
     geo = make_shared<Geometry>(FACE_VERTS_4, SQUARE_UVS, "Face 4");
-    geo_renderable_pairs.emplace_back(geo, make_unique<TexturedRenderable>(basic_shader, face_textures_[3], geo, GL_TRIANGLES));
+    geo_renderable_pairs.emplace_back(geo, make_unique<TexturedRenderable>(texture_shader, basic_shader, face_textures_[3], geo, tint, GL_TRIANGLES));
 
     geo = make_shared<Geometry>(FACE_VERTS_5, SQUARE_UVS, "Face 5");
-    geo_renderable_pairs.emplace_back(geo, make_unique<TexturedRenderable>(basic_shader, face_textures_[4], geo, GL_TRIANGLES));
+    geo_renderable_pairs.emplace_back(geo, make_unique<TexturedRenderable>(texture_shader, basic_shader, face_textures_[4], geo, tint, GL_TRIANGLES));
 
     geo = make_shared<Geometry>(FACE_VERTS_6, SQUARE_UVS, "Face 6");
-    geo_renderable_pairs.emplace_back(geo, make_unique<TexturedRenderable>(basic_shader, face_textures_[5], geo, GL_TRIANGLES));
+    geo_renderable_pairs.emplace_back(geo, make_unique<TexturedRenderable>(texture_shader, basic_shader, face_textures_[5], geo, tint, GL_TRIANGLES));
 }
 
 void NaviCube::DeselectRenderable() {

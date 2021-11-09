@@ -1,3 +1,4 @@
+#include <glm/gtc/type_ptr.hpp>
 #include <imgui.h>
 #include <vector>
 #include <memory>
@@ -14,9 +15,10 @@
 #include "cad-base/textured_renderable.hpp"
 #include "cad-base/renderable.hpp"
 
-TexturedRenderable::TexturedRenderable(GLuint shader, GLuint texture, std::shared_ptr<Geometry> geo_ptr, GLuint render_primative) : texture(texture), Renderable(shader, geo_ptr, render_primative) {
+TexturedRenderable::TexturedRenderable(GLuint texture_shader, GLuint basic_shader, GLuint texture, std::shared_ptr<Geometry> geo_ptr, glm::vec4 texture_tint, GLuint render_primative) 
+	: texture_shader(texture_shader), texture(texture), texture_tint(texture_tint),
+	  Renderable(basic_shader, geo_ptr, render_primative) {
 	//TODO: figure out some static store for shaders.
-	texture_shader = shader::LoadShaders((char*)"./shaders/basic_textured.vertshader", (char*)"./shaders/basic_textured.fragshader");
 }
 
 GLuint TexturedRenderable::GetGeometryVAO() {
@@ -58,9 +60,14 @@ void TexturedRenderable::Draw(glm::mat4 projection_matrix, glm::mat4 view_matrix
 	// Set our texture sampler to use Texture Unit 0
 	glUniform1i(texture_id, 0);
 
-	// // // TODO: Pass through and do multiplication GPU side?
+	// Set texture tint
+	GLuint texture_tint_id = glGetUniformLocation(texture_shader, "texture_tint");
+	glUniform4fv(texture_tint_id, 1, glm::value_ptr(texture_tint));
+
+	// TODO: Pass through and do multiplication GPU side?
 	glm::mat4 mvp = projection_matrix * view_matrix * model_matrix;
 	GLuint shader_id = glGetUniformLocation(texture_shader, "MVP"); 
+	glUniform3f(texture_tint_id, texture_tint.r, texture_tint.g, texture_tint.b	);
 	glUniformMatrix4fv(shader_id, 1, GL_FALSE, &mvp[0][0]);
 
 	if (geometry->draw_geometry && draw_geometry) {
@@ -68,9 +75,9 @@ void TexturedRenderable::Draw(glm::mat4 projection_matrix, glm::mat4 view_matrix
 	 	glDrawArrays(GL_TRIANGLES, 0, geometry->flat_verts.size()/3);
 	}
 
-	// //TODO: Is this better to be "geo AND renderable bool" or "geo OR renderable bool"
-	// //Maybe make it "and" but have a seperate "override" for each which is or'd
-	// //I.e ((geometry->draw_aa_bounding_box && draw_aa_bounding_box) || geometry->draw_aa_bounding_box_force || draw_aa_bounding_box_force)
+	//TODO: Is this better to be "geo AND renderable bool" or "geo OR renderable bool"
+	//Maybe make it "and" but have a seperate "override" for each which is or'd
+	//I.e ((geometry->draw_aa_bounding_box && draw_aa_bounding_box) || geometry->draw_aa_bounding_box_force || draw_aa_bounding_box_force)
 	if (geometry->draw_aa_bounding_box && draw_aa_bounding_box) {
 		//TODO: is there a better way to do this than to have two VAOs?
 		glUseProgram(shader);

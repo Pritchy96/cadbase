@@ -15,7 +15,7 @@
 
 class Renderable {
     public:
-        Renderable(GLuint shader, std::shared_ptr<Geometry> geo_ptr, GLuint render_primative = GL_POINTS);
+        Renderable(GLuint basic_shader, std::shared_ptr<Geometry> geo_ptr, GLuint render_primative = GL_POINTS);
         Renderable() = default;
 
         virtual GLuint GetGeometryVAO();

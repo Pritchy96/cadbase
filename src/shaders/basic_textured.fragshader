@@ -8,9 +8,9 @@ out vec4 colour;
 
 // Values that stay constant for the whole mesh.
 uniform sampler2D texture_sampler;
-uniform vec4 colour_tint = vec4(1.0f, 1.0f, 1.0f, 1.0f);
+uniform vec4 texture_tint = vec4(1.0f, 1.0f, 1.0f, 1.0f);
 
 void main(){
     // Output colour = colour of the texture at the specified UV
-    colour = vec4((texture( texture_sampler, UV ).rgb), 1.0f) * colour_tint;
+    colour = vec4((texture( texture_sampler, UV ).rgb), 1.0f) * texture_tint;
 }
