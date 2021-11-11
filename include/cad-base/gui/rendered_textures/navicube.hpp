@@ -1,6 +1,7 @@
 #ifndef NAVICUBE_HPP
 #define NAVICUBE_HPP
 
+#include "imgui.h"
 #include <glm/fwd.hpp>
 #include <iostream>
 #include <cstdio>
@@ -30,15 +31,17 @@ class NaviCube : public GuiRenderTexture, public ViewportInput {
         NaviCube(GLFWwindow *window, glm::vec4 background_col, int window_width, int window_height, std::vector<std::shared_ptr<Camera>> affected_cameras);
         void SelectRenderable(std::shared_ptr<Renderable> selected_renderable) override;
         void DeselectRenderable() override;
-        void LoadFaceTextures();
+        void LoadTextures();
         glm::quat RotationBetweenVectors(glm::vec3 start, glm::vec3 dest);
 
-        GLuint *face_textures_ = new GLuint[NUM_FACES];
+        GLuint arrow_plus_rotate, arrow_neg_rotate;
 
     private:
         constexpr const static float CUBE_SIZE = 100;
 
         std::shared_ptr<Renderable> selected_face_;
+
+        GLuint *face_textures_ = new GLuint[NUM_FACES];
 
         const std::vector<std::string> FACE_TEXTURE_PATHS = {
             "/home/tom/git/cad-base/resources/navicube/right.tga",
@@ -48,7 +51,11 @@ class NaviCube : public GuiRenderTexture, public ViewportInput {
             "/home/tom/git/cad-base/resources/navicube/top.tga",
             "/home/tom/git/cad-base/resources/navicube/bottom.tga"
         };
-        const int NUM_FACES = 6;
+
+        const std::string ARROW_PLUS_ROTATE_TEXTURE_PATH = "/home/tom/git/cad-base/resources/navicube/arrow_plus_rotate.tga";
+        const std::string ARROW_NEG_ROTATE_TEXTURE_PATH = "/home/tom/git/cad-base/resources/navicube/arrow_neg_rotate.tga";
+
+        static const int NUM_FACES = 6;
 
         //1 & 2, 3 & 4, 5 & 6 are opposite pairs.
         const std::vector<glm::vec3> FACE_VERTS_1 = {
@@ -101,12 +108,12 @@ class NaviCube : public GuiRenderTexture, public ViewportInput {
         };
 
         const std::vector<glm::vec2> SQUARE_UVS = {
-            glm::vec2(0.0f, 0.0f),   // top right
-            glm::vec2(0.0f, 1.0f),   // bottom right
-            glm::vec2(1.0f, 1.0f),   // bottom left
-            glm::vec2(0.0f, 0.0f),   // top left
             glm::vec2(1.0f, 1.0f),   // top right
-            glm::vec2(1.0f, 0.0f)   // bottom left
+            glm::vec2(1.0f, 0.0f),   // bottom right
+            glm::vec2(0.0f, 0.0f),   // bottom left
+            glm::vec2(1.0f, 1.0f),   // top left
+            glm::vec2(0.0f, 0.0f),   // top right
+            glm::vec2(0.0f, 1.0f)   // bottom left
         };
 };
 

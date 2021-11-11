@@ -90,17 +90,24 @@ class Camera {
             return ortho_fustrum_height_;
         }
 
-        //Camera Settings
+        // Camera Settings
         bool can_pan = true;
         bool can_rotate = true;
         bool can_zoom = true;
 
-        //SLERP variables
+        // SLERP variables
         float slerp_time_total;
         float slerp_time_elapsed;
         glm::quat slerp_initial_rotation;
         glm::quat slerp_target_rotation;
         bool is_slerping = false;
+
+        // A bit of a special case - certain operations will fix the camera such that a face normal of the scene and the camera direction
+        // Are perpendicular. In that case, we may want to do some special operations, that this bool will enable.
+        // For example, 90 degree rotation buttons on the navicube when aligned with one of the navicube faces.
+        bool aligned_to_face = false;
+
+        constexpr const static float STANDARD_SLERP_TIME = 0.2f;
 
     private: 
         bool ortho_not_perspective_;

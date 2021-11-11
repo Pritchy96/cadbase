@@ -1,4 +1,5 @@
 #include "assimp/code/AssetLib/glTF2/glTF2Exporter.h"
+#include "imgui.h"
 #include <glm/common.hpp>
 #include <glm/geometric.hpp>
 #include <glm/gtx/quaternion.hpp>
@@ -30,20 +31,22 @@ using std::make_unique;
 NaviCube::NaviCube(GLFWwindow *window, glm::vec4 background_col, int window_width, int window_height, std::vector<std::shared_ptr<Camera>> affected_cameras) 
     : GuiRenderTexture(window, background_col, window_width, window_height),
       ViewportInput(affected_cameras) {
-
+    
+    camera->aligned_to_face = true; //TODO: do some logic to check if the initial target & position of camera means it's facing a navicube face.
     camera->SetProjectionStyle(true);
     camera->can_pan = false;
     camera->can_zoom = false;
     this->affected_cameras.emplace_back(camera);
     
-    LoadFaceTextures();
+    LoadTextures();
 
     //TODO: we need to restructure the program so we get data from the scene and render it, Calls to glUseShader are apparently extremely expensive,
-    //So we need to figure otu some way to sort data within a GuiRenderTexture/Renderable/whatever so we can just loop through the list of them at a top level,
+    //So we need to figure out some way to sort data within a GuiRenderTexture/Renderable/whatever so we can just loop through the list of them at a top level,
     //Grab all the renderables that want to be rendered in a specific way, and then render them all in one batch.
 	GLuint texture_shader = shader::LoadShaders((char*)"./shaders/basic_textured.vertshader", (char*)"./shaders/basic_textured.fragshader");
     //TODO: feed this in from the ImGui Theming.
     glm::vec4 tint = glm::vec4(0.25f, 0.38f, 0.36f, 1.00f);
+
 
     shared_ptr<Geometry> geo = make_shared<Geometry>(FACE_VERTS_1, SQUARE_UVS, "Face 1");
     geo_renderable_pairs.emplace_back(geo, make_unique<TexturedRenderable>(texture_shader, basic_shader, face_textures_[0], geo, tint, GL_TRIANGLES));
@@ -72,7 +75,7 @@ void NaviCube::DeselectRenderable() {
     }
 }
 
-void NaviCube::LoadFaceTextures() {
+void NaviCube::LoadTextures() {
     glGenTextures(NUM_FACES, face_textures_);
     
     for (unsigned int i = 0; i < NUM_FACES; i++) {
@@ -80,12 +83,13 @@ void NaviCube::LoadFaceTextures() {
         glBindTexture(GL_TEXTURE_2D, face_textures_[i]);
 
         int width, height, comp;
-        unsigned char* image = stbi_load(FACE_TEXTURE_PATHS[i].c_str(), &width, &height, &comp, STBI_rgb);
+        unsigned char* image = stbi_load(FACE_TEXTURE_PATHS[i].c_str(), &width, &height, &comp, STBI_rgb_alpha);
 
-        if(image == nullptr)
+        if(image == nullptr) {
             throw(std::string("Failed to load texture"));
+        }
 
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image);
 
         // Trilinear filtering
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -97,6 +101,47 @@ void NaviCube::LoadFaceTextures() {
 
         glBindTexture(GL_TEXTURE_2D, 0);
     }
+
+        glGenTextures(1, &arrow_plus_rotate);
+        glBindTexture(GL_TEXTURE_2D, arrow_plus_rotate);
+        int width, height, comp;
+        unsigned char* image = stbi_load(ARROW_PLUS_ROTATE_TEXTURE_PATH.c_str(), &width, &height, &comp, STBI_rgb_alpha);
+        
+        if(image == nullptr) {
+            throw(std::string("Failed to load texture"));
+        }
+
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image);
+
+        // Trilinear filtering
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        // Generate Mipmaps
+        glGenerateMipmap(GL_TEXTURE_2D);
+
+        glGenTextures(1, &arrow_neg_rotate);
+        glBindTexture(GL_TEXTURE_2D, arrow_neg_rotate);
+
+        image = stbi_load(ARROW_NEG_ROTATE_TEXTURE_PATH.c_str(), &width, &height, &comp, STBI_rgb_alpha);
+        
+        if(image == nullptr) {
+            throw(std::string("Failed to load texture"));
+        }
+
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image);
+
+        // Trilinear filtering
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        // Generate Mipmaps
+        glGenerateMipmap(GL_TEXTURE_2D);
+
+        glBindTexture(GL_TEXTURE_2D, 0);
+
 }
 
 //From: https://github.com/opengl-tutorials/ogl/blob/master/common/quaternion_utils.cpp
@@ -186,6 +231,8 @@ void NaviCube::SelectRenderable(std::shared_ptr<Renderable> selected_renderable)
 	
 	// Generate new rotation
     for (std::shared_ptr<Camera> c : affected_cameras) {
-        c->SLERPCameraRotation(up_vector_quat * camera_rotation_quat * glm::quat(camera->GetRotation()), 0.2f);
+        c->SLERPCameraRotation(up_vector_quat * camera_rotation_quat * glm::quat(camera->GetRotation()), c->STANDARD_SLERP_TIME);
     }
+
+    camera->aligned_to_face = true; //Special case, we've set the camera forward to be parallel to a face normal.
 }

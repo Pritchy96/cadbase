@@ -16,8 +16,8 @@
 #include "cad-base/renderable.hpp"
 
 TexturedRenderable::TexturedRenderable(GLuint texture_shader, GLuint basic_shader, GLuint texture, std::shared_ptr<Geometry> geo_ptr, glm::vec4 texture_tint, GLuint render_primative) 
-	: texture_shader(texture_shader), texture(texture), texture_tint(texture_tint),
-	  Renderable(basic_shader, geo_ptr, render_primative) {
+	: Renderable(basic_shader, geo_ptr, render_primative), texture(texture), texture_shader(texture_shader),
+	  texture_tint(texture_tint) {
 	//TODO: figure out some static store for shaders.
 }
 

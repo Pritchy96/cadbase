@@ -149,7 +149,7 @@ bool ImportGeoTest(const std::string& pFile) {
 
 void SetupRenderWindows() {
     // TODO: temp test.
-    for (int i= 0; i < 1; i++) { 
+    for (int i= 0; i < 4; i++) { 
         viewports->push_back(make_shared<Viewport>(glfw_window, 
             glm::vec4(gui_main->BACKGROUND_COLOUR.x, gui_main->BACKGROUND_COLOUR.y, gui_main->BACKGROUND_COLOUR.z, 1.0f),
             1000, 1000, gui_main->gui_data));

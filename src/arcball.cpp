@@ -41,7 +41,6 @@ void Arcball::Rotate(std::shared_ptr<glm::vec2> window_size) {
     glm::vec2 mouse_pos =    glm::vec2(io.MousePos.x, io.MousePos.y)  - window_offset;
     glm::vec2 mouse_pos_last = mouse_pos - (mouse_delta * arcball_rotate_sensitivity);
 
-
     glm::vec3 last_pos_vec = GetArcballVector(mouse_pos_last, glm::vec2(window_size->x, window_size->y));
     glm::vec3 pos_vec = GetArcballVector(mouse_pos, glm::vec2(window_size->x, window_size->y));
 
@@ -55,6 +54,7 @@ void Arcball::Rotate(std::shared_ptr<glm::vec2> window_size) {
     for (std::shared_ptr<Camera> c :affected_cameras) {
         if(c->can_rotate) {
             c->SetRotation(glm::rotate(c->GetRotation(), angle, cross_vector));
+            c->aligned_to_face = false; //Only special 'snap to' operations can set this to true.
         }
     }
 }
