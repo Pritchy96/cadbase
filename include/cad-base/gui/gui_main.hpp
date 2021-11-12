@@ -18,6 +18,7 @@
 #include "cad-base/gui/gui_data.hpp"
 #include "cad-base/gui/gui_render_window.hpp"
 #include "cad-base/gui/gui_logger.hpp"
+#include "cad-base/gui/app_style.hpp"
 
 class GuiMain {
     public:
@@ -37,9 +38,6 @@ class GuiMain {
         std::vector<std::shared_ptr<GuiRenderWindow>> gui_render_windows;
         std::shared_ptr<GuiData> gui_data;
 
-        const ImVec4 BACKGROUND_COLOUR = ImVec4(0.15f, 0.15f, 0.15f, 1.00f);
-
-
     private:
         // Pass through input.
         ImGuiDockNodeFlags dockspace_flags_ = ImGuiDockNodeFlags_PassthruCentralNode;
@@ -50,6 +48,7 @@ class GuiMain {
 
         ImGuiViewport* main_imgui_viewport_;
         ImGuiIO* imgui_io_;
+        AppStyle app_style;
 
         //GUI
         std::unique_ptr<GuiProject> gui_settings_;

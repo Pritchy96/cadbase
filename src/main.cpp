@@ -26,6 +26,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#include "cad-base/gui/app_style.hpp"
 #include "cad-base/gui/gui_main.hpp"
 #include "cad-base/shader.hpp"
 #include "cad-base/geometry/geometry.hpp"
@@ -33,6 +34,7 @@
 #include "cad-base/gui/rendered_textures/viewport.hpp"
 #include "cad-base/geometry_list.hpp"
 #include "cad-base/gui/gui_logger.hpp"
+#include "cad-base/gui/app_style.hpp"
 
 using std::vector;
 using std::shared_ptr;
@@ -45,6 +47,8 @@ const ImVec4 BACKGROUND_COLOUR = ImVec4(0.15f, 0.15f, 0.15f, 1.00f);    //TODO: 
 unique_ptr<GuiMain> gui_main;
 unique_ptr<GeometryList> master_geometry;
 shared_ptr<GuiLogger> gui_logger_sink;
+
+AppStyle app_style;
 
 GLFWwindow* glfw_window;
 
@@ -151,7 +155,8 @@ void SetupRenderWindows() {
     // TODO: temp test.
     for (int i= 0; i < 4; i++) { 
         viewports->push_back(make_shared<Viewport>(glfw_window, 
-            glm::vec4(gui_main->BACKGROUND_COLOUR.x, gui_main->BACKGROUND_COLOUR.y, gui_main->BACKGROUND_COLOUR.z, 1.0f),
+            glm::vec4(app_style.BACKGROUND_COLOUR_MEDIUM.x, app_style.BACKGROUND_COLOUR_MEDIUM.y, 
+                app_style.BACKGROUND_COLOUR_MEDIUM.z, app_style.BACKGROUND_COLOUR_MEDIUM.w),
             1000, 1000, gui_main->gui_data));
 
         // Make our render windows - one for each viewport for now.

@@ -1,5 +1,5 @@
-#include "assimp/code/AssetLib/glTF2/glTF2Exporter.h"
-#include "imgui.h"
+#include <imgui.h>
+
 #include <glm/common.hpp>
 #include <glm/geometric.hpp>
 #include <glm/gtx/quaternion.hpp>
@@ -23,6 +23,7 @@
 #include "cad-base/raycast/ray.hpp"
 #include "cad-base/textured_renderable.hpp"
 #include "cad-base/viewport_input.hpp"
+#include "cad-base/gui/app_style.hpp"
 
 using std::shared_ptr;
 using std::make_shared;
@@ -45,8 +46,11 @@ NaviCube::NaviCube(GLFWwindow *window, glm::vec4 background_col, int window_widt
     //Grab all the renderables that want to be rendered in a specific way, and then render them all in one batch.
 	GLuint texture_shader = shader::LoadShaders((char*)"./shaders/basic_textured.vertshader", (char*)"./shaders/basic_textured.fragshader");
     //TODO: feed this in from the ImGui Theming.
-    glm::vec4 tint = glm::vec4(0.25f, 0.38f, 0.36f, 1.00f);
 
+    AppStyle app_style;
+    ImVec4 im_tint = app_style.ACCENT_COLOUR_MEDIUM;
+    
+    glm::vec4 tint = glm::vec4(im_tint.x, im_tint.y, im_tint.z, im_tint.w);
 
     shared_ptr<Geometry> geo = make_shared<Geometry>(FACE_VERTS_1, SQUARE_UVS, "Face 1");
     geo_renderable_pairs.emplace_back(geo, make_unique<TexturedRenderable>(texture_shader, basic_shader, face_textures_[0], geo, tint, GL_TRIANGLES));
@@ -102,46 +106,45 @@ void NaviCube::LoadTextures() {
         glBindTexture(GL_TEXTURE_2D, 0);
     }
 
-        glGenTextures(1, &arrow_plus_rotate);
-        glBindTexture(GL_TEXTURE_2D, arrow_plus_rotate);
-        int width, height, comp;
-        unsigned char* image = stbi_load(ARROW_PLUS_ROTATE_TEXTURE_PATH.c_str(), &width, &height, &comp, STBI_rgb_alpha);
-        
-        if(image == nullptr) {
-            throw(std::string("Failed to load texture"));
-        }
+    glGenTextures(1, &arrow_plus_rotate);
+    glBindTexture(GL_TEXTURE_2D, arrow_plus_rotate);
+    int width, height, comp;
+    unsigned char* image = stbi_load(ARROW_PLUS_ROTATE_TEXTURE_PATH.c_str(), &width, &height, &comp, STBI_rgb_alpha);
+    
+    if(image == nullptr) {
+        throw(std::string("Failed to load texture"));
+    }
 
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image);
 
-        // Trilinear filtering
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-        // Generate Mipmaps
-        glGenerateMipmap(GL_TEXTURE_2D);
+    // Trilinear filtering
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    // Generate Mipmaps
+    glGenerateMipmap(GL_TEXTURE_2D);
 
-        glGenTextures(1, &arrow_neg_rotate);
-        glBindTexture(GL_TEXTURE_2D, arrow_neg_rotate);
+    glGenTextures(1, &arrow_neg_rotate);
+    glBindTexture(GL_TEXTURE_2D, arrow_neg_rotate);
 
-        image = stbi_load(ARROW_NEG_ROTATE_TEXTURE_PATH.c_str(), &width, &height, &comp, STBI_rgb_alpha);
-        
-        if(image == nullptr) {
-            throw(std::string("Failed to load texture"));
-        }
+    image = stbi_load(ARROW_NEG_ROTATE_TEXTURE_PATH.c_str(), &width, &height, &comp, STBI_rgb_alpha);
+    
+    if(image == nullptr) {
+        throw(std::string("Failed to load texture"));
+    }
 
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image);
 
-        // Trilinear filtering
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-        // Generate Mipmaps
-        glGenerateMipmap(GL_TEXTURE_2D);
+    // Trilinear filtering
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    // Generate Mipmaps
+    glGenerateMipmap(GL_TEXTURE_2D);
 
-        glBindTexture(GL_TEXTURE_2D, 0);
-
+    glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 //From: https://github.com/opengl-tutorials/ogl/blob/master/common/quaternion_utils.cpp
