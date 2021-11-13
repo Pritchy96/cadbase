@@ -44,12 +44,12 @@ class NaviCube : public GuiRenderTexture, public ViewportInput {
         GLuint *face_textures_ = new GLuint[NUM_FACES];
 
         const std::vector<std::string> FACE_TEXTURE_PATHS = {
-            "/home/tom/git/cad-base/resources/navicube/right.tga",
             "/home/tom/git/cad-base/resources/navicube/left.tga",
-            "/home/tom/git/cad-base/resources/navicube/front.tga",
+            "/home/tom/git/cad-base/resources/navicube/right.tga",
             "/home/tom/git/cad-base/resources/navicube/back.tga",
-            "/home/tom/git/cad-base/resources/navicube/top.tga",
-            "/home/tom/git/cad-base/resources/navicube/bottom.tga"
+            "/home/tom/git/cad-base/resources/navicube/front.tga",
+            "/home/tom/git/cad-base/resources/navicube/bottom.tga",
+            "/home/tom/git/cad-base/resources/navicube/top.tga"
         };
 
         const std::string ARROW_PLUS_ROTATE_TEXTURE_PATH = "/home/tom/git/cad-base/resources/navicube/arrow_plus_rotate.tga";

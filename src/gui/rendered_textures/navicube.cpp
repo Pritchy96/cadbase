@@ -48,7 +48,7 @@ NaviCube::NaviCube(GLFWwindow *window, glm::vec4 background_col, int window_widt
     //TODO: feed this in from the ImGui Theming.
 
     AppStyle app_style;
-    ImVec4 im_tint = app_style.ACCENT_COLOUR_MEDIUM;
+    ImVec4 im_tint = app_style.ACCENT_COLOUR_DIM;
     
     glm::vec4 tint = glm::vec4(im_tint.x, im_tint.y, im_tint.z, im_tint.w);
 
