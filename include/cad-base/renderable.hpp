@@ -15,7 +15,7 @@
 
 class Renderable {
     public:
-        Renderable(GLuint Shader, std::shared_ptr<Geometry> geo_ptr, GLuint renderPrimative = GL_POINTS);
+        Renderable(GLuint basic_shader, std::shared_ptr<Geometry> geo_ptr, GLuint render_primative = GL_POINTS);
         Renderable() = default;
 
         virtual GLuint GetGeometryVAO();
@@ -32,10 +32,10 @@ class Renderable {
         bool draw_geometry = true;
         bool draw_aa_bounding_box = true;
 
-        virtual void Draw(glm::mat4 projectionMatrix, glm::mat4 viewMatrix);
+        virtual void Draw(glm::mat4 projection_matrix, glm::mat4 view_matrix);
 
         std::shared_ptr<Geometry> geometry;
-        GLuint shader, render_type;
+        GLuint basic_shader, render_type;
         glm::mat4 model_matrix = glm::mat4(1.0f);
 
         bool is_dead = false;

@@ -56,18 +56,18 @@ GLuint Renderable::GetAABoundingBoxVao() {
 	return aa_bounding_box_vao;
 }
 
-void Renderable::Draw(glm::mat4 projectionMatrix, glm::mat4 viewMatrix){
+void Renderable::Draw(glm::mat4 projection_matrix, glm::mat4 view_matrix){
 	//If we can't draw anything, return
 	if (!(geometry->draw_geometry && draw_geometry) && !(geometry->draw_aa_bounding_box && draw_aa_bounding_box)) {
 		return;
 	}
 
-	glUseProgram(shader);
-	GLuint shader_id = glGetUniformLocation(shader, "scale");
+	glUseProgram(basic_shader);
+	GLuint shader_id;
 
 	// TODO: Pass through and do multiplication GPU side?
-	glm::mat4 mvp = projectionMatrix * viewMatrix * model_matrix;
-	shader_id = glGetUniformLocation(shader, "MVP"); 
+	glm::mat4 mvp = projection_matrix * view_matrix * model_matrix;
+	shader_id = glGetUniformLocation(basic_shader, "MVP"); 
 	glUniformMatrix4fv(shader_id, 1, GL_FALSE, &mvp[0][0]);
 
 	if (geometry->draw_geometry && draw_geometry) {
@@ -85,8 +85,4 @@ void Renderable::Draw(glm::mat4 projectionMatrix, glm::mat4 viewMatrix){
 	}
 }
 
-Renderable::Renderable(GLuint Shader, shared_ptr<Geometry> geo_ptr, GLuint renderPrimative) {
-	shader = Shader;
-	geometry = geo_ptr;
-	render_type = renderPrimative;
-}
+Renderable::Renderable(GLuint basic_shader, shared_ptr<Geometry> geo_ptr, GLuint render_primative) : geometry(geo_ptr), basic_shader(basic_shader), render_type(render_primative) {};

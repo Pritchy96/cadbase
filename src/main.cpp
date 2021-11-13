@@ -26,6 +26,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#include "cad-base/gui/app_style.hpp"
 #include "cad-base/gui/gui_main.hpp"
 #include "cad-base/shader.hpp"
 #include "cad-base/geometry/geometry.hpp"
@@ -33,6 +34,7 @@
 #include "cad-base/gui/rendered_textures/viewport.hpp"
 #include "cad-base/geometry_list.hpp"
 #include "cad-base/gui/gui_logger.hpp"
+#include "cad-base/gui/app_style.hpp"
 
 using std::vector;
 using std::shared_ptr;
@@ -40,45 +42,18 @@ using std::unique_ptr;
 using std::make_shared;
 using std::make_unique;
 
-using glm::vec3;
-
 const ImVec4 BACKGROUND_COLOUR = ImVec4(0.15f, 0.15f, 0.15f, 1.00f);    //TODO: remove
 
 unique_ptr<GuiMain> gui_main;
 unique_ptr<GeometryList> master_geometry;
-
 shared_ptr<GuiLogger> gui_logger_sink;
+
+AppStyle app_style;
 
 GLFWwindow* glfw_window;
 
 // TODO: We may wish to rename 'Viewport' as IMGUI now has such a concept.
 shared_ptr<vector<shared_ptr<Viewport>>> viewports;
-
-const vector<vec3> TEST_DATA_LINES = {
-	glm::vec3(00.0, 00.0, 00.0),
-	glm::vec3(20.0, 00.0, 00.0),
-	glm::vec3(00.0, 20.0, 00.0),
-
-	glm::vec3(00.0, 00.0, 00.0),
-	glm::vec3(00.0, 00.0, 20.0), 
-	glm::vec3(20.0, 00.0, 00.0),
-
-	glm::vec3(00.0, 00.0, 00.0),
-	glm::vec3(00.0, 20.0, 00.0),
-	glm::vec3(00.0, 00.0, 20.0)	
-};
-
-const vector<vec3> TEST_TRIANGLE_VERTS = {
-    vec3(-10.0f, -10.0f, 0.0f),
-    vec3(10.0f, -10.0f, 0.0f),
-    vec3(0.0f,  10.0f, 0.0f)
-};
-
-const vector<vec3> TEST_TRIANGLE_COLS = {
-    vec3(1.0f, 0.0f, 0.0f),
-    vec3(0.0f, 1.0f, 0.0f),
-    vec3(0.0f,  0.0f, 1.0f)
-};
 
 bool ImportGeoTest( const std::string& pFile);  //TODO: temp prototype.
 
@@ -157,7 +132,7 @@ bool ImportGeoTest(const std::string& pFile) {
         return false;
     }
 
-    vector<vec3> test_geo;
+    vector<glm::vec3> test_geo;
     float import_scale_factor = 1.0f;
 
     for (int m = 0; m < scene->mNumMeshes; m++) {
@@ -178,9 +153,10 @@ bool ImportGeoTest(const std::string& pFile) {
 
 void SetupRenderWindows() {
     // TODO: temp test.
-    for (int i= 0; i < 1; i++) { 
+    for (int i= 0; i < 4; i++) { 
         viewports->push_back(make_shared<Viewport>(glfw_window, 
-            glm::vec4(gui_main->BACKGROUND_COLOUR.x, gui_main->BACKGROUND_COLOUR.y, gui_main->BACKGROUND_COLOUR.z, 1.0f),
+            glm::vec4(app_style.BACKGROUND_COLOUR_MEDIUM.x, app_style.BACKGROUND_COLOUR_MEDIUM.y, 
+                app_style.BACKGROUND_COLOUR_MEDIUM.z, app_style.BACKGROUND_COLOUR_MEDIUM.w),
             1000, 1000, gui_main->gui_data));
 
         // Make our render windows - one for each viewport for now.

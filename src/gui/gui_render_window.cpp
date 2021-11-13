@@ -4,6 +4,7 @@
 #include <cstdio>
 #include <glm/common.hpp>
 #include <glm/geometric.hpp>
+#include <glm/gtx/rotate_vector.hpp>
 #include <memory>
 #include <string>
 #include <algorithm>
@@ -39,10 +40,14 @@
 
 GuiRenderWindow::GuiRenderWindow(std::string name, GLFWwindow* glfw_window, std::shared_ptr<Viewport> viewport) 
                                     : name(name), glfw_window(glfw_window), viewport_(viewport) {
-    navicube_ = std::make_shared<NaviCube>(glfw_window, glm::vec4(glm::vec3(viewport_->background_colour), 0.0f), 200, 200);
+
+    std::vector<std::shared_ptr<Camera>> cameras = {viewport->camera};
+    navicube_ = std::make_shared<NaviCube>(glfw_window, glm::vec4(glm::vec3(viewport_->background_colour), 0.0f), 200, 200, cameras);
     
     //Make the viewport rotation affect the navicube and vice-versa.
     viewport_->arcball->affected_cameras.emplace_back(navicube_->camera);
+
+    navicube_->affected_cameras.emplace_back(viewport_->camera);
     navicube_->arcball->affected_cameras.emplace_back(viewport_->camera);
 }
 
@@ -100,6 +105,10 @@ void GuiRenderWindow::DrawRenderWindowSettings() {
             viewport_->camera->ResetRotation();
             viewport_->camera->ResetTarget();
             viewport_->camera->ResetZoom();
+
+            navicube_->camera->ResetRotation();
+            navicube_->camera->ResetTarget();
+            navicube_->camera->ResetZoom();
         }
 
         ImGui::EndPopup();
@@ -123,13 +132,38 @@ void GuiRenderWindow::Draw() {
 
     // Because we use the texture from OpenGL, we need to invert the V from the UV.
     ImGui::Image((ImTextureID)viewport_->colour_texture, window_size_, ImVec2(0, 1), ImVec2(1, 0));
+
     viewport_->HandleIO();
 
     navicube_->Update();
     ImGui::SetCursorPos(ImVec2(window_size_.x - 220, 20));
     ImGui::Image((ImTextureID)navicube_->colour_texture, ImVec2(200, 200), ImVec2(0, 1), ImVec2(1, 0));
-    navicube_->HandleIO();
 
+    // Only show rotation buttons if we're face aligned.
+    if (navicube_->camera->aligned_to_face) {
+        ImGui::SetCursorPos(ImVec2(window_size_.x - 100, 40));
+        if (ImGui::ImageButton((ImTextureID)navicube_->arrow_neg_rotate, ImVec2(30, 25), ImVec2(0, 0), ImVec2(1, 1), 0)) {
+            //TODO: put this into a "roll" camera function.
+            glm::vec3 camera_up = navicube_->camera->GetCameraTransform()[1];
+            glm::quat rotation = glm::angleAxis(glm::radians(90.0f), glm::vec3(navicube_->camera->GetCameraTransform()[2]));
+
+            for (std::shared_ptr<Camera> c : navicube_->affected_cameras) {
+                c->SLERPCameraRotation(rotation * glm::quat(c->GetRotation()), c->STANDARD_SLERP_TIME);
+            }
+        }
+
+        ImGui::SetCursorPos(ImVec2(window_size_.x - 65, 70));
+        if (ImGui::ImageButton((ImTextureID)navicube_->arrow_plus_rotate, ImVec2(25, 30), ImVec2(0, 0), ImVec2(1, 1), 0)) {
+            glm::vec3 camera_up = navicube_->camera->GetCameraTransform()[1];
+            glm::quat rotation = glm::angleAxis(glm::radians(-90.0f), glm::vec3(navicube_->camera->GetCameraTransform()[2]));
+
+            for (std::shared_ptr<Camera> c : navicube_->affected_cameras) {
+                c->SLERPCameraRotation(rotation * glm::quat(c->GetRotation()), c->STANDARD_SLERP_TIME);
+            }
+        }
+    }
+
+    navicube_->HandleIO();
     DrawRenderWindowSettings();
 
     ImGui::EndChild();

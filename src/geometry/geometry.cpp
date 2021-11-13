@@ -15,9 +15,25 @@ Geometry::Geometry(vector<vec3> vert_data, std::string name, glm::vec3 origin) :
 	GenerateFlatBuffers();
 }
 
+Geometry::Geometry(vector<vec3> vert_data, std::vector<glm::vec2> uv_data, std::string name, glm::vec3 origin) : origin_(origin), name(name) {
+	vertexes = vert_data;
+	uvs = uv_data;
+
+	GenerateFlatBuffers();
+}
+
+
 Geometry::Geometry(vector<vec3> vert_data, vector<vec3> colour_data, std::string name, glm::vec3 origin) : origin_(origin), name(name) {
 	vertexes = vert_data;
 	colours = colour_data;
+
+	GenerateFlatBuffers();
+}
+
+Geometry::Geometry(vector<vec3> vert_data, vector<vec3> colour_data, std::vector<glm::vec2> uv_data, std::string name, glm::vec3 origin) : origin_(origin), name(name) {
+	vertexes = vert_data;
+	colours = colour_data;
+	uvs = uv_data;
 
 	GenerateFlatBuffers();
 }
@@ -55,6 +71,12 @@ int Geometry::GenerateFlatBuffers() {
 		flat_cols.push_back(colour.x);
 		flat_cols.push_back(colour.y);
 		flat_cols.push_back(colour.z);
+	}
+
+
+	for (auto uv : uvs) {
+		flat_uvs.push_back(uv.x);
+		flat_uvs.push_back(uv.y);
 	}
 
 	buffers_invalid = false;

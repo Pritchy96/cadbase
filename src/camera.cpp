@@ -2,6 +2,7 @@
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/fwd.hpp>
 #include <glm/geometric.hpp>
+#include <glm/gtx/quaternion.hpp>
 #include <glm/gtx/string_cast.hpp>
 #include <glm/gtx/transform.hpp>
 #include <memory>
@@ -63,4 +64,29 @@ glm::mat4 Camera::GetDistanceMatrix() {
     }
 
     return view_matrix_;
+}
+
+void Camera::SLERPCameraRotation(glm::quat new_rotation, float time_duration) {
+    slerp_target_rotation = new_rotation;
+    slerp_initial_rotation = glm::quat(GetRotation());
+
+    slerp_time_elapsed = 0.0f;
+    slerp_time_total = time_duration;
+    
+    is_slerping = true;
+}
+
+void Camera::UpdateSLERP() {
+    if (is_slerping && slerp_time_elapsed < slerp_time_total) {
+        glm::mat4 new_rotation = glm::toMat4(glm::slerp(slerp_initial_rotation, slerp_target_rotation, slerp_time_elapsed/slerp_time_total));
+        SetRotation(new_rotation);
+
+        //Last iteration - make sure we're fully on target.
+        if ((slerp_time_elapsed += ImGui::GetIO().DeltaTime) >= slerp_time_total) {
+            is_slerping = false;
+            SetRotation(glm::toMat4(slerp_target_rotation));
+        }
+    } else {
+        is_slerping = false;
+    }
 }

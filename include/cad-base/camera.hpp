@@ -6,7 +6,6 @@
 #include <imgui.h>
 #include <glm/fwd.hpp>
 #include <glm/geometric.hpp>
-#include <glm/gtx/dual_quaternion.hpp>
 #include <iostream>
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
@@ -24,15 +23,13 @@ class Camera {
         void SetProjectionStyle(bool ortho_not_perspective_camera);
         bool IsOrthoCamera() const { return ortho_not_perspective_; }
 
-        //Camera Settings
-        bool can_pan = true;
-        bool can_rotate = true;
-        bool can_zoom = true;
-
         glm::mat4 GetDistanceMatrix();
         glm::mat4 GetViewMatrix();
         glm::mat4 GetProjectionMatrix() { return projection_matrix_; }
 
+        //Spherical Linerarly intERPolate camera rotation.
+        void SLERPCameraRotation(glm::quat new_rotation, float time_duration);
+        void UpdateSLERP();
 
         void SetRotation(glm::mat4 rotation) {
             rotation_ = rotation;
@@ -92,6 +89,25 @@ class Camera {
         float GetOrthoFustrumHeight() {
             return ortho_fustrum_height_;
         }
+
+        // Camera Settings
+        bool can_pan = true;
+        bool can_rotate = true;
+        bool can_zoom = true;
+
+        // SLERP variables
+        float slerp_time_total;
+        float slerp_time_elapsed;
+        glm::quat slerp_initial_rotation;
+        glm::quat slerp_target_rotation;
+        bool is_slerping = false;
+
+        // A bit of a special case - certain operations will fix the camera such that a face normal of the scene and the camera direction
+        // Are perpendicular. In that case, we may want to do some special operations, that this bool will enable.
+        // For example, 90 degree rotation buttons on the navicube when aligned with one of the navicube faces.
+        bool aligned_to_face = false;
+
+        constexpr const static float STANDARD_SLERP_TIME = 0.2f;
 
     private: 
         bool ortho_not_perspective_;

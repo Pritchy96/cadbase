@@ -18,7 +18,10 @@ class Geometry {
     public:
         Geometry() = default;
         explicit Geometry(std::vector<glm::vec3> vert_data, std::string name, glm::vec3 origin = glm::vec3(0.0f));
+        Geometry(std::vector<glm::vec3> vert_data, std::vector<glm::vec2> uv_data, std::string name, glm::vec3 origin = glm::vec3(0.0f));
+
         Geometry(std::vector<glm::vec3> vert_data, std::vector<glm::vec3> colour_data, std::string name, glm::vec3 origin = glm::vec3(0.0f));
+        Geometry(std::vector<glm::vec3> vert_data, std::vector<glm::vec3> colour_data, std::vector<glm::vec2> uv_data, std::string name, glm::vec3 origin = glm::vec3(0.0f));
 
         void Update();
 
@@ -41,7 +44,8 @@ class Geometry {
 
         // TODO: replace these with accessors into flatverts.
         std::vector<glm::vec3> vertexes, colours;
-        std::vector<float> flat_verts, flat_cols;
+        std::vector<glm::vec2> uvs;
+        std::vector<float> flat_verts, flat_cols, flat_uvs;
         // If true, the flatvert buffers no longer match the vert buffers
         bool buffers_invalid = true;
         
