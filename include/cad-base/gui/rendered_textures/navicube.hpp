@@ -30,7 +30,7 @@ class NaviCube : public GuiRenderTexture, public ViewportInput {
     public:
         NaviCube(GLFWwindow *window, glm::vec4 background_col, int window_width, int window_height, std::vector<std::shared_ptr<Camera>> affected_cameras);
         void SelectRenderable(std::shared_ptr<Renderable> selected_renderable) override;
-        void DeselectRenderable() override;
+        void SelectNothing() override {};
         void LoadTextures();
         glm::quat RotationBetweenVectors(glm::vec3 start, glm::vec3 dest);
 

@@ -240,7 +240,6 @@ void GuiRenderTexture::HandleIO() {
         }
     } else if (ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {  //Object Selection
         if (image_hovered) {
-            DeselectRenderable();
             glm::vec2 window_offset = glm::vec2(ImGui::GetItemRectMin().x, ImGui::GetItemRectMin().y);
             glm::vec2 mouse_pos =     glm::vec2(io.MousePos.x, io.MousePos.y)  - window_offset;
             CastRay(mouse_pos);
@@ -308,6 +307,8 @@ void GuiRenderTexture::CastRay(glm::vec2 mouse_pos) {
 
     if (closest_renderable != nullptr) {
         SelectRenderable(closest_renderable);
+    } else {
+        SelectNothing();
     }
 }
 

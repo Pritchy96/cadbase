@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <spdlog/spdlog.h>
 #include <glm/fwd.hpp>
 #include <memory>
@@ -7,6 +8,7 @@
 #include "cad-base/geometry/viewport_grid.hpp"
 #include "cad-base/gui/gui_data.hpp"
 #include "cad-base/gui/rendered_textures/gui_render_texture.hpp"
+#include "cad-base/scene_data.hpp"
 
 using std::vector;
 
@@ -34,8 +36,8 @@ const vector<vec3> AXIS_COLOURS = {
 	vec3(0.0f, 0.0f, 1.0f)
 };
 
-Viewport::Viewport(GLFWwindow *window, glm::vec4 background_col, int viewport_width, int viewport_height, shared_ptr<GuiData> gui_data) 
-    : GuiRenderTexture(window, background_col, viewport_width, viewport_height), gui_data(gui_data) {
+Viewport::Viewport(GLFWwindow *window, glm::vec4 background_col, int viewport_width, int viewport_height, shared_ptr<SceneData> scene_data) 
+    : GuiRenderTexture(window, background_col, viewport_width, viewport_height), scene_data(scene_data) {
 
     spdlog::info("Viewport Initialised");
 
@@ -104,22 +106,35 @@ void Viewport::HandleIO() {
             glm::vec4 mouse_delta_world = camera->GetRotation() * glm::vec4(mouse_delta.x, 0.0f, -mouse_delta.y, 1.0f);
             mouse_delta_world /= mouse_delta_world.w;
 
-            if (gui_data->selected_renderable != nullptr) {
-                gui_data->selected_renderable->geometry->MoveOrigin(mouse_delta_world);
+            auto selected_ptr = scene_data->SelectedGeoBegin();
+            while (selected_ptr != scene_data->SelectedGeoEnd()) {
+    
+                (*selected_ptr)->MoveOrigin(mouse_delta_world);
+                selected_ptr++;
+
             }
         }
     }
 }
 
-void Viewport::DeselectRenderable() {
-    // Handle de-selecting previous selection before selecting new one.
-    if (gui_data->selected_renderable != nullptr) {
-        gui_data->selected_renderable->geometry->draw_aa_bounding_box = false;
+void Viewport::SelectRenderable(shared_ptr<Renderable> clicked_renderable) {    
+
+    bool object_already_selected = std::find(scene_data->SelectedGeoBegin(), scene_data->SelectedGeoEnd(), clicked_renderable->geometry) != scene_data->SelectedGeoEnd();
+    
+    //Don't deselect all geo other than clicked object if it's already clicked 
+    //This is annoying behaviour for the user if they accidentally click a selected object
+    if (!ImGui::GetIO().KeyShift && !object_already_selected) {
+        scene_data->ClearSelectedGeo();
+    }
+
+    //Not in list, add it.
+    if (!object_already_selected) {
+        scene_data->SelectedGeoPushBack(clicked_renderable->geometry);
     }
 }
 
-void Viewport::SelectRenderable(shared_ptr<Renderable> selected_renderable) {    
-    gui_data->selected_renderable = selected_renderable;
-    spdlog::info(selected_renderable->geometry->name);
-    gui_data->selected_renderable->geometry->draw_aa_bounding_box = true;
+void Viewport::SelectNothing() {    
+    if (!ImGui::GetIO().KeyShift) {    // Clear selection when Shift is not held
+        scene_data->ClearSelectedGeo();
+    }
 }
