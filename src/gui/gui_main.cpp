@@ -15,16 +15,14 @@
 
 using std::make_unique;
 
-GuiMain::GuiMain(GLFWwindow* glfw_window, std::shared_ptr<GuiLogger> gui_logger_sink) : glfw_window(glfw_window), gui_logger_sink_(gui_logger_sink) {
+GuiMain::GuiMain(GLFWwindow* glfw_window, std::shared_ptr<GuiLogger> gui_logger_sink, std::shared_ptr<SceneData> scene_data) : glfw_window(glfw_window), gui_logger_sink_(gui_logger_sink) {
     if (!SetupImgui()) {
         //Todo: error handling.
     }
     
     main_imgui_viewport_ = ImGui::GetMainViewport();
 
-    gui_settings_ = make_unique<GuiProject>("Project", glfw_window);
-
-    gui_data = std::make_shared<GuiData>();
+    gui_project_ = make_unique<GuiProject>("Project", glfw_window, scene_data);
 }
 
 bool GuiMain::SetupImgui() {
@@ -148,61 +146,61 @@ void GuiMain::SetupGuiTheme() {
 
     ImVec4* colors = ImGui::GetStyle().Colors;
 
-    colors[ImGuiCol_Text]                   = app_style.BACKGROUND_COLOUR_TEXT;
-    colors[ImGuiCol_TextDisabled]           = app_style.BACKGROUND_COLOUR_MEDIUM;
-    colors[ImGuiCol_WindowBg]               = app_style.BACKGROUND_COLOUR_DIM;
-    colors[ImGuiCol_ChildBg]                = app_style.BACKGROUND_COLOUR_DIM;
-    colors[ImGuiCol_Border]                 = app_style.BACKGROUND_COLOUR_BRIGHT;
-    colors[ImGuiCol_BorderShadow]           = app_style.BACKGROUND_COLOUR_MEDIUM;
-    colors[ImGuiCol_TitleBg]                = app_style.BACKGROUND_COLOUR_MEDIUM;
-    colors[ImGuiCol_TitleBgCollapsed]       = app_style.BACKGROUND_COLOUR_MEDIUM;
-    colors[ImGuiCol_ScrollbarBg]            = app_style.BACKGROUND_COLOUR_DIM;
-    colors[ImGuiCol_ScrollbarGrab]          = app_style.BACKGROUND_COLOUR_MEDIUM;
-    colors[ImGuiCol_ScrollbarGrabHovered]   = app_style.BACKGROUND_COLOUR_BRIGHT;
-    colors[ImGuiCol_ScrollbarGrabActive]    = app_style.BACKGROUND_COLOUR_TEXT;
-    colors[ImGuiCol_Separator]              = app_style.BACKGROUND_COLOUR_MEDIUM;
-    colors[ImGuiCol_FrameBg]                = app_style.ACCENT_COLOUR_DIM;
-    colors[ImGuiCol_FrameBgHovered]         = app_style.ACCENT_COLOUR_MEDIUM;
-    colors[ImGuiCol_FrameBgActive]          = app_style.ACCENT_COLOUR_BRIGHT;
-    colors[ImGuiCol_TitleBgActive]          = app_style.ACCENT_COLOUR_DIM;
-    colors[ImGuiCol_MenuBarBg]              = app_style.ACCENT_COLOUR_DIM;
-    colors[ImGuiCol_PopupBg]                = app_style.ACCENT_COLOUR_DIM;
-    colors[ImGuiCol_CheckMark]              = app_style.ACCENT_COLOUR_DIM;
-    colors[ImGuiCol_SliderGrab]             = app_style.ACCENT_COLOUR_DIM;
-    colors[ImGuiCol_SliderGrabActive]       = app_style.ACCENT_COLOUR_MEDIUM;
-    colors[ImGuiCol_Button]                 = app_style.ACCENT_COLOUR_DIM;
-    colors[ImGuiCol_ButtonHovered]          = app_style.ACCENT_COLOUR_BRIGHT;
-    colors[ImGuiCol_ButtonActive]           = app_style.ACCENT_COLOUR_MEDIUM;
-    colors[ImGuiCol_Header]                 = app_style.ACCENT_COLOUR_DIM;
-    colors[ImGuiCol_HeaderHovered]          = app_style.ACCENT_COLOUR_BRIGHT;
-    colors[ImGuiCol_HeaderActive]           = app_style.ACCENT_COLOUR_MEDIUM;
-    colors[ImGuiCol_SeparatorHovered]       = app_style.ACCENT_COLOUR_BRIGHT;
-    colors[ImGuiCol_SeparatorActive]        = app_style.ACCENT_COLOUR_MEDIUM;
-    colors[ImGuiCol_ResizeGrip]             = app_style.ACCENT_COLOUR_DIM;
-    colors[ImGuiCol_ResizeGripHovered]      = app_style.ACCENT_COLOUR_BRIGHT;
-    colors[ImGuiCol_ResizeGripActive]       = app_style.ACCENT_COLOUR_MEDIUM;
-    colors[ImGuiCol_Tab]                    = app_style.ACCENT_COLOUR_DIM;
-    colors[ImGuiCol_TabHovered]             = app_style.ACCENT_COLOUR_BRIGHT;
-    colors[ImGuiCol_TabActive]              = app_style.ACCENT_COLOUR_MEDIUM;
-    colors[ImGuiCol_TabUnfocused]           = app_style.ACCENT_COLOUR_DIM;
-    colors[ImGuiCol_TabUnfocusedActive]     = app_style.ACCENT_COLOUR_MEDIUM;
-    colors[ImGuiCol_DockingPreview]         = app_style.ACCENT_COLOUR_DIM;
-    colors[ImGuiCol_DockingEmptyBg]         = app_style.ACCENT_COLOUR_UNDEFINED;
-    colors[ImGuiCol_PlotLines]              = app_style.ACCENT_COLOUR_UNDEFINED;
-    colors[ImGuiCol_PlotLinesHovered]       = app_style.ACCENT_COLOUR_BRIGHT;
-    colors[ImGuiCol_PlotHistogram]          = app_style.ACCENT_COLOUR_UNDEFINED;
-    colors[ImGuiCol_PlotHistogramHovered]   = app_style.ACCENT_COLOUR_BRIGHT;
-    colors[ImGuiCol_TableHeaderBg]          = app_style.ACCENT_COLOUR_UNDEFINED;
-    colors[ImGuiCol_TableBorderStrong]      = app_style.ACCENT_COLOUR_UNDEFINED;
-    colors[ImGuiCol_TableBorderLight]       = app_style.ACCENT_COLOUR_UNDEFINED;
-    colors[ImGuiCol_TableRowBg]             = app_style.ACCENT_COLOUR_UNDEFINED;
-    colors[ImGuiCol_TableRowBgAlt]          = app_style.ACCENT_COLOUR_UNDEFINED;
-    colors[ImGuiCol_TextSelectedBg]         = app_style.ACCENT_COLOUR_UNDEFINED;
-    colors[ImGuiCol_DragDropTarget]         = app_style.ACCENT_COLOUR_UNDEFINED;
-    colors[ImGuiCol_NavHighlight]           = app_style.ACCENT_COLOUR_UNDEFINED;
-    colors[ImGuiCol_NavWindowingHighlight]  = app_style.ACCENT_COLOUR_MEDIUM;
-    colors[ImGuiCol_NavWindowingDimBg]      = app_style.ACCENT_COLOUR_UNDEFINED;
-    colors[ImGuiCol_ModalWindowDimBg]       = app_style.ACCENT_COLOUR_UNDEFINED;
+    colors[ImGuiCol_Text]                   = app_style_.BACKGROUND_COLOUR_TEXT;
+    colors[ImGuiCol_TextDisabled]           = app_style_.BACKGROUND_COLOUR_MEDIUM;
+    colors[ImGuiCol_WindowBg]               = app_style_.BACKGROUND_COLOUR_DIM;
+    colors[ImGuiCol_ChildBg]                = app_style_.BACKGROUND_COLOUR_DIM;
+    colors[ImGuiCol_Border]                 = app_style_.BACKGROUND_COLOUR_BRIGHT;
+    colors[ImGuiCol_BorderShadow]           = app_style_.BACKGROUND_COLOUR_MEDIUM;
+    colors[ImGuiCol_TitleBg]                = app_style_.BACKGROUND_COLOUR_MEDIUM;
+    colors[ImGuiCol_TitleBgCollapsed]       = app_style_.BACKGROUND_COLOUR_MEDIUM;
+    colors[ImGuiCol_ScrollbarBg]            = app_style_.BACKGROUND_COLOUR_DIM;
+    colors[ImGuiCol_ScrollbarGrab]          = app_style_.BACKGROUND_COLOUR_MEDIUM;
+    colors[ImGuiCol_ScrollbarGrabHovered]   = app_style_.BACKGROUND_COLOUR_BRIGHT;
+    colors[ImGuiCol_ScrollbarGrabActive]    = app_style_.BACKGROUND_COLOUR_TEXT;
+    colors[ImGuiCol_Separator]              = app_style_.BACKGROUND_COLOUR_MEDIUM;
+    colors[ImGuiCol_FrameBg]                = app_style_.ACCENT_COLOUR_DIM;
+    colors[ImGuiCol_FrameBgHovered]         = app_style_.ACCENT_COLOUR_MEDIUM;
+    colors[ImGuiCol_FrameBgActive]          = app_style_.ACCENT_COLOUR_BRIGHT;
+    colors[ImGuiCol_TitleBgActive]          = app_style_.ACCENT_COLOUR_DIM;
+    colors[ImGuiCol_MenuBarBg]              = app_style_.ACCENT_COLOUR_DIM;
+    colors[ImGuiCol_PopupBg]                = app_style_.ACCENT_COLOUR_DIM;
+    colors[ImGuiCol_CheckMark]              = app_style_.ACCENT_COLOUR_DIM;
+    colors[ImGuiCol_SliderGrab]             = app_style_.ACCENT_COLOUR_DIM;
+    colors[ImGuiCol_SliderGrabActive]       = app_style_.ACCENT_COLOUR_MEDIUM;
+    colors[ImGuiCol_Button]                 = app_style_.ACCENT_COLOUR_DIM;
+    colors[ImGuiCol_ButtonHovered]          = app_style_.ACCENT_COLOUR_BRIGHT;
+    colors[ImGuiCol_ButtonActive]           = app_style_.ACCENT_COLOUR_MEDIUM;
+    colors[ImGuiCol_Header]                 = app_style_.ACCENT_COLOUR_DIM;
+    colors[ImGuiCol_HeaderHovered]          = app_style_.ACCENT_COLOUR_BRIGHT;
+    colors[ImGuiCol_HeaderActive]           = app_style_.ACCENT_COLOUR_MEDIUM;
+    colors[ImGuiCol_SeparatorHovered]       = app_style_.ACCENT_COLOUR_BRIGHT;
+    colors[ImGuiCol_SeparatorActive]        = app_style_.ACCENT_COLOUR_MEDIUM;
+    colors[ImGuiCol_ResizeGrip]             = app_style_.ACCENT_COLOUR_DIM;
+    colors[ImGuiCol_ResizeGripHovered]      = app_style_.ACCENT_COLOUR_BRIGHT;
+    colors[ImGuiCol_ResizeGripActive]       = app_style_.ACCENT_COLOUR_MEDIUM;
+    colors[ImGuiCol_Tab]                    = app_style_.ACCENT_COLOUR_DIM;
+    colors[ImGuiCol_TabHovered]             = app_style_.ACCENT_COLOUR_BRIGHT;
+    colors[ImGuiCol_TabActive]              = app_style_.ACCENT_COLOUR_MEDIUM;
+    colors[ImGuiCol_TabUnfocused]           = app_style_.ACCENT_COLOUR_DIM;
+    colors[ImGuiCol_TabUnfocusedActive]     = app_style_.ACCENT_COLOUR_MEDIUM;
+    colors[ImGuiCol_DockingPreview]         = app_style_.ACCENT_COLOUR_DIM;
+    colors[ImGuiCol_DockingEmptyBg]         = app_style_.ACCENT_COLOUR_UNDEFINED;
+    colors[ImGuiCol_PlotLines]              = app_style_.ACCENT_COLOUR_UNDEFINED;
+    colors[ImGuiCol_PlotLinesHovered]       = app_style_.ACCENT_COLOUR_BRIGHT;
+    colors[ImGuiCol_PlotHistogram]          = app_style_.ACCENT_COLOUR_UNDEFINED;
+    colors[ImGuiCol_PlotHistogramHovered]   = app_style_.ACCENT_COLOUR_BRIGHT;
+    colors[ImGuiCol_TableHeaderBg]          = app_style_.ACCENT_COLOUR_UNDEFINED;
+    colors[ImGuiCol_TableBorderStrong]      = app_style_.ACCENT_COLOUR_UNDEFINED;
+    colors[ImGuiCol_TableBorderLight]       = app_style_.ACCENT_COLOUR_UNDEFINED;
+    colors[ImGuiCol_TableRowBg]             = app_style_.ACCENT_COLOUR_UNDEFINED;
+    colors[ImGuiCol_TableRowBgAlt]          = app_style_.ACCENT_COLOUR_UNDEFINED;
+    colors[ImGuiCol_TextSelectedBg]         = app_style_.ACCENT_COLOUR_UNDEFINED;
+    colors[ImGuiCol_DragDropTarget]         = app_style_.ACCENT_COLOUR_UNDEFINED;
+    colors[ImGuiCol_NavHighlight]           = app_style_.ACCENT_COLOUR_UNDEFINED;
+    colors[ImGuiCol_NavWindowingHighlight]  = app_style_.ACCENT_COLOUR_MEDIUM;
+    colors[ImGuiCol_NavWindowingDimBg]      = app_style_.ACCENT_COLOUR_UNDEFINED;
+    colors[ImGuiCol_ModalWindowDimBg]       = app_style_.ACCENT_COLOUR_UNDEFINED;
 }
 
 void GuiMain::SetLayout() {
@@ -300,7 +298,7 @@ void GuiMain::Update() {
     }
 
     // Settings Window
-    gui_settings_->Draw();
+    gui_project_->Draw();
 
     if(show_demo_window_) {
         ImGui::ShowDemoWindow(&show_demo_window_);
@@ -313,7 +311,7 @@ void GuiMain::Update() {
     int display_h;
     glfwGetFramebufferSize(glfw_window, &display_w, &display_h);
     glViewport(0, 0, display_w, display_h);
-    glClearColor(app_style.BACKGROUND_COLOUR_MEDIUM.x * app_style.BACKGROUND_COLOUR_MEDIUM.w, app_style.BACKGROUND_COLOUR_MEDIUM.y * app_style.BACKGROUND_COLOUR_MEDIUM.w, app_style.BACKGROUND_COLOUR_MEDIUM.z * app_style.BACKGROUND_COLOUR_MEDIUM.w, app_style.BACKGROUND_COLOUR_MEDIUM.w);
+    glClearColor(app_style_.BACKGROUND_COLOUR_MEDIUM.x * app_style_.BACKGROUND_COLOUR_MEDIUM.w, app_style_.BACKGROUND_COLOUR_MEDIUM.y * app_style_.BACKGROUND_COLOUR_MEDIUM.w, app_style_.BACKGROUND_COLOUR_MEDIUM.z * app_style_.BACKGROUND_COLOUR_MEDIUM.w, app_style_.BACKGROUND_COLOUR_MEDIUM.w);
     glClear(GL_COLOR_BUFFER_BIT);
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
     glfwSwapBuffers(glfw_window);

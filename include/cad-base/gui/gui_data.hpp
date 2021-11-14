@@ -6,7 +6,7 @@
 #include "cad-base/renderable.hpp"
 
 struct GuiData {
-    std::shared_ptr<Renderable> selected_renderable;
+
 };
 
 #endif

@@ -71,14 +71,6 @@ NaviCube::NaviCube(GLFWwindow *window, glm::vec4 background_col, int window_widt
     geo_renderable_pairs.emplace_back(geo, make_unique<TexturedRenderable>(texture_shader, basic_shader, face_textures_[5], geo, tint, GL_TRIANGLES));
 }
 
-void NaviCube::DeselectRenderable() {
-    // Handle de-selecting previous selection before selecting new one.
-    if (selected_face_ != nullptr) {
-        selected_face_->geometry->draw_aa_bounding_box = false;
-        selected_face_ = nullptr;
-    }
-}
-
 void NaviCube::LoadTextures() {
     glGenTextures(NUM_FACES, face_textures_);
     

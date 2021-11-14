@@ -19,10 +19,11 @@
 #include "cad-base/gui/gui_render_window.hpp"
 #include "cad-base/gui/gui_logger.hpp"
 #include "cad-base/gui/app_style.hpp"
+#include "cad-base/scene_data.hpp"
 
 class GuiMain {
     public:
-        explicit GuiMain(GLFWwindow* glfw_window, std::shared_ptr<GuiLogger> gui_logger_sink_);
+        explicit GuiMain(GLFWwindow* glfw_window, std::shared_ptr<GuiLogger> gui_logger_sink_, std::shared_ptr<SceneData> scene_data);
         // ~GuiBase();
 
         bool SetupImgui(); 
@@ -36,7 +37,6 @@ class GuiMain {
         GLFWwindow* glfw_window;
 
         std::vector<std::shared_ptr<GuiRenderWindow>> gui_render_windows;
-        std::shared_ptr<GuiData> gui_data;
 
     private:
         // Pass through input.
@@ -48,10 +48,10 @@ class GuiMain {
 
         ImGuiViewport* main_imgui_viewport_;
         ImGuiIO* imgui_io_;
-        AppStyle app_style;
+        AppStyle app_style_;
 
         //GUI
-        std::unique_ptr<GuiProject> gui_settings_;
+        std::unique_ptr<GuiProject> gui_project_;
         bool show_demo_window_ = false;
 
         std::shared_ptr<GuiLogger> gui_logger_sink_; //Need a reference to this so we can draw it.

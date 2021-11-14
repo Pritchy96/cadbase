@@ -45,7 +45,7 @@ class GuiRenderTexture {
         void DrawDebugRay(Ray ray, glm::vec4 ray_colour = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
         bool RayCubeIntersection(Ray ray, std::array<glm::vec3, 2> boxBounds);
         virtual void SelectRenderable(std::shared_ptr<Renderable> closest_renderable) = 0;
-        virtual void DeselectRenderable() = 0;
+        virtual void SelectNothing() = 0;   //A click not on an object.
 
         std::shared_ptr<glm::vec2> window_size;
         std::shared_ptr<Camera> camera;

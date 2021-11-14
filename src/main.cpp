@@ -26,15 +26,14 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-#include "cad-base/gui/app_style.hpp"
-#include "cad-base/gui/gui_main.hpp"
 #include "cad-base/shader.hpp"
 #include "cad-base/geometry/geometry.hpp"
 #include "cad-base/renderable.hpp"
-#include "cad-base/gui/rendered_textures/viewport.hpp"
-#include "cad-base/geometry_list.hpp"
+#include "cad-base/scene_data.hpp"
 #include "cad-base/gui/gui_logger.hpp"
 #include "cad-base/gui/app_style.hpp"
+#include "cad-base/gui/gui_main.hpp"
+#include "cad-base/gui/rendered_textures/viewport.hpp"
 
 using std::vector;
 using std::shared_ptr;
@@ -45,7 +44,7 @@ using std::make_unique;
 const ImVec4 BACKGROUND_COLOUR = ImVec4(0.15f, 0.15f, 0.15f, 1.00f);    //TODO: remove
 
 unique_ptr<GuiMain> gui_main;
-unique_ptr<GeometryList> master_geometry;
+shared_ptr<SceneData> scene_data;
 shared_ptr<GuiLogger> gui_logger_sink;
 
 AppStyle app_style;
@@ -147,7 +146,7 @@ bool ImportGeoTest(const std::string& pFile) {
         }
     }
 
-	master_geometry->push_back(make_shared<Geometry>(test_geo, "Test Geo: " + std::to_string(rand()), glm::vec3((rand() % 1000) - 500, (rand() % 1000) - 500, (rand() % 1000) - 500)));
+	scene_data->MasterGeoPushBack(make_shared<Geometry>(test_geo, "Test Geo " + std::to_string(rand()), glm::vec3((rand() % 1000) - 500, (rand() % 1000) - 500, (rand() % 1000) - 500)));
     return true;
 }
 
@@ -157,7 +156,7 @@ void SetupRenderWindows() {
         viewports->push_back(make_shared<Viewport>(glfw_window, 
             glm::vec4(app_style.BACKGROUND_COLOUR_MEDIUM.x, app_style.BACKGROUND_COLOUR_MEDIUM.y, 
                 app_style.BACKGROUND_COLOUR_MEDIUM.z, app_style.BACKGROUND_COLOUR_MEDIUM.w),
-            1000, 1000, gui_main->gui_data));
+            1000, 1000, scene_data));
 
         // Make our render windows - one for each viewport for now.
         std::string name = "Render Window " + std::to_string(i);
@@ -180,8 +179,8 @@ void Update() {
         v->Update();
     }
 
-    auto geo_ptr = master_geometry->begin();
-    while (geo_ptr != master_geometry->end()) {
+    auto geo_ptr = scene_data->MasterGeoBegin();
+    while (geo_ptr != scene_data->MasterGeoEnd()) {
         (*geo_ptr)->Update();
         geo_ptr++;
     }
@@ -208,8 +207,8 @@ int main(int argc, const char* argv[]) { // NOLINT: main function.
     }
 
     viewports = make_shared<vector<shared_ptr<Viewport>>>();
-	master_geometry = make_unique<GeometryList>(viewports);    
-    gui_main = make_unique<GuiMain>(glfw_window, gui_logger_sink); 
+	scene_data = make_shared<SceneData>(viewports);    
+    gui_main = make_unique<GuiMain>(glfw_window, gui_logger_sink, scene_data); 
 
     SetupRenderWindows();
 

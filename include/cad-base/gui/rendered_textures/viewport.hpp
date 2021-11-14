@@ -26,10 +26,13 @@
 #include "cad-base/camera.hpp"
 #include "cad-base/geometry/viewport_grid.hpp"
 #include "cad-base/gui/rendered_textures/gui_render_texture.hpp"
+// #include "cad-base/scene_data.hpp"
+
+class SceneData;    
 
 class Viewport: public GuiRenderTexture, public std::enable_shared_from_this<Viewport> {
     public:
-        Viewport(GLFWwindow *window, glm::vec4 background_col, int viewport_width, int viewport_height, std::shared_ptr<GuiData> gui_data);
+        Viewport(GLFWwindow *window, glm::vec4 background_col, int viewport_width, int viewport_height, std::shared_ptr<SceneData> scene_data);
         ~Viewport() = default;
 
         std::shared_ptr<Viewport> GetSharedPtr() {
@@ -39,13 +42,12 @@ class Viewport: public GuiRenderTexture, public std::enable_shared_from_this<Vie
         void Draw() override;
         void HandleIO() override;
         void SelectRenderable(std::shared_ptr<Renderable> selected_renderable) override;
-        void DeselectRenderable() override;
+        void SelectNothing() override;
 
         //Viewport specific stuff that doesn't need i.e selecting etc.
         std::vector<std::pair<std::shared_ptr<Geometry>, std::shared_ptr<Renderable>>> viewport_geo_renderable_pairs;
 
-        std::shared_ptr<GuiData> gui_data;
-
+        std::shared_ptr<SceneData> scene_data;
         std::shared_ptr<Geometry> render_axis;
         std::shared_ptr<ViewportGrid> grid;
 };
