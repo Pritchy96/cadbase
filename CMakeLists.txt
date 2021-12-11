@@ -13,7 +13,6 @@ set(CMAKE_BUILD_TYPE Debug)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/bin)
 
 include_directories(include)
-include_directories(include/gui)
 
 include_directories(${THIRDPARTY_DIR})
 include_directories(${IMGUI_SRC_DIR})
@@ -95,7 +94,7 @@ target_link_libraries(${APP_NAME} imgui assimp nativefiledialog spdlog)
 
 # Copy over shader files.
 add_custom_target(copy_assets
-    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_LIST_DIR}/src/shaders ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/shaders
+    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_LIST_DIR}/src/opengl/shaders ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/shaders
 )
 add_dependencies(cad-base copy_assets)
 

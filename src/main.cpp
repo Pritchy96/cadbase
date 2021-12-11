@@ -26,14 +26,14 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-#include "cad-base/shader.hpp"
-#include "cad-base/geometry/geometry.hpp"
-#include "cad-base/renderable.hpp"
-#include "cad-base/scene_data.hpp"
-#include "cad-base/gui/gui_logger.hpp"
-#include "cad-base/gui/app_style.hpp"
-#include "cad-base/gui/gui_main.hpp"
-#include "cad-base/gui/rendered_textures/viewport.hpp"
+#include "cad_gui/opengl/shader.hpp"
+#include "cad_gui/opengl/render_data_types/geometry/geometry.hpp"
+#include "cad_gui/opengl/render_data_types/renderable/renderable.hpp"
+#include "cad_gui/scene_data.hpp"
+#include "cad_gui/imgui/imgui_windows/log_window.hpp"
+#include "cad_gui/imgui/app_style.hpp"
+#include "cad_gui/imgui/imgui_windows/main_window.hpp"
+#include "cad_gui/imgui/imgui_windows/viewport_window/rendered_textures/viewport.hpp"
 
 using std::vector;
 using std::shared_ptr;
@@ -43,9 +43,9 @@ using std::make_unique;
 
 const ImVec4 BACKGROUND_COLOUR = ImVec4(0.15f, 0.15f, 0.15f, 1.00f);    //TODO: remove
 
-unique_ptr<GuiMain> gui_main;
+unique_ptr<MainWindow> main_window;
 shared_ptr<SceneData> scene_data;
-shared_ptr<GuiLogger> gui_logger_sink;
+shared_ptr<LogWindow> log_window_sink;
 
 AppStyle app_style;
 
@@ -160,7 +160,7 @@ void SetupRenderWindows() {
 
         // Make our render windows - one for each viewport for now.
         std::string name = "Render Window " + std::to_string(i);
-        gui_main->gui_render_windows.push_back(make_shared<GuiRenderWindow>(name, glfw_window, viewports->back()));
+        main_window->gui_render_windows.push_back(make_shared<ViewportWindow>(name, glfw_window, viewports->back()));
     }
 }
 
@@ -185,13 +185,13 @@ void Update() {
         geo_ptr++;
     }
 
-    gui_main->Update();
+    main_window->Update();
 }
 
 void SetupLogger() {
     auto console_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
-    gui_logger_sink = make_shared<GuiLogger>();
-    spdlog::sinks_init_list sink_list = {gui_logger_sink, console_sink};
+    log_window_sink = make_shared<LogWindow>();
+    spdlog::sinks_init_list sink_list = {log_window_sink, console_sink};
 
     auto logger = make_shared<spdlog::logger>("logger", sink_list);
     spdlog::set_default_logger(logger); //Means that when we do spdlog::info/warn etc it goes to this logger.
@@ -208,7 +208,7 @@ int main(int argc, const char* argv[]) { // NOLINT: main function.
 
     viewports = make_shared<vector<shared_ptr<Viewport>>>();
 	scene_data = make_shared<SceneData>(viewports);    
-    gui_main = make_unique<GuiMain>(glfw_window, gui_logger_sink, scene_data); 
+    main_window = make_unique<MainWindow>(glfw_window, log_window_sink, scene_data); 
 
     SetupRenderWindows();
 
