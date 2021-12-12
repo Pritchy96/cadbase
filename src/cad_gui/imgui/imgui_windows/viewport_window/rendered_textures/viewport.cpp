@@ -58,7 +58,7 @@ namespace cad_gui {
         auto geo_renderable = feature_renderable_pairs.begin();
 
         while(geo_renderable != feature_renderable_pairs.end()) {
-            // Geo is dead, nuke the map link
+            // Feature is dead, nuke the map link
             if (geo_renderable->first->is_dead) {
                 // iterator.erase gives the next item in the list.
                 geo_renderable = feature_renderable_pairs.erase(geo_renderable);
@@ -66,7 +66,7 @@ namespace cad_gui {
             }
 
             if (geo_renderable->second == nullptr) {
-                // Renderable for geo doesn't exist, make one.
+                // Renderable for feature doesn't exist, make one.
                 // TODO: Some logic to choose a render type? (currently default to GL_TRIANGLES)
                 geo_renderable->second = make_unique<Renderable>(basic_shader, geo_renderable->first, GL_TRIANGLES);
             }
@@ -123,21 +123,21 @@ namespace cad_gui {
 
         bool object_already_selected = std::find(scene_data->SelectedFeatBegin(), scene_data->SelectedFeatEnd(), clicked_renderable->feature) != scene_data->SelectedFeatEnd();
         
-        //Don't deselect all geo other than clicked object if it's already clicked 
+        //Don't deselect all feature other than clicked object if it's already clicked 
         //This is annoying behaviour for the user if they accidentally click a selected object
         if (!ImGui::GetIO().KeyShift && !object_already_selected) {
-            scene_data->ClearSelectedGeo();
+            scene_data->ClearSelectedFeature();
         }
 
         //Not in list, add it.
         if (!object_already_selected) {
-            scene_data->SelectedGeoPushBack(clicked_renderable->feature);
+            scene_data->SelectedFeaturePushBack(clicked_renderable->feature);
         }
     }
 
     void Viewport::SelectNothing() {    
         if (!ImGui::GetIO().KeyShift) {    // Clear selection when Shift is not held
-            scene_data->ClearSelectedGeo();
+            scene_data->ClearSelectedFeature();
         }
     }
 

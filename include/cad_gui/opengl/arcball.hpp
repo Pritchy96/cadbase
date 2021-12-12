@@ -22,6 +22,6 @@ namespace cad_gui {
             const float ARCBALL_ROTATE_SENSITIVITY_INITIAL = 4.0f; 
             const float ARCBALL_PAN_SENSITIVITY_INITIAL = 20.0f; 
     };
-}
+}  // namespace cad_gui
 
 #endif

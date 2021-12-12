@@ -53,23 +53,23 @@ namespace cad_gui {
         
         glm::vec4 tint = glm::vec4(im_tint.x, im_tint.y, im_tint.z, im_tint.w);
 
-        shared_ptr<cad_data::Feature> geo = make_shared<cad_data::Feature>(FACE_VERTS_1, SQUARE_UVS, "Face 1");
-        feature_renderable_pairs.emplace_back(geo, make_unique<TexturedRenderable>(texture_shader, basic_shader, face_textures_[0], geo, tint, GL_TRIANGLES));
+        shared_ptr<cad_data::Feature> feature = make_shared<cad_data::Feature>(FACE_VERTS_1, SQUARE_UVS, "Face 1");
+        feature_renderable_pairs.emplace_back(feature, make_unique<TexturedRenderable>(texture_shader, basic_shader, face_textures_[0], feature, tint, GL_TRIANGLES));
 
-        geo = make_shared<cad_data::Feature>(FACE_VERTS_2, SQUARE_UVS, "Face 2");
-        feature_renderable_pairs.emplace_back(geo, make_unique<TexturedRenderable>(texture_shader, basic_shader, face_textures_[1], geo, tint, GL_TRIANGLES));
+        feature = make_shared<cad_data::Feature>(FACE_VERTS_2, SQUARE_UVS, "Face 2");
+        feature_renderable_pairs.emplace_back(feature, make_unique<TexturedRenderable>(texture_shader, basic_shader, face_textures_[1], feature, tint, GL_TRIANGLES));
 
-        geo = make_shared<cad_data::Feature>(FACE_VERTS_3, SQUARE_UVS, "Face 3");
-        feature_renderable_pairs.emplace_back(geo, make_unique<TexturedRenderable>(texture_shader, basic_shader, face_textures_[2], geo, tint, GL_TRIANGLES));
+        feature = make_shared<cad_data::Feature>(FACE_VERTS_3, SQUARE_UVS, "Face 3");
+        feature_renderable_pairs.emplace_back(feature, make_unique<TexturedRenderable>(texture_shader, basic_shader, face_textures_[2], feature, tint, GL_TRIANGLES));
 
-        geo = make_shared<cad_data::Feature>(FACE_VERTS_4, SQUARE_UVS, "Face 4");
-        feature_renderable_pairs.emplace_back(geo, make_unique<TexturedRenderable>(texture_shader, basic_shader, face_textures_[3], geo, tint, GL_TRIANGLES));
+        feature = make_shared<cad_data::Feature>(FACE_VERTS_4, SQUARE_UVS, "Face 4");
+        feature_renderable_pairs.emplace_back(feature, make_unique<TexturedRenderable>(texture_shader, basic_shader, face_textures_[3], feature, tint, GL_TRIANGLES));
 
-        geo = make_shared<cad_data::Feature>(FACE_VERTS_5, SQUARE_UVS, "Face 5");
-        feature_renderable_pairs.emplace_back(geo, make_unique<TexturedRenderable>(texture_shader, basic_shader, face_textures_[4], geo, tint, GL_TRIANGLES));
+        feature = make_shared<cad_data::Feature>(FACE_VERTS_5, SQUARE_UVS, "Face 5");
+        feature_renderable_pairs.emplace_back(feature, make_unique<TexturedRenderable>(texture_shader, basic_shader, face_textures_[4], feature, tint, GL_TRIANGLES));
 
-        geo = make_shared<cad_data::Feature>(FACE_VERTS_6, SQUARE_UVS, "Face 6");
-        feature_renderable_pairs.emplace_back(geo, make_unique<TexturedRenderable>(texture_shader, basic_shader, face_textures_[5], geo, tint, GL_TRIANGLES));
+        feature = make_shared<cad_data::Feature>(FACE_VERTS_6, SQUARE_UVS, "Face 6");
+        feature_renderable_pairs.emplace_back(feature, make_unique<TexturedRenderable>(texture_shader, basic_shader, face_textures_[5], feature, tint, GL_TRIANGLES));
     }
 
     void NaviCube::LoadTextures() {

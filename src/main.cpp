@@ -146,7 +146,7 @@ bool ImportGeoTest(const std::string& pFile) {
         }
     }
 
-	scene_data->MasterGeoPushBack(make_shared<cad_data::Feature>(test_geo, "Test Geo " + std::to_string(rand()), glm::vec3((rand() % 1000) - 500, (rand() % 1000) - 500, (rand() % 1000) - 500)));
+	scene_data->MasterFeaturePushBack(make_shared<cad_data::Feature>(test_geo, "Test Feature " + std::to_string(rand()), glm::vec3((rand() % 1000) - 500, (rand() % 1000) - 500, (rand() % 1000) - 500)));
     return true;
 }
 

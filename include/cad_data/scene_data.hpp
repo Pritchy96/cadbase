@@ -17,7 +17,7 @@ namespace cad_data {
 
             std::string scene_title;
 
-            void MasterGeoPushBack(std::shared_ptr<cad_data::Feature> feature) {
+            void MasterFeaturePushBack(std::shared_ptr<cad_data::Feature> feature) {
                 feature_timeline_.push_back(feature);
 
                 for (const std::shared_ptr<cad_gui::Viewport>& v : *viewports_) {
@@ -25,12 +25,12 @@ namespace cad_data {
                 }
             }
 
-            void MasterGeoErase(std::vector<std::shared_ptr<cad_data::Feature>>::iterator position) {
+            void MasterFeatureErase(std::vector<std::shared_ptr<cad_data::Feature>>::iterator position) {
                 (*position)->is_dead = true;
                 feature_timeline_.erase(position);
             }
 
-            void MasterGeoErase(int index) {
+            void MasterFeatureErase(int index) {
                 auto iter = feature_timeline_.begin() + index;
                 (*iter)->is_dead = true;
                 feature_timeline_.erase(iter);
@@ -40,26 +40,26 @@ namespace cad_data {
             std::vector<std::shared_ptr<cad_data::Feature>>::iterator MasterGeoEnd() { return feature_timeline_.end(); }
 
 
-            void SelectedGeoPushBack(std::shared_ptr<cad_data::Feature> geometry) {
-                selected_feature_list_.push_back(geometry);
-                geometry->draw_aa_bounding_box = true;
+            void SelectedFeaturePushBack(std::shared_ptr<cad_data::Feature> feature) {
+                selected_feature_list_.push_back(feature);
+                feature->draw_aa_bounding_box = true;
 
             }
 
-            void SelectedGeoErase(std::vector<std::shared_ptr<cad_data::Feature>>::iterator position) {
+            void SelectedFeatureErase(std::vector<std::shared_ptr<cad_data::Feature>>::iterator position) {
                 (*position)->draw_aa_bounding_box = false;;
                 selected_feature_list_.erase(position);
             }
 
-            void SelectedGeoErase(int index) {
+            void SelectedFeatureErase(int index) {
                 auto iter = selected_feature_list_.begin() + index;
                 (*iter)->draw_aa_bounding_box = false;
                 selected_feature_list_.erase(iter);
             }
 
-            void ClearSelectedGeo() {
-                for (std::shared_ptr<cad_data::Feature> geo : selected_feature_list_) {
-                    geo->draw_aa_bounding_box = false;
+            void ClearSelectedFeature() {
+                for (std::shared_ptr<cad_data::Feature> feature : selected_feature_list_) {
+                    feature->draw_aa_bounding_box = false;
                 }
                 selected_feature_list_.clear();
             }

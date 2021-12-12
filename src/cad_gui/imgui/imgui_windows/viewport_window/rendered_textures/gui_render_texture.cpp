@@ -70,11 +70,11 @@ namespace cad_gui {
     }
 
     void GuiRenderTexture::Draw() {
-        //Render Master Geo.
+        //Render Master Feature.
         auto geo_renderable = feature_renderable_pairs.begin();
 
         while(geo_renderable != feature_renderable_pairs.end()) {
-            // Geo is dead, nuke the map link
+            // Feature is dead, nuke the map link
             if (geo_renderable->first->is_dead) {
                 // iterator.erase gives the next item in the list.
                 geo_renderable = feature_renderable_pairs.erase(geo_renderable);
@@ -82,7 +82,7 @@ namespace cad_gui {
             }
 
             if (geo_renderable->second == nullptr) {
-                // Renderable for geo doesn't exist, make one.
+                // Renderable for feature doesn't exist, make one.
                 // TODO: Some logic to choose a render type? (currently default to GL_TRIANGLES)
                 geo_renderable->second = make_unique<Renderable>(basic_shader, geo_renderable->first, GL_TRIANGLES);
             }
@@ -92,8 +92,8 @@ namespace cad_gui {
 
             renderable->Draw(camera->GetProjectionMatrix(), camera->GetViewMatrix());
 
-            //Do this after drawing so geo updated this frame is loaded into the VAO 
-            //(Geo is updated after renderables are drawn above)
+            //Do this after drawing so feature updated this frame is loaded into the VAO 
+            //(Feature is updated after renderables are drawn above)
             if (geometry->buffers_invalid) {
                 renderable->valid_geometry_vao = false;
                 renderable->valid_aa_bounding_box_vao = false;
@@ -101,11 +101,11 @@ namespace cad_gui {
             ++geo_renderable;
         }
 
-        //Render Debug Geo.
+        //Render Debug Feature.
         geo_renderable = debug_feature_renderable_pairs.begin();
 
         while(geo_renderable != debug_feature_renderable_pairs.end()) {
-            // Geo is dead, nuke the map link
+            // Feature is dead, nuke the map link
             if (geo_renderable->first->is_dead) {
                 // iterator.erase gives the next item in the list.
                 geo_renderable = debug_feature_renderable_pairs.erase(geo_renderable);
@@ -113,7 +113,7 @@ namespace cad_gui {
             }
 
             if (geo_renderable->second == nullptr) {
-                // Renderable for geo doesn't exist, make one.
+                // Renderable for feature doesn't exist, make one.
                 // TODO: Some logic to choose a render type? (currently default to GL_TRIANGLES)
                 geo_renderable->second = make_unique<Renderable>(basic_shader, geo_renderable->first, GL_TRIANGLES);
             }
@@ -123,8 +123,8 @@ namespace cad_gui {
 
             renderable->Draw(camera->GetProjectionMatrix(), camera->GetViewMatrix());
 
-            //Do this after drawing so geo updated this frame is loaded into the VAO 
-            //(Geo is updated after renderables are drawn above)
+            //Do this after drawing so feature updated this frame is loaded into the VAO 
+            //(Feature is updated after renderables are drawn above)
             if (geometry->buffers_invalid) {
                 renderable->valid_geometry_vao = false;
                 renderable->valid_aa_bounding_box_vao = false;

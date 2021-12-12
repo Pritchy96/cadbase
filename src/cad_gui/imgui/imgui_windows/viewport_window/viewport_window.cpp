@@ -85,7 +85,7 @@ namespace cad_gui {
             ImGui::Separator();
             ImGui::Checkbox("Show Grid", &viewport_->grid->draw_feature);
             ImGui::Checkbox("Show Render Axis", &viewport_->render_axis->draw_feature);
-            //TODO: Implement proper "Render all geo's bounding boxes in this viewport" option
+            //TODO: Implement proper "Render all featuress bounding boxes in this viewport" option
             // ImGui::Checkbox("Show Bounding Boxes", &viewport_->feature_renderable_pairs.back().second->draw_aa_bounding_box);
             
             ImGui::Separator();

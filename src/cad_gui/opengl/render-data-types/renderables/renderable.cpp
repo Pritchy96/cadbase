@@ -76,7 +76,7 @@ namespace cad_gui {
 			glDrawArrays(render_type, 0, feature->flat_verts.size()/3);
 		}
 		
-		//TODO: Is this better to be "geo AND renderable bool" or "geo OR renderable bool"
+		//TODO: Is this better to be "feature AND renderable bool" or "feature OR renderable bool"
 		//Maybe make it "and" but have a seperate "override" for each which is or'd
 		//I.e ((geometry->draw_aa_bounding_box && draw_aa_bounding_box) || geometry->draw_aa_bounding_box_force || draw_aa_bounding_box_force)
 		if (feature->draw_aa_bounding_box && draw_aa_bounding_box) {

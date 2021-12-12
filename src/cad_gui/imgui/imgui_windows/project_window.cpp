@@ -32,10 +32,10 @@ namespace cad_gui {
             ImGui::Bullet();
             if (ImGui::Selectable((*geo_ptr)->name.c_str(), selected))   {
                 if (!ImGui::GetIO().KeyShift) {    // Clear selection when Shift is not held
-                    scene_data->ClearSelectedGeo();
+                    scene_data->ClearSelectedFeature();
                 }
 
-                scene_data->SelectedGeoPushBack(*geo_ptr);
+                scene_data->SelectedFeaturePushBack(*geo_ptr);
             }
 
             geo_ptr++;
