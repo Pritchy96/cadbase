@@ -12,10 +12,12 @@
 #include <cstdlib>
 #include <string>
 
-namespace shader {
-    GLuint LoadShaders(char* vertex_file_path, char* fragment_file_path);
-    GLuint LoadTransformShader(char * path);
-    std::string LoadFileFromDisk(char* path);
-};
+namespace CadGui {
+    namespace Shader {
+        GLuint LoadShaders(char* vertex_file_path, char* fragment_file_path);
+        GLuint LoadTransformShader(char * path);
+        std::string LoadFileFromDisk(char* path);
+    };
+}
 
 #endif

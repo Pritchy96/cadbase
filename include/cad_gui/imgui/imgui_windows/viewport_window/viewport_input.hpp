@@ -5,12 +5,14 @@
 
 #include <vector>
 
-class ViewportInput { 
-    public:
-        explicit ViewportInput(std::vector<std::shared_ptr<Camera>> affected_cameras) : affected_cameras(affected_cameras) {};
-        std::vector<std::shared_ptr<Camera>> affected_cameras;
-        
-    private:
-};
+namespace CadGui {
+    class ViewportInput { 
+        public:
+            explicit ViewportInput(std::vector<std::shared_ptr<Camera>> affected_cameras) : affected_cameras(affected_cameras) {};
+            std::vector<std::shared_ptr<Camera>> affected_cameras;
+            
+        private:
+    };
+}
 
 #endif

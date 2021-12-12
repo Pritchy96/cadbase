@@ -3,10 +3,10 @@
 
 #include <glm/common.hpp>
 #include <glm/fwd.hpp>
-
-struct Ray {
-    glm::vec3 origin;
-    glm::vec3 direction;
-};
-
+namespace CadGui {
+    struct Ray {
+        glm::vec3 origin;
+        glm::vec3 direction;
+    };
+}
 #endif

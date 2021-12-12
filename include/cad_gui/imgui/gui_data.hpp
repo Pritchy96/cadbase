@@ -5,8 +5,10 @@
 
 #include "cad_gui/opengl/render_data_types/renderable/renderable.hpp"
 
-struct GuiData {
+namespace CadGui {
+    struct GuiData {
 
-};
+    };
+}
 
 #endif

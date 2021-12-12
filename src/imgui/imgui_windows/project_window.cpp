@@ -9,44 +9,46 @@
 #include <string>
 
 #include "cad_gui/imgui/imgui_windows/project_window.hpp" 
-#include "cad_gui/imgui/imgui_windows/viewport_window/rendered_textures/viewport.hpp"
+#include "cad_gui/imgui/imgui_windows/viewport_window/viewport.hpp"
 #include "imgui_internal.h"
 
 using std::shared_ptr;
 
-ProjectWindow::ProjectWindow(std::string name, GLFWwindow* glfw_window, std::shared_ptr<SceneData> scene_data) : name(name), glfw_window(glfw_window), scene_data(scene_data) {
-  
-}
-
-void ProjectWindow::Draw() {
-    ImGui::Begin(name.c_str());
-
+namespace CadGui {
+    ProjectWindow::ProjectWindow(std::string name, GLFWwindow* glfw_window, std::shared_ptr<SceneData> scene_data) : name(name), glfw_window(glfw_window), scene_data(scene_data) {
     
-
-    ImGui::Text((scene_data->scene_title + ": ").c_str());
-    ImGui::Separator();
-
-    bool selected;
-    auto geo_ptr = scene_data->MasterGeoBegin();
-        while (geo_ptr != scene_data->MasterGeoEnd()) {
-        selected = std::find(scene_data->SelectedGeoBegin(), scene_data->SelectedGeoEnd(), (*geo_ptr)) != scene_data->SelectedGeoEnd();
-
-        ImGui::Bullet();
-        if (ImGui::Selectable((*geo_ptr)->name.c_str(), selected))   {
-            if (!ImGui::GetIO().KeyShift) {    // Clear selection when Shift is not held
-                scene_data->ClearSelectedGeo();
-            }
-
-            scene_data->SelectedGeoPushBack(*geo_ptr);
-        }
-
-        geo_ptr++;
     }
 
+    void ProjectWindow::Draw() {
+        ImGui::Begin(name.c_str());
 
-    ImGui::Separator();
-    ImGui::Text("Application average: %.3f ms/frame\n(%.1f FPS)\n", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+        
+
+        ImGui::Text((scene_data->scene_title + ": ").c_str());
+        ImGui::Separator();
+
+        bool selected;
+        auto geo_ptr = scene_data->MasterGeoBegin();
+            while (geo_ptr != scene_data->MasterGeoEnd()) {
+            selected = std::find(scene_data->SelectedGeoBegin(), scene_data->SelectedGeoEnd(), (*geo_ptr)) != scene_data->SelectedGeoEnd();
+
+            ImGui::Bullet();
+            if (ImGui::Selectable((*geo_ptr)->name.c_str(), selected))   {
+                if (!ImGui::GetIO().KeyShift) {    // Clear selection when Shift is not held
+                    scene_data->ClearSelectedGeo();
+                }
+
+                scene_data->SelectedGeoPushBack(*geo_ptr);
+            }
+
+            geo_ptr++;
+        }
 
 
-    ImGui::End();
+        ImGui::Separator();
+        ImGui::Text("Application average: %.3f ms/frame\n(%.1f FPS)\n", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+
+
+        ImGui::End();
+    }
 }
