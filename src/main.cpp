@@ -28,7 +28,7 @@
 
 #include "cad_gui/opengl/shader.hpp"
 #include "cad_data/feature.hpp"
-#include "cad_gui/opengl/render_data_types/renderable/renderable.hpp"
+#include "cad_gui/opengl/renderables/renderable.hpp"
 #include "cad_data/scene_data.hpp"
 #include "cad_gui/imgui/imgui_windows/log_window.hpp"
 #include "cad_gui/imgui/app_style.hpp"

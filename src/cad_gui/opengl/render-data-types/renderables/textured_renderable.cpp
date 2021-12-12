@@ -12,8 +12,8 @@
 
 #include "cad_data/feature.hpp"
 #include "cad_gui/opengl/shader.hpp"
-#include "cad_gui/opengl/render_data_types/renderable/textured_renderable.hpp"
-#include "cad_gui/opengl/render_data_types/renderable/renderable.hpp"
+#include "cad_gui/opengl/renderables/textured_renderable.hpp"
+#include "cad_gui/opengl/renderables/renderable.hpp"
 
 namespace cad_gui {
 	TexturedRenderable::TexturedRenderable(GLuint texture_shader, GLuint basic_shader, GLuint texture, std::shared_ptr<cad_data::Feature> geo_ptr, glm::vec4 texture_tint, GLuint render_primative) 

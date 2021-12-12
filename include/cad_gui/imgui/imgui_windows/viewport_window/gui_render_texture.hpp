@@ -22,7 +22,7 @@
 #include "cad_gui/imgui/gui_data.hpp"
 #include "cad_gui/opengl/raycast/ray.hpp"
 #include "cad_gui/opengl/shader.hpp"
-#include "cad_gui/opengl/render_data_types/renderable/renderable.hpp"
+#include "cad_gui/opengl/renderables/renderable.hpp"
 #include "cad_gui/opengl/camera.hpp"
 #include "cad_gui/opengl/arcball.hpp"
 

@@ -12,7 +12,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/transform.hpp>
 
-#include "cad_gui/opengl/render_data_types/geometry/aa_bounding_box.hpp"
+#include "cad_gui/opengl/renderables/aa_bounding_box.hpp"
 
 namespace cad_data {
     class Feature  {

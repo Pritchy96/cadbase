@@ -21,7 +21,7 @@
 #include "cad_gui/imgui/imgui_windows/viewport_window/navicube.hpp"
 #include "cad_gui/imgui/imgui_windows/viewport_window/gui_render_texture.hpp"
 #include "cad_gui/opengl/raycast/ray.hpp"
-#include "cad_gui/opengl/render_data_types/renderable/textured_renderable.hpp"
+#include "cad_gui/opengl/renderables/textured_renderable.hpp"
 #include "cad_gui/imgui/imgui_windows/viewport_window/viewport_input.hpp"
 #include "cad_gui/imgui/app_style.hpp"
 

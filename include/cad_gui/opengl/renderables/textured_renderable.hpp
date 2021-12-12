@@ -13,7 +13,7 @@
 #include <glm/gtx/transform.hpp>
 
 #include "cad_data/feature.hpp"
-#include "cad_gui/opengl/render_data_types/renderable/renderable.hpp"
+#include "cad_gui/opengl/renderables/renderable.hpp"
 
 namespace cad_gui {
     class TexturedRenderable : public Renderable {

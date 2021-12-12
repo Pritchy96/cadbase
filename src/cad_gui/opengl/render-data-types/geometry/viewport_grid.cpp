@@ -1,6 +1,6 @@
 #include <glm/fwd.hpp>
 
-#include "cad_gui/opengl/render_data_types/geometry/viewport_grid.hpp"
+#include "cad_gui/opengl/renderables/viewport_grid.hpp"
 
 using glm::vec3;
 

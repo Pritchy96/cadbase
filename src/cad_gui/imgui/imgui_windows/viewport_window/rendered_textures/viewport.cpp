@@ -5,7 +5,7 @@
 #include <vector>
 
 #include "cad_gui/imgui/imgui_windows/viewport_window/viewport.hpp"	
-#include "cad_gui/opengl/render_data_types/geometry/viewport_grid.hpp"
+#include "cad_gui/opengl/renderables/viewport_grid.hpp"
 #include "cad_gui/imgui/gui_data.hpp"
 #include "cad_gui/imgui/imgui_windows/viewport_window/gui_render_texture.hpp"
 #include "cad_data/scene_data.hpp"
