@@ -3,20 +3,20 @@
 #include <glm/common.hpp>
 #include <vector>
 
-#include "cad_gui/opengl/render_data_types/geometry/geometry.hpp"
+#include "cad_data/feature.hpp"
 
 using std::vector;
 using glm::vec3;
 
-	namespace CadGui {
-	Geometry::Geometry(vector<vec3> vert_data, std::string name, glm::vec3 origin) : origin_(origin), name(name) {
+namespace cad_data {
+	Feature::Feature(vector<vec3> vert_data, std::string name, glm::vec3 origin) : origin_(origin), name(name) {
 		vertexes = vert_data;
 		colours = vert_data;
 
 		GenerateFlatBuffers();
 	}
 
-	Geometry::Geometry(vector<vec3> vert_data, std::vector<glm::vec2> uv_data, std::string name, glm::vec3 origin) : origin_(origin), name(name) {
+	Feature::Feature(vector<vec3> vert_data, std::vector<glm::vec2> uv_data, std::string name, glm::vec3 origin) : origin_(origin), name(name) {
 		vertexes = vert_data;
 		uvs = uv_data;
 
@@ -24,14 +24,14 @@ using glm::vec3;
 	}
 
 
-	Geometry::Geometry(vector<vec3> vert_data, vector<vec3> colour_data, std::string name, glm::vec3 origin) : origin_(origin), name(name) {
+	Feature::Feature(vector<vec3> vert_data, vector<vec3> colour_data, std::string name, glm::vec3 origin) : origin_(origin), name(name) {
 		vertexes = vert_data;
 		colours = colour_data;
 
 		GenerateFlatBuffers();
 	}
 
-	Geometry::Geometry(vector<vec3> vert_data, vector<vec3> colour_data, std::vector<glm::vec2> uv_data, std::string name, glm::vec3 origin) : origin_(origin), name(name) {
+	Feature::Feature(vector<vec3> vert_data, vector<vec3> colour_data, std::vector<glm::vec2> uv_data, std::string name, glm::vec3 origin) : origin_(origin), name(name) {
 		vertexes = vert_data;
 		colours = colour_data;
 		uvs = uv_data;
@@ -39,13 +39,13 @@ using glm::vec3;
 		GenerateFlatBuffers();
 	}
 
-	void Geometry::Update() {
+	void Feature::Update() {
 		if (buffers_invalid) {
 			GenerateFlatBuffers();
 		}
 	}
 
-	int Geometry::GenerateFlatBuffers() {
+	int Feature::GenerateFlatBuffers() {
 		flat_verts.clear();
 		flat_cols.clear();
 		aa_bounding_box.min = glm::vec3(INT16_MAX);

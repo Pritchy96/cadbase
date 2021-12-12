@@ -29,10 +29,10 @@ using std::shared_ptr;
 using std::make_shared;
 using std::make_unique;
 
-namespace CadGui {
+namespace cad_gui {
     NaviCube::NaviCube(GLFWwindow *window, glm::vec4 background_col, int window_width, int window_height, std::vector<std::shared_ptr<Camera>> affected_cameras) 
-        : CadGui::GuiRenderTexture(window, background_col, window_width, window_height),
-        CadGui::ViewportInput(affected_cameras) {
+        : cad_gui::GuiRenderTexture(window, background_col, window_width, window_height),
+        cad_gui::ViewportInput(affected_cameras) {
         
         camera->aligned_to_face = true; //TODO: do some logic to check if the initial target & position of camera means it's facing a navicube face.
         camera->SetProjectionStyle(true);
@@ -53,23 +53,23 @@ namespace CadGui {
         
         glm::vec4 tint = glm::vec4(im_tint.x, im_tint.y, im_tint.z, im_tint.w);
 
-        shared_ptr<Geometry> geo = make_shared<Geometry>(FACE_VERTS_1, SQUARE_UVS, "Face 1");
-        geo_renderable_pairs.emplace_back(geo, make_unique<TexturedRenderable>(texture_shader, basic_shader, face_textures_[0], geo, tint, GL_TRIANGLES));
+        shared_ptr<cad_data::Feature> geo = make_shared<cad_data::Feature>(FACE_VERTS_1, SQUARE_UVS, "Face 1");
+        feature_renderable_pairs.emplace_back(geo, make_unique<TexturedRenderable>(texture_shader, basic_shader, face_textures_[0], geo, tint, GL_TRIANGLES));
 
-        geo = make_shared<Geometry>(FACE_VERTS_2, SQUARE_UVS, "Face 2");
-        geo_renderable_pairs.emplace_back(geo, make_unique<TexturedRenderable>(texture_shader, basic_shader, face_textures_[1], geo, tint, GL_TRIANGLES));
+        geo = make_shared<cad_data::Feature>(FACE_VERTS_2, SQUARE_UVS, "Face 2");
+        feature_renderable_pairs.emplace_back(geo, make_unique<TexturedRenderable>(texture_shader, basic_shader, face_textures_[1], geo, tint, GL_TRIANGLES));
 
-        geo = make_shared<Geometry>(FACE_VERTS_3, SQUARE_UVS, "Face 3");
-        geo_renderable_pairs.emplace_back(geo, make_unique<TexturedRenderable>(texture_shader, basic_shader, face_textures_[2], geo, tint, GL_TRIANGLES));
+        geo = make_shared<cad_data::Feature>(FACE_VERTS_3, SQUARE_UVS, "Face 3");
+        feature_renderable_pairs.emplace_back(geo, make_unique<TexturedRenderable>(texture_shader, basic_shader, face_textures_[2], geo, tint, GL_TRIANGLES));
 
-        geo = make_shared<Geometry>(FACE_VERTS_4, SQUARE_UVS, "Face 4");
-        geo_renderable_pairs.emplace_back(geo, make_unique<TexturedRenderable>(texture_shader, basic_shader, face_textures_[3], geo, tint, GL_TRIANGLES));
+        geo = make_shared<cad_data::Feature>(FACE_VERTS_4, SQUARE_UVS, "Face 4");
+        feature_renderable_pairs.emplace_back(geo, make_unique<TexturedRenderable>(texture_shader, basic_shader, face_textures_[3], geo, tint, GL_TRIANGLES));
 
-        geo = make_shared<Geometry>(FACE_VERTS_5, SQUARE_UVS, "Face 5");
-        geo_renderable_pairs.emplace_back(geo, make_unique<TexturedRenderable>(texture_shader, basic_shader, face_textures_[4], geo, tint, GL_TRIANGLES));
+        geo = make_shared<cad_data::Feature>(FACE_VERTS_5, SQUARE_UVS, "Face 5");
+        feature_renderable_pairs.emplace_back(geo, make_unique<TexturedRenderable>(texture_shader, basic_shader, face_textures_[4], geo, tint, GL_TRIANGLES));
 
-        geo = make_shared<Geometry>(FACE_VERTS_6, SQUARE_UVS, "Face 6");
-        geo_renderable_pairs.emplace_back(geo, make_unique<TexturedRenderable>(texture_shader, basic_shader, face_textures_[5], geo, tint, GL_TRIANGLES));
+        geo = make_shared<cad_data::Feature>(FACE_VERTS_6, SQUARE_UVS, "Face 6");
+        feature_renderable_pairs.emplace_back(geo, make_unique<TexturedRenderable>(texture_shader, basic_shader, face_textures_[5], geo, tint, GL_TRIANGLES));
     }
 
     void NaviCube::LoadTextures() {
@@ -177,14 +177,14 @@ namespace CadGui {
 
     void NaviCube::SelectRenderable(std::shared_ptr<Renderable> selected_renderable) {
         selected_face_ = selected_renderable;
-        spdlog::info("Selected NaviCube Face: {0}", selected_renderable->geometry->name);
+        spdlog::info("Selected NaviCube Face: {0}", selected_renderable->feature->name);
 
         glm::vec3 camera_forward = glm::normalize(camera->GetCameraTransform()[2]);
         glm::vec3 camera_up = camera->GetCameraTransform()[1];
 
         //Some (kinda dumb) maths to figure out the surface normal of the face, taking advantage of the fact that the navicube is just a box with center (0, 0, 0)
         //also figure out the new up direction
-        glm::vec3 summed_triangle = selected_face_->geometry->vertexes.at(0) + selected_face_->geometry->vertexes.at(1) + selected_face_->geometry->vertexes.at(2);
+        glm::vec3 summed_triangle = selected_face_->feature->vertexes.at(0) + selected_face_->feature->vertexes.at(1) + selected_face_->feature->vertexes.at(2);
         glm::vec3 surface_normal;
 
         //Cardinal direction of up vector of camera.

@@ -12,7 +12,7 @@
 #include <cstdlib>
 #include <string>
 
-namespace CadGui {
+namespace cad_gui {
     namespace Shader {
         GLuint LoadShaders(char* vertex_file_path, char* fragment_file_path);
         GLuint LoadTransformShader(char * path);

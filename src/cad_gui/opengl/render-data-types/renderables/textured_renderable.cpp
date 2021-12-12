@@ -10,24 +10,24 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/transform.hpp>
 
-#include "cad_gui/opengl/render_data_types/geometry/geometry.hpp"
+#include "cad_data/feature.hpp"
 #include "cad_gui/opengl/shader.hpp"
 #include "cad_gui/opengl/render_data_types/renderable/textured_renderable.hpp"
 #include "cad_gui/opengl/render_data_types/renderable/renderable.hpp"
 
-namespace CadGui {
-	TexturedRenderable::TexturedRenderable(GLuint texture_shader, GLuint basic_shader, GLuint texture, std::shared_ptr<Geometry> geo_ptr, glm::vec4 texture_tint, GLuint render_primative) 
-		: CadGui::Renderable(basic_shader, geo_ptr, render_primative), texture(texture), texture_shader(texture_shader),
+namespace cad_gui {
+	TexturedRenderable::TexturedRenderable(GLuint texture_shader, GLuint basic_shader, GLuint texture, std::shared_ptr<cad_data::Feature> geo_ptr, glm::vec4 texture_tint, GLuint render_primative) 
+		: cad_gui::Renderable(basic_shader, geo_ptr, render_primative), texture(texture), texture_shader(texture_shader),
 		texture_tint(texture_tint) {
 		//TODO: figure out some static store for shaders.
 	}
 
-	GLuint TexturedRenderable::GetGeometryVAO() {
+	GLuint TexturedRenderable::GetFeatureVAO() {
 		if (valid_geometry_vao) {	
-			return Renderable::GetGeometryVAO();
+			return Renderable::GetFeatureVAO();
 		}
 
-		Renderable::GetGeometryVAO();
+		Renderable::GetFeatureVAO();
 
 		glBindVertexArray(geometry_vao);
 
@@ -36,7 +36,7 @@ namespace CadGui {
 
 		glBindBuffer(GL_ARRAY_BUFFER, geometry_uv_vbo);
 		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
-		glBufferData(GL_ARRAY_BUFFER, geometry->flat_uvs.size() * sizeof(float), geometry->flat_uvs.data(), GL_STREAM_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, feature->flat_uvs.size() * sizeof(float), feature->flat_uvs.data(), GL_STREAM_DRAW);
 
 		// Deselect VAO (good practice)
 		glBindVertexArray(0);
@@ -46,7 +46,7 @@ namespace CadGui {
 
 	void TexturedRenderable::Draw(glm::mat4 projection_matrix, glm::mat4 view_matrix) {
 		//If we can't draw anything, return
-		if (!(geometry->draw_geometry && draw_geometry) && !(geometry->draw_aa_bounding_box && draw_aa_bounding_box)) {
+		if (!(feature->draw_feature && draw_feature) && !(feature->draw_aa_bounding_box && draw_aa_bounding_box)) {
 			return;
 		}
 
@@ -71,20 +71,20 @@ namespace CadGui {
 		glUniform3f(texture_tint_id, texture_tint.r, texture_tint.g, texture_tint.b	);
 		glUniformMatrix4fv(shader_id, 1, GL_FALSE, &mvp[0][0]);
 
-		if (geometry->draw_geometry && draw_geometry) {
-			glBindVertexArray(GetGeometryVAO());
-			glDrawArrays(GL_TRIANGLES, 0, geometry->flat_verts.size()/3);
+		if (feature->draw_feature && draw_feature) {
+			glBindVertexArray(GetFeatureVAO());
+			glDrawArrays(GL_TRIANGLES, 0, feature->flat_verts.size()/3);
 		}
 
 		//TODO: Is this better to be "geo AND renderable bool" or "geo OR renderable bool"
 		//Maybe make it "and" but have a seperate "override" for each which is or'd
-		//I.e ((geometry->draw_aa_bounding_box && draw_aa_bounding_box) || geometry->draw_aa_bounding_box_force || draw_aa_bounding_box_force)
-		if (geometry->draw_aa_bounding_box && draw_aa_bounding_box) {
+		//I.e ((feature->draw_aa_bounding_box && draw_aa_bounding_box) || feature->draw_aa_bounding_box_force || draw_aa_bounding_box_force)
+		if (feature->draw_aa_bounding_box && draw_aa_bounding_box) {
 			//TODO: is there a better way to do this than to have two VAOs?
 			glUseProgram(shader);
 
 			glBindVertexArray(GetAABoundingBoxVao());
-			glDrawArrays(GL_LINES, 0, geometry->aa_bounding_box.flat_verts.size()/3);
+			glDrawArrays(GL_LINES, 0, feature->aa_bounding_box.flat_verts.size()/3);
 		}
 	}
 }

@@ -8,7 +8,7 @@
 #include "cad_gui/opengl/render_data_types/geometry/viewport_grid.hpp"
 #include "cad_gui/imgui/gui_data.hpp"
 #include "cad_gui/imgui/imgui_windows/viewport_window/gui_render_texture.hpp"
-#include "cad_gui/scene_data.hpp"
+#include "cad_data/scene_data.hpp"
 
 using std::vector;
 
@@ -18,7 +18,7 @@ using std::make_unique;
 
 using glm::vec3;
 
-namespace CadGui {
+namespace cad_gui {
 
     const vector<vec3> AXIS_LINES = {
         vec3(0.0f, 0.0f, 0.0f),	// x
@@ -38,16 +38,16 @@ namespace CadGui {
         vec3(0.0f, 0.0f, 1.0f)
     };
 
-    Viewport::Viewport(GLFWwindow *window, glm::vec4 background_col, int viewport_width, int viewport_height, shared_ptr<SceneData> scene_data) 
+    Viewport::Viewport(GLFWwindow *window, glm::vec4 background_col, int viewport_width, int viewport_height, shared_ptr<cad_data::SceneData> scene_data) 
         : GuiRenderTexture(window, background_col, viewport_width, viewport_height), scene_data(scene_data) {
 
         spdlog::info("Viewport Initialised");
 
-        render_axis = make_shared<Geometry>(AXIS_LINES, AXIS_COLOURS, "Render Axis");
-        viewport_geo_renderable_pairs.emplace_back(render_axis, make_unique<Renderable>(basic_shader, render_axis, GL_LINES));
+        render_axis = make_shared<cad_data::Feature>(AXIS_LINES, AXIS_COLOURS, "Render Axis");
+        feature_renderable_pairs.emplace_back(render_axis, make_unique<Renderable>(basic_shader, render_axis, GL_LINES));
 
         grid = make_shared<ViewportGrid>(50, 50, 20, 20, glm::vec3(0.3f, 0.3f, 0.3f), basic_shader);
-        viewport_geo_renderable_pairs.emplace_back(grid, make_unique<Renderable>(basic_shader, grid, GL_LINES));
+        feature_renderable_pairs.emplace_back(grid, make_unique<Renderable>(basic_shader, grid, GL_LINES));
     }
 
     void Viewport::Draw() {
@@ -55,13 +55,13 @@ namespace CadGui {
         GuiRenderTexture::Draw();
 
         //Render viewport specific Geometry.
-        auto geo_renderable = viewport_geo_renderable_pairs.begin();
+        auto geo_renderable = feature_renderable_pairs.begin();
 
-        while(geo_renderable != viewport_geo_renderable_pairs.end()) {
+        while(geo_renderable != feature_renderable_pairs.end()) {
             // Geo is dead, nuke the map link
             if (geo_renderable->first->is_dead) {
                 // iterator.erase gives the next item in the list.
-                geo_renderable = viewport_geo_renderable_pairs.erase(geo_renderable);
+                geo_renderable = feature_renderable_pairs.erase(geo_renderable);
                 continue;
             }
 
@@ -71,7 +71,7 @@ namespace CadGui {
                 geo_renderable->second = make_unique<Renderable>(basic_shader, geo_renderable->first, GL_TRIANGLES);
             }
 
-            shared_ptr<Geometry> geometry = geo_renderable->first;
+            shared_ptr<cad_data::Feature> geometry = geo_renderable->first;
             shared_ptr<Renderable> renderable = geo_renderable->second;
 
             if (geometry->buffers_invalid) {
@@ -108,8 +108,8 @@ namespace CadGui {
                 glm::vec4 mouse_delta_world = camera->GetRotation() * glm::vec4(mouse_delta.x, 0.0f, -mouse_delta.y, 1.0f);
                 mouse_delta_world /= mouse_delta_world.w;
 
-                auto selected_ptr = scene_data->SelectedGeoBegin();
-                while (selected_ptr != scene_data->SelectedGeoEnd()) {
+                auto selected_ptr = scene_data->SelectedFeatBegin();
+                while (selected_ptr != scene_data->SelectedFeatEnd()) {
         
                     (*selected_ptr)->MoveOrigin(mouse_delta_world);
                     selected_ptr++;
@@ -121,7 +121,7 @@ namespace CadGui {
 
     void Viewport::SelectRenderable(shared_ptr<Renderable> clicked_renderable) {    
 
-        bool object_already_selected = std::find(scene_data->SelectedGeoBegin(), scene_data->SelectedGeoEnd(), clicked_renderable->geometry) != scene_data->SelectedGeoEnd();
+        bool object_already_selected = std::find(scene_data->SelectedFeatBegin(), scene_data->SelectedFeatEnd(), clicked_renderable->feature) != scene_data->SelectedFeatEnd();
         
         //Don't deselect all geo other than clicked object if it's already clicked 
         //This is annoying behaviour for the user if they accidentally click a selected object
@@ -131,7 +131,7 @@ namespace CadGui {
 
         //Not in list, add it.
         if (!object_already_selected) {
-            scene_data->SelectedGeoPushBack(clicked_renderable->geometry);
+            scene_data->SelectedGeoPushBack(clicked_renderable->feature);
         }
     }
 

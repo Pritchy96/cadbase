@@ -20,7 +20,7 @@ using std::make_unique;
 
 using glm::vec3;
 
-namespace CadGui {
+namespace cad_gui {
     GuiRenderTexture::GuiRenderTexture(GLFWwindow *window, glm::vec4 background_col, int window_width, int window_height) {
         glfw_window_ = window;
         window_size = make_shared<glm::vec2>(window_width, window_width);
@@ -71,13 +71,13 @@ namespace CadGui {
 
     void GuiRenderTexture::Draw() {
         //Render Master Geo.
-        auto geo_renderable = geo_renderable_pairs.begin();
+        auto geo_renderable = feature_renderable_pairs.begin();
 
-        while(geo_renderable != geo_renderable_pairs.end()) {
+        while(geo_renderable != feature_renderable_pairs.end()) {
             // Geo is dead, nuke the map link
             if (geo_renderable->first->is_dead) {
                 // iterator.erase gives the next item in the list.
-                geo_renderable = geo_renderable_pairs.erase(geo_renderable);
+                geo_renderable = feature_renderable_pairs.erase(geo_renderable);
                 continue;
             }
 
@@ -87,7 +87,7 @@ namespace CadGui {
                 geo_renderable->second = make_unique<Renderable>(basic_shader, geo_renderable->first, GL_TRIANGLES);
             }
 
-            shared_ptr<Geometry> geometry = geo_renderable->first;
+            shared_ptr<cad_data::Feature> geometry = geo_renderable->first;
             shared_ptr<Renderable> renderable = geo_renderable->second;
 
             renderable->Draw(camera->GetProjectionMatrix(), camera->GetViewMatrix());
@@ -102,13 +102,13 @@ namespace CadGui {
         }
 
         //Render Debug Geo.
-        geo_renderable = debug_geo_renderable_pairs.begin();
+        geo_renderable = debug_feature_renderable_pairs.begin();
 
-        while(geo_renderable != debug_geo_renderable_pairs.end()) {
+        while(geo_renderable != debug_feature_renderable_pairs.end()) {
             // Geo is dead, nuke the map link
             if (geo_renderable->first->is_dead) {
                 // iterator.erase gives the next item in the list.
-                geo_renderable = debug_geo_renderable_pairs.erase(geo_renderable);
+                geo_renderable = debug_feature_renderable_pairs.erase(geo_renderable);
                 continue;
             }
 
@@ -118,7 +118,7 @@ namespace CadGui {
                 geo_renderable->second = make_unique<Renderable>(basic_shader, geo_renderable->first, GL_TRIANGLES);
             }
 
-            shared_ptr<Geometry> geometry = geo_renderable->first;
+            shared_ptr<cad_data::Feature> geometry = geo_renderable->first;
             shared_ptr<Renderable> renderable = geo_renderable->second;
 
             renderable->Draw(camera->GetProjectionMatrix(), camera->GetViewMatrix());
@@ -258,7 +258,7 @@ namespace CadGui {
         }
 
         if (ImGui::IsKeyDown('C')) {
-            debug_geo_renderable_pairs.clear();
+            debug_feature_renderable_pairs.clear();
         }
     }
 
@@ -290,7 +290,7 @@ namespace CadGui {
         float closest_renderable_distance = MAXFLOAT;
         std::shared_ptr<Renderable> closest_renderable;
 
-        for (const auto& grp : geo_renderable_pairs) {
+        for (const auto& grp : feature_renderable_pairs) {
         //TODO: Ensure closest_renderable_distance > minimum distance? stops selecting objects that are < min clipping distance.
             if (RayCubeIntersection(ray, {grp.first->aa_bounding_box.min, grp.first->aa_bounding_box.max})) {
 
@@ -322,8 +322,8 @@ namespace CadGui {
         std::vector<glm::vec3> line_colour;
         line_colour.emplace_back(ray_colour);
         line_colour.emplace_back(ray_colour);
-        std::shared_ptr<Geometry> line_geo = std::make_shared<Geometry>(line, line_colour, "");
-        debug_geo_renderable_pairs.emplace_back(line_geo, std::make_unique<Renderable>(basic_shader, line_geo, GL_LINES));
+        std::shared_ptr<cad_data::Feature> line_geo = std::make_shared<cad_data::Feature>(line, line_colour, "");
+        debug_feature_renderable_pairs.emplace_back(line_geo, std::make_unique<Renderable>(basic_shader, line_geo, GL_LINES));
     }
 
     //TODO: Move (into static raycasting util class?)

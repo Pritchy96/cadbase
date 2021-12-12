@@ -1,5 +1,5 @@
-#ifndef GEOMETRY_HPP
-#define GEOMETRY_HPP
+#ifndef FEATURE_HPP
+#define FEATURE_HPP 
 
 // #include "stdafx.h"
 #include <glm/fwd.hpp>
@@ -14,15 +14,15 @@
 
 #include "cad_gui/opengl/render_data_types/geometry/aa_bounding_box.hpp"
 
-namespace CadGui {
-    class Geometry {
+namespace cad_data {
+    class Feature  {
         public:
-            Geometry() = default;
-            explicit Geometry(std::vector<glm::vec3> vert_data, std::string name, glm::vec3 origin = glm::vec3(0.0f));
-            Geometry(std::vector<glm::vec3> vert_data, std::vector<glm::vec2> uv_data, std::string name, glm::vec3 origin = glm::vec3(0.0f));
+            Feature() = default;    
+            explicit Feature(std::vector<glm::vec3> vert_data, std::string name, glm::vec3 origin = glm::vec3(0.0f));
+            Feature(std::vector<glm::vec3> vert_data, std::vector<glm::vec2> uv_data, std::string name, glm::vec3 origin = glm::vec3(0.0f));
 
-            Geometry(std::vector<glm::vec3> vert_data, std::vector<glm::vec3> colour_data, std::string name, glm::vec3 origin = glm::vec3(0.0f));
-            Geometry(std::vector<glm::vec3> vert_data, std::vector<glm::vec3> colour_data, std::vector<glm::vec2> uv_data, std::string name, glm::vec3 origin = glm::vec3(0.0f));
+            Feature(std::vector<glm::vec3> vert_data, std::vector<glm::vec3> colour_data, std::string name, glm::vec3 origin = glm::vec3(0.0f));
+            Feature(std::vector<glm::vec3> vert_data, std::vector<glm::vec3> colour_data, std::vector<glm::vec2> uv_data, std::string name, glm::vec3 origin = glm::vec3(0.0f));
 
             void Update();
 
@@ -38,10 +38,12 @@ namespace CadGui {
                 buffers_invalid = true;
             }
 
-            virtual ~Geometry() = default;
+            virtual ~Feature() = default;
             virtual int GenerateFlatBuffers();
 
             std::string name;
+
+            std::vector<Feature> dependent_features; 
 
             // TODO: replace these with accessors into flatverts.
             // TODO: or do we even need flatverts? we never access it again after creating and loading it on to the GPU, so we could just create the flat structure and load it into the VAO, never storing it CPU side.
@@ -53,14 +55,14 @@ namespace CadGui {
             
             // Only if corresponding bool in renderable is true.
             // Setting these false here will make whatever it is invisible in ALL viewports
-            bool draw_geometry = true;
+            bool draw_feature = true;
             bool draw_aa_bounding_box = false;
             
             bool is_dead = false;
 
-            AABoundingBox aa_bounding_box;  
+            cad_gui::AABoundingBox aa_bounding_box;  
         private:
-            glm::vec3 origin_ = glm::vec3(0.0f); //Offsets the geometry.
+            glm::vec3 origin_ = glm::vec3(0.0f); //Offsets the feature.
     };
 }
 #endif

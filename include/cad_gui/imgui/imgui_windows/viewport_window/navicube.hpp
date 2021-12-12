@@ -22,12 +22,12 @@
 
 #include "cad_gui/imgui/imgui_windows/viewport_window/gui_render_texture.hpp"
 #include "cad_gui/opengl/shader.hpp"
-#include "cad_gui/opengl/render_data_types/geometry/geometry.hpp"
+#include "cad_data/feature.hpp"
 #include "cad_gui/opengl/render_data_types/renderable/renderable.hpp"
 #include "cad_gui/opengl/camera.hpp"
 
-namespace CadGui {
-    class NaviCube : public CadGui::GuiRenderTexture, public CadGui::ViewportInput {
+namespace cad_gui {
+    class NaviCube : public cad_gui::GuiRenderTexture, public cad_gui::ViewportInput {
         public:
             NaviCube(GLFWwindow *window, glm::vec4 background_col, int window_width, int window_height, std::vector<std::shared_ptr<Camera>> affected_cameras);
             void SelectRenderable(std::shared_ptr<Renderable> selected_renderable) override;

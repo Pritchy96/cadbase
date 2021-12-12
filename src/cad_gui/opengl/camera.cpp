@@ -13,7 +13,7 @@
 using glm::vec3;
 using glm::mat4;
 
-namespace CadGui {
+namespace cad_gui {
     Camera::Camera(vec3 initial_target, float initial_zoom, std::shared_ptr<glm::vec2> window_size) 
         :   initial_target_(initial_target), target_(initial_target), initial_zoom_(initial_zoom), zoom_(initial_zoom), initial_rotation_(glm::mat4(1.0f)), rotation_(glm::mat4(1.0f)) {
 

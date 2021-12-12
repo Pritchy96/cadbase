@@ -5,8 +5,8 @@
 #include "cad_gui/opengl/camera.hpp"
 #include "cad_gui/imgui/imgui_windows/viewport_window/viewport_input.hpp"
 
-namespace CadGui {
-    Arcball::Arcball(std::vector<std::shared_ptr<Camera>> affected_cameras) : CadGui::ViewportInput(affected_cameras) {
+namespace cad_gui {
+    Arcball::Arcball(std::vector<std::shared_ptr<Camera>> affected_cameras) : cad_gui::ViewportInput(affected_cameras) {
         arcball_rotate_sensitivity = ARCBALL_ROTATE_SENSITIVITY_INITIAL;
         arcball_pan_sensitivity = ARCBALL_PAN_SENSITIVITY_INITIAL;
     }

@@ -19,12 +19,12 @@
 #include "cad_gui/imgui/imgui_windows/viewport_window/viewport_window.hpp"
 #include "cad_gui/imgui/imgui_windows/log_window.hpp"
 #include "cad_gui/imgui/app_style.hpp"
-#include "cad_gui/scene_data.hpp"
+#include "cad_data/scene_data.hpp"
 
-namespace CadGui {
+namespace cad_gui {
     class MainWindow {
         public:
-            explicit MainWindow(GLFWwindow* glfw_window, std::shared_ptr<LogWindow> gui_logger_sink_, std::shared_ptr<SceneData> scene_data);
+            explicit MainWindow(GLFWwindow* glfw_window, std::shared_ptr<LogWindow> gui_logger_sink_, std::shared_ptr<cad_data::SceneData> scene_data);
             // ~GuiBase();
 
             bool SetupImgui(); 

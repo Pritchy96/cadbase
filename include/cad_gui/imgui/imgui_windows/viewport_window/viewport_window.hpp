@@ -11,7 +11,7 @@
 #include "cad_gui/imgui/imgui_windows/viewport_window/navicube.hpp"
 #include "cad_gui/imgui/gui_data.hpp"
 
-namespace CadGui {
+namespace cad_gui {
     class ViewportWindow {
         public:
             ViewportWindow(std::string name, GLFWwindow* glfw_window, std::shared_ptr<Viewport> viewport);

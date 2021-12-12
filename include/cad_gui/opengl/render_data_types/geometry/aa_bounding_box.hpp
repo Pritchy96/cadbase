@@ -4,7 +4,7 @@
 #include <glm/glm.hpp>
 #include <vector>
 
-namespace CadGui {
+namespace cad_gui {
     struct AABoundingBox {
         glm::vec3 min = glm::vec3(INT16_MAX);
         glm::vec3 max = glm::vec3(-INT16_MAX);

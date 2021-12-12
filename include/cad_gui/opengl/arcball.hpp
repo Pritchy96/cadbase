@@ -6,8 +6,8 @@
 #include "cad_gui/opengl/camera.hpp"
 #include "cad_gui/imgui/imgui_windows/viewport_window/viewport_input.hpp"
 
-namespace CadGui {
-    class Arcball : public CadGui::ViewportInput {
+namespace cad_gui {
+    class Arcball : public cad_gui::ViewportInput {
         public:
             explicit Arcball(std::vector<std::shared_ptr<Camera>> affected_cameras);
 

@@ -4,7 +4,7 @@
 #include "cad_gui/imgui/imgui_windows/log_window.hpp"
 #include "imgui.h"
 
-namespace CadGui {
+namespace cad_gui {
     void LogWindow::sink_it_(const spdlog::details::log_msg& msg) {
         // log_msg is a struct containing the log entry info like level, timestamp, thread id etc.
         // msg.raw contains pre formatted log

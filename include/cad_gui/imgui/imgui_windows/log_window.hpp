@@ -4,7 +4,7 @@
 #include <imgui.h>
 #include <spdlog/sinks/base_sink.h>
 
-namespace CadGui {
+namespace cad_gui {
     class LogWindow : public spdlog::sinks::base_sink<spdlog::details::null_mutex>   {
         public: 
             void sink_it_(const spdlog::details::log_msg& msg) override;    //NOLINT: third party override.

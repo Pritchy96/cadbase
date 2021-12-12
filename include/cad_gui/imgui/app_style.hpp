@@ -3,7 +3,7 @@
 
 #include "imgui.h"
 
-namespace CadGui {
+namespace cad_gui {
     struct AppStyle {
         const ImVec4 ACCENT_COLOUR_DIM   = ImVec4(0.160f, 0.204f, 0.204f, 1.000f); //Standard highlight colour, used for active tabs etc
         const ImVec4 ACCENT_COLOUR_MEDIUM = ImVec4(0.25f, 0.38f, 0.36f, 1.00f); //Less important highlight colour, used for inactive tabs etc

@@ -20,20 +20,24 @@
 #include <glm/gtx/string_cast.hpp>
 
 #include "cad_gui/opengl/shader.hpp"
-#include "cad_gui/opengl/render_data_types/geometry/geometry.hpp"
+#include "cad_data/feature.hpp"
 #include "cad_gui/opengl/render_data_types/renderable/renderable.hpp"
 #include "cad_gui/imgui/gui_data.hpp"
 #include "cad_gui/opengl/camera.hpp"
 #include "cad_gui/opengl/render_data_types/geometry/viewport_grid.hpp"
 #include "cad_gui/imgui/imgui_windows/viewport_window/gui_render_texture.hpp"
-// #include "cad_gui/scene_data.hpp"
+// #include "cad_data/scene_data.hpp"
 
-namespace CadGui {
-    class SceneData;    
+namespace cad_data {
+    class SceneData;   
+}
 
-    class Viewport: public CadGui::GuiRenderTexture, public std::enable_shared_from_this<Viewport> {
+namespace cad_gui {
+
+
+    class Viewport: public cad_gui::GuiRenderTexture, public std::enable_shared_from_this<Viewport> {
         public:
-            Viewport(GLFWwindow *window, glm::vec4 background_col, int viewport_width, int viewport_height, std::shared_ptr<SceneData> scene_data);
+            Viewport(GLFWwindow *window, glm::vec4 background_col, int viewport_width, int viewport_height, std::shared_ptr<cad_data::SceneData> scene_data);
             ~Viewport() = default;
 
             std::shared_ptr<Viewport> GetSharedPtr() {
@@ -46,10 +50,10 @@ namespace CadGui {
             void SelectNothing() override;
 
             //Viewport specific stuff that doesn't need i.e selecting etc.
-            std::vector<std::pair<std::shared_ptr<Geometry>, std::shared_ptr<Renderable>>> viewport_geo_renderable_pairs;
+            std::vector<std::pair<std::shared_ptr<cad_data::Feature>, std::shared_ptr<Renderable>>> feature_renderable_pairs;
 
-            std::shared_ptr<SceneData> scene_data;
-            std::shared_ptr<Geometry> render_axis;
+            std::shared_ptr<cad_data::SceneData> scene_data;
+            std::shared_ptr<cad_data::Feature> render_axis;
             std::shared_ptr<ViewportGrid> grid;
     };
 }

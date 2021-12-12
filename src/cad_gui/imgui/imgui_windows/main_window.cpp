@@ -15,8 +15,8 @@
 
 using std::make_unique;
 
-namespace CadGui {
-    MainWindow::MainWindow(GLFWwindow* glfw_window, std::shared_ptr<LogWindow> gui_logger_sink, std::shared_ptr<SceneData> scene_data) : glfw_window(glfw_window), gui_logger_sink_(gui_logger_sink) {
+namespace cad_gui {
+    MainWindow::MainWindow(GLFWwindow* glfw_window, std::shared_ptr<LogWindow> gui_logger_sink, std::shared_ptr<cad_data::SceneData> scene_data) : glfw_window(glfw_window), gui_logger_sink_(gui_logger_sink) {
         if (!SetupImgui()) {
             //Todo: error handling.
         }

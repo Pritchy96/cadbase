@@ -14,23 +14,20 @@
 
 using std::shared_ptr;
 
-namespace CadGui {
-    ProjectWindow::ProjectWindow(std::string name, GLFWwindow* glfw_window, std::shared_ptr<SceneData> scene_data) : name(name), glfw_window(glfw_window), scene_data(scene_data) {
+namespace cad_gui {
+    ProjectWindow::ProjectWindow(std::string name, GLFWwindow* glfw_window, std::shared_ptr<cad_data::SceneData> scene_data) : name(name), glfw_window(glfw_window), scene_data(scene_data) {
     
     }
 
     void ProjectWindow::Draw() {
         ImGui::Begin(name.c_str());
-
-        
-
         ImGui::Text((scene_data->scene_title + ": ").c_str());
         ImGui::Separator();
 
         bool selected;
         auto geo_ptr = scene_data->MasterGeoBegin();
             while (geo_ptr != scene_data->MasterGeoEnd()) {
-            selected = std::find(scene_data->SelectedGeoBegin(), scene_data->SelectedGeoEnd(), (*geo_ptr)) != scene_data->SelectedGeoEnd();
+            selected = std::find(scene_data->SelectedFeatBegin(), scene_data->SelectedFeatEnd(), (*geo_ptr)) != scene_data->SelectedFeatEnd();
 
             ImGui::Bullet();
             if (ImGui::Selectable((*geo_ptr)->name.c_str(), selected))   {

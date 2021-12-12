@@ -16,7 +16,7 @@
 #include <glm/gtc/matrix_inverse.hpp>
 #include <memory>
 
-namespace CadGui {
+namespace cad_gui {
     class Camera {
         public:
             Camera(glm::vec3 initial_target, float initial_zoom, std::shared_ptr<glm::vec2> window_size);

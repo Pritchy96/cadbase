@@ -11,15 +11,15 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/transform.hpp>
 
-#include "cad_gui/opengl/render_data_types/geometry/geometry.hpp"
+#include "cad_data/feature.hpp"
 
-namespace CadGui {
+namespace cad_gui {
     class Renderable {
         public:
-            Renderable(GLuint basic_shader, std::shared_ptr<Geometry> geo_ptr, GLuint render_primative = GL_POINTS);
+            Renderable(GLuint basic_shader, std::shared_ptr<cad_data::Feature> geo_ptr, GLuint render_primative = GL_POINTS);
             Renderable() = default;
 
-            virtual GLuint GetGeometryVAO();
+            virtual GLuint GetFeatureVAO();
             GLuint geometry_pos_vbo, geometry_col_vbo, geometry_vao;
             bool valid_geometry_vao = false;
 
@@ -28,14 +28,14 @@ namespace CadGui {
             GLuint aa_bounding_box_pos_vbo, aa_bounding_box_col_vbo, aa_bounding_box_vao;
             bool valid_aa_bounding_box_vao = false;
 
-            //Only if corresponding bool in geometry is true.
+            //Only if corresponding bool in feature is true.
             //Setting these false here will make whatever it is invisible in this viewport ONLY.
-            bool draw_geometry = true;
+            bool draw_feature = true;
             bool draw_aa_bounding_box = true;
 
             virtual void Draw(glm::mat4 projection_matrix, glm::mat4 view_matrix);
 
-            std::shared_ptr<Geometry> geometry;
+            std::shared_ptr<cad_data::Feature> feature;
             GLuint basic_shader, render_type;
             glm::mat4 model_matrix = glm::mat4(1.0f);
 

@@ -22,12 +22,13 @@
 #include "cad_gui/imgui/gui_data.hpp"
 #include "cad_gui/opengl/raycast/ray.hpp"
 #include "cad_gui/opengl/shader.hpp"
-#include "cad_gui/opengl/render_data_types/geometry/geometry.hpp"
 #include "cad_gui/opengl/render_data_types/renderable/renderable.hpp"
 #include "cad_gui/opengl/camera.hpp"
 #include "cad_gui/opengl/arcball.hpp"
 
-namespace CadGui {
+#include "cad_data/feature.hpp"
+
+namespace cad_gui {
     class GuiRenderTexture {
         public:
             GuiRenderTexture(GLFWwindow *window, glm::vec4 background_col, int window_width, int window_height);
@@ -61,8 +62,8 @@ namespace CadGui {
             GLuint colour_texture;
             GLuint depth_texture;
         
-            std::vector<std::pair<std::shared_ptr<Geometry>, std::shared_ptr<Renderable>>> geo_renderable_pairs;
-            std::vector<std::pair<std::shared_ptr<Geometry>, std::shared_ptr<Renderable>>> debug_geo_renderable_pairs;
+            std::vector<std::pair<std::shared_ptr<cad_data::Feature>, std::shared_ptr<Renderable>>> feature_renderable_pairs;
+            std::vector<std::pair<std::shared_ptr<cad_data::Feature>, std::shared_ptr<Renderable>>> debug_feature_renderable_pairs;
 
             bool clicked_on_texture[5] = {false, false, false, false, false};
             bool texture_has_focus = false;

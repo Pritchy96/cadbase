@@ -27,9 +27,9 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "cad_gui/opengl/shader.hpp"
-#include "cad_gui/opengl/render_data_types/geometry/geometry.hpp"
+#include "cad_data/feature.hpp"
 #include "cad_gui/opengl/render_data_types/renderable/renderable.hpp"
-#include "cad_gui/scene_data.hpp"
+#include "cad_data/scene_data.hpp"
 #include "cad_gui/imgui/imgui_windows/log_window.hpp"
 #include "cad_gui/imgui/app_style.hpp"
 #include "cad_gui/imgui/imgui_windows/main_window.hpp"
@@ -43,16 +43,16 @@ using std::make_unique;
 
 const ImVec4 BACKGROUND_COLOUR = ImVec4(0.15f, 0.15f, 0.15f, 1.00f);    //TODO: remove
 
-unique_ptr<CadGui::MainWindow> main_window;
-shared_ptr<CadGui::SceneData> scene_data;
-shared_ptr<CadGui::LogWindow> log_window_sink;
+unique_ptr<cad_gui::MainWindow> main_window;
+shared_ptr<cad_data::SceneData> scene_data;
+shared_ptr<cad_gui::LogWindow> log_window_sink;
 
-CadGui::AppStyle app_style;
+cad_gui::AppStyle app_style;
 
 GLFWwindow* glfw_window;
 
-// TODO: We may wish to rename 'CadGui::Viewport' as IMGUI now has such a concept.
-shared_ptr<vector<shared_ptr<CadGui::Viewport>>> viewports;
+// TODO: We may wish to rename 'cad_gui::Viewport' as IMGUI now has such a concept.
+shared_ptr<vector<shared_ptr<cad_gui::Viewport>>> viewports;
 
 bool ImportGeoTest( const std::string& pFile);  //TODO: temp prototype.
 
@@ -146,21 +146,21 @@ bool ImportGeoTest(const std::string& pFile) {
         }
     }
 
-	scene_data->MasterGeoPushBack(make_shared<CadGui::Geometry>(test_geo, "Test Geo " + std::to_string(rand()), glm::vec3((rand() % 1000) - 500, (rand() % 1000) - 500, (rand() % 1000) - 500)));
+	scene_data->MasterGeoPushBack(make_shared<cad_data::Feature>(test_geo, "Test Geo " + std::to_string(rand()), glm::vec3((rand() % 1000) - 500, (rand() % 1000) - 500, (rand() % 1000) - 500)));
     return true;
 }
 
 void SetupRenderWindows() {
     // TODO: temp test.
     for (int i= 0; i < 4; i++) { 
-        viewports->push_back(make_shared<CadGui::Viewport>(glfw_window, 
+        viewports->push_back(make_shared<cad_gui::Viewport>(glfw_window, 
             glm::vec4(app_style.BACKGROUND_COLOUR_MEDIUM.x, app_style.BACKGROUND_COLOUR_MEDIUM.y, 
                 app_style.BACKGROUND_COLOUR_MEDIUM.z, app_style.BACKGROUND_COLOUR_MEDIUM.w),
             1000, 1000, scene_data));
 
-        // Make our render windows - one for each cadgui::viewport for now.
+        // Make our render windows - one for each cad_gui::viewport for now.
         std::string name = "Render Window " + std::to_string(i);
-        main_window->gui_render_windows.push_back(make_shared<CadGui::ViewportWindow>(name, glfw_window, viewports->back()));
+        main_window->gui_render_windows.push_back(make_shared<cad_gui::ViewportWindow>(name, glfw_window, viewports->back()));
     }
 }
 
@@ -190,7 +190,7 @@ void Update() {
 
 void SetupLogger() {
     auto console_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
-    log_window_sink = make_shared<CadGui::LogWindow>();
+    log_window_sink = make_shared<cad_gui::LogWindow>();
     spdlog::sinks_init_list sink_list = {log_window_sink, console_sink};
 
     auto logger = make_shared<spdlog::logger>("logger", sink_list);
@@ -206,9 +206,9 @@ int main(int argc, const char* argv[]) { // NOLINT: main function.
         return -1;
     }
 
-    viewports = make_shared<vector<shared_ptr<CadGui::Viewport>>>();
-	scene_data = make_shared<CadGui::SceneData>(viewports);    
-    main_window = make_unique<CadGui::MainWindow>(glfw_window, log_window_sink, scene_data); 
+    viewports = make_shared<vector<shared_ptr<cad_gui::Viewport>>>();
+	scene_data = make_shared<cad_data::SceneData>(viewports);    
+    main_window = make_unique<cad_gui::MainWindow>(glfw_window, log_window_sink, scene_data); 
 
     SetupRenderWindows();
 

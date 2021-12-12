@@ -4,8 +4,8 @@
 
 using glm::vec3;
 
-namespace CadGui {
-	ViewportGrid::ViewportGrid(int xLines, int yLines, float xSpacing, float ySpacing, vec3 gridColour, GLuint shader) : CadGui::Geometry() {
+namespace cad_gui {
+	ViewportGrid::ViewportGrid(int xLines, int yLines, float xSpacing, float ySpacing, vec3 gridColour, GLuint shader) : cad_data::Feature() {
 		SetupGrid(xLines, yLines, xSpacing, ySpacing, gridColour);
 	}
 

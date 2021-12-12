@@ -7,7 +7,7 @@
 using std::string;
 using std::vector;
 
-namespace CadGui {
+namespace cad_gui {
 	GLuint Shader::LoadShaders(char* vertex_file_path, char* fragment_file_path) {
 		spdlog::info("Compiling Shaders");
 

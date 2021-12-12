@@ -38,7 +38,7 @@
 #include "cad_gui/opengl/raycast/ray.hpp"
 #include "cad_gui/imgui/imgui_windows/viewport_window/navicube.hpp"
 
-namespace CadGui {
+namespace cad_gui {
     ViewportWindow::ViewportWindow(std::string name, GLFWwindow* glfw_window, std::shared_ptr<Viewport> viewport) 
                                         : name(name), glfw_window(glfw_window), viewport_(viewport) {
 
@@ -83,10 +83,10 @@ namespace CadGui {
             }
 
             ImGui::Separator();
-            ImGui::Checkbox("Show Grid", &viewport_->grid->draw_geometry);
-            ImGui::Checkbox("Show Render Axis", &viewport_->render_axis->draw_geometry);
+            ImGui::Checkbox("Show Grid", &viewport_->grid->draw_feature);
+            ImGui::Checkbox("Show Render Axis", &viewport_->render_axis->draw_feature);
             //TODO: Implement proper "Render all geo's bounding boxes in this viewport" option
-            // ImGui::Checkbox("Show Bounding Boxes", &viewport_->geo_renderable_pairs.back().second->draw_aa_bounding_box);
+            // ImGui::Checkbox("Show Bounding Boxes", &viewport_->feature_renderable_pairs.back().second->draw_aa_bounding_box);
             
             ImGui::Separator();
             if (ImGui::Button("Reset Pan")) {
