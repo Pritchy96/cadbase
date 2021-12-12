@@ -94,7 +94,7 @@ target_link_libraries(${APP_NAME} imgui assimp nativefiledialog spdlog)
 
 # Copy over shader files.
 add_custom_target(copy_assets
-    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_LIST_DIR}/src/opengl/shaders ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/shaders
+    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_LIST_DIR}/src/cad_gui/opengl/shaders ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/shaders
 )
 add_dependencies(cad-base copy_assets)
 
