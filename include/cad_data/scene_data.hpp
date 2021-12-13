@@ -29,7 +29,7 @@ namespace cad_data {
                 (*position)->is_dead = true;
                 feature_timeline_.erase(position);
             }
-
+    
             void MasterFeatureErase(int index) {
                 auto iter = feature_timeline_.begin() + index;
                 (*iter)->is_dead = true;
