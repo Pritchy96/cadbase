@@ -5,6 +5,7 @@
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/fwd.hpp>
 #include <iostream>
+#include <fstream>
 #include <memory>
 #include <string>
 
@@ -26,8 +27,8 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-#include "cad_gui/opengl/shader.hpp"
 #include "cad_data/feature.hpp"
+#include "cad_data/part.hpp"
 #include "cad_gui/opengl/renderables/renderable.hpp"
 #include "cad_data/scene_data.hpp"
 #include "cad_gui/imgui/imgui_windows/log_window.hpp"
@@ -146,7 +147,12 @@ bool ImportGeoTest(const std::string& pFile) {
         }
     }
 
-	scene_data->MasterFeaturePushBack(make_shared<cad_data::Feature>(test_geo, "Test Feature " + std::to_string(rand()), glm::vec3((rand() % 1000) - 500, (rand() % 1000) - 500, (rand() % 1000) - 500)));
+    glm::vec3 random_position = glm::vec3((rand() % 1000) - 500, (rand() % 1000) - 500, (rand() % 1000) - 500);
+    
+    std::vector<std::shared_ptr<cad_data::Feature>> test_part_features; 
+    test_part_features.emplace_back(make_shared<cad_data::Feature>(test_geo, "Test Feature " + std::to_string(rand())));
+
+    scene_data->PartListPushBack(make_shared<cad_data::Part>(viewports, "Test Part " + std::to_string(rand()), random_position, test_part_features));
     return true;
 }
 
@@ -179,10 +185,15 @@ void Update() {
         v->Update();
     }
 
-    auto geo_ptr = scene_data->MasterGeoBegin();
-    while (geo_ptr != scene_data->MasterGeoEnd()) {
-        (*geo_ptr)->Update();
-        geo_ptr++;
+    auto part_ptr = scene_data->PartListBegin();
+    while (part_ptr != scene_data->PartListEnd()) {
+        auto feature_ptr = (*part_ptr)->FeatureListBegin();
+        while (feature_ptr != (*part_ptr)->FeatureListEnd()) {
+            (*feature_ptr)->Update();
+            feature_ptr++;
+        }
+        
+        part_ptr++;
     }
 
     main_window->Update();

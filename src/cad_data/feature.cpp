@@ -9,14 +9,14 @@ using std::vector;
 using glm::vec3;
 
 namespace cad_data {
-	Feature::Feature(vector<vec3> vert_data, std::string name, glm::vec3 origin) : origin_(origin), name(name) {
+	Feature::Feature(vector<vec3> vert_data, std::string name) : name(name) {
 		vertexes = vert_data;
 		colours = vert_data;
 
 		GenerateFlatBuffers();
 	}
 
-	Feature::Feature(vector<vec3> vert_data, std::vector<glm::vec2> uv_data, std::string name, glm::vec3 origin) : origin_(origin), name(name) {
+	Feature::Feature(vector<vec3> vert_data, std::vector<glm::vec2> uv_data, std::string name) : name(name) {
 		vertexes = vert_data;
 		uvs = uv_data;
 
@@ -24,14 +24,14 @@ namespace cad_data {
 	}
 
 
-	Feature::Feature(vector<vec3> vert_data, vector<vec3> colour_data, std::string name, glm::vec3 origin) : origin_(origin), name(name) {
+	Feature::Feature(vector<vec3> vert_data, vector<vec3> colour_data, std::string name) : name(name) {
 		vertexes = vert_data;
 		colours = colour_data;
 
 		GenerateFlatBuffers();
 	}
 
-	Feature::Feature(vector<vec3> vert_data, vector<vec3> colour_data, std::vector<glm::vec2> uv_data, std::string name, glm::vec3 origin) : origin_(origin), name(name) {
+	Feature::Feature(vector<vec3> vert_data, vector<vec3> colour_data, std::vector<glm::vec2> uv_data, std::string name) : name(name) {
 		vertexes = vert_data;
 		colours = colour_data;
 		uvs = uv_data;
@@ -53,7 +53,8 @@ namespace cad_data {
 
 		for (auto vertex : vertexes) {
 
-			glm::vec3 offset_vertex = vertex + origin_;	//TODO: should we pass this through to GLSL and do this there or something?
+			//TODO: get offset from part.
+			glm::vec3 offset_vertex = vertex;// + origin_;	//TODO: should we pass this through to GLSL and do this there or something?
 			flat_verts.push_back(offset_vertex.x);
 			flat_verts.push_back(offset_vertex.y);
 			flat_verts.push_back(offset_vertex.z);

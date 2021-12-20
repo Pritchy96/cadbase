@@ -25,27 +25,24 @@ namespace cad_gui {
         ImGui::Separator();
 
         bool selected;
-        auto geo_ptr = scene_data->MasterGeoBegin();
-            while (geo_ptr != scene_data->MasterGeoEnd()) {
-            selected = std::find(scene_data->SelectedFeatBegin(), scene_data->SelectedFeatEnd(), (*geo_ptr)) != scene_data->SelectedFeatEnd();
+        auto part_ptr = scene_data->PartListBegin();
+            while (part_ptr != scene_data->PartListEnd()) {
+            // selected = std::find(scene_data->PartListBegin(), scene_data->PartListEnd(), (*part_ptr)) != scene_data->PartListEnd();
 
             ImGui::Bullet();
-            if (ImGui::Selectable((*geo_ptr)->name.c_str(), selected))   {
+            if (ImGui::Selectable((*part_ptr)->part_name.c_str(), selected))   {
                 if (!ImGui::GetIO().KeyShift) {    // Clear selection when Shift is not held
-                    scene_data->ClearSelectedFeature();
+                    // scene_data->ClearSelectedPart();
                 }
 
-                scene_data->SelectedFeaturePushBack(*geo_ptr);
+                scene_data->SelectedPartPushBack(*part_ptr);
             }
 
-            geo_ptr++;
+            part_ptr++;
         }
-
 
         ImGui::Separator();
         ImGui::Text("Application average: %.3f ms/frame\n(%.1f FPS)\n", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-
-
         ImGui::End();
     }
 }

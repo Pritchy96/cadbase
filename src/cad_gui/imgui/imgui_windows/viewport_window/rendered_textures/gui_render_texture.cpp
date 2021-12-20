@@ -12,6 +12,7 @@
 #include "cad_gui/opengl/camera.hpp"
 #include "cad_gui/imgui/gui_data.hpp"
 #include "cad_gui/opengl/raycast/ray.hpp"
+#include "cad_gui/opengl/renderer.hpp"
 #include "imgui.h"
 
 using std::shared_ptr;
@@ -35,10 +36,6 @@ namespace cad_gui {
         // TODO: Move everything dependent on this (gl calls, shader loads etc) to an init() function so this context setting can be done 
         // in main.cpp
         glfwMakeContextCurrent(glfw_window_);
-
-        // TODO: file paths are currently relative to excution path, not main location.
-        // TODO: load these once, keep in static file?
-        basic_shader = Shader::LoadShaders((char*)"./shaders/basic_camera.vertshader", (char*)"./shaders/basic_camera.fragshader");
 
         SetupFBO();
     }
@@ -84,7 +81,7 @@ namespace cad_gui {
             if (geo_renderable->second == nullptr) {
                 // Renderable for feature doesn't exist, make one.
                 // TODO: Some logic to choose a render type? (currently default to GL_TRIANGLES)
-                geo_renderable->second = make_unique<Renderable>(basic_shader, geo_renderable->first, GL_TRIANGLES);
+                geo_renderable->second = make_unique<Renderable>(Renderer::DEFAULT_SHADER_INDEXES::BASIC, geo_renderable->first, GL_TRIANGLES);
             }
 
             shared_ptr<cad_data::Feature> geometry = geo_renderable->first;
@@ -115,7 +112,7 @@ namespace cad_gui {
             if (geo_renderable->second == nullptr) {
                 // Renderable for feature doesn't exist, make one.
                 // TODO: Some logic to choose a render type? (currently default to GL_TRIANGLES)
-                geo_renderable->second = make_unique<Renderable>(basic_shader, geo_renderable->first, GL_TRIANGLES);
+                geo_renderable->second = make_unique<Renderable>(Renderer::DEFAULT_SHADER_INDEXES::BASIC , geo_renderable->first, GL_TRIANGLES);
             }
 
             shared_ptr<cad_data::Feature> geometry = geo_renderable->first;
@@ -323,7 +320,7 @@ namespace cad_gui {
         line_colour.emplace_back(ray_colour);
         line_colour.emplace_back(ray_colour);
         std::shared_ptr<cad_data::Feature> line_geo = std::make_shared<cad_data::Feature>(line, line_colour, "");
-        debug_feature_renderable_pairs.emplace_back(line_geo, std::make_unique<Renderable>(basic_shader, line_geo, GL_LINES));
+        debug_feature_renderable_pairs.emplace_back(line_geo, std::make_unique<Renderable>(Renderer::DEFAULT_SHADER_INDEXES::BASIC, line_geo, GL_LINES));
     }
 
     //TODO: Move (into static raycasting util class?)

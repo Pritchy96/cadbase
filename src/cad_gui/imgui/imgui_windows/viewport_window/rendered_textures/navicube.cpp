@@ -42,34 +42,28 @@ namespace cad_gui {
         
         LoadTextures();
 
-        //TODO: we need to restructure the program so we get data from the scene and render it, Calls to glUseShader are apparently extremely expensive,
-        //So we need to figure out some way to sort data within a GuiRenderTexture/Renderable/whatever so we can just loop through the list of them at a top level,
-        //Grab all the renderables that want to be rendered in a specific way, and then render them all in one batch.
-        GLuint texture_shader = Shader::LoadShaders((char*)"./shaders/basic_textured.vertshader", (char*)"./shaders/basic_textured.fragshader");
-        //TODO: feed this in from the ImGui Theming.
-
         AppStyle app_style;
         ImVec4 im_tint = app_style.ACCENT_COLOUR_DIM;
         
         glm::vec4 tint = glm::vec4(im_tint.x, im_tint.y, im_tint.z, im_tint.w);
 
         shared_ptr<cad_data::Feature> feature = make_shared<cad_data::Feature>(FACE_VERTS_1, SQUARE_UVS, "Face 1");
-        feature_renderable_pairs.emplace_back(feature, make_unique<TexturedRenderable>(texture_shader, basic_shader, face_textures_[0], feature, tint, GL_TRIANGLES));
+        feature_renderable_pairs.emplace_back(feature, make_unique<TexturedRenderable>(Renderer::DEFAULT_SHADER_INDEXES::BASIC_TEXTURED, face_textures_[0], feature, tint, GL_TRIANGLES));
 
         feature = make_shared<cad_data::Feature>(FACE_VERTS_2, SQUARE_UVS, "Face 2");
-        feature_renderable_pairs.emplace_back(feature, make_unique<TexturedRenderable>(texture_shader, basic_shader, face_textures_[1], feature, tint, GL_TRIANGLES));
+        feature_renderable_pairs.emplace_back(feature, make_unique<TexturedRenderable>(Renderer::DEFAULT_SHADER_INDEXES::BASIC_TEXTURED, face_textures_[1], feature, tint, GL_TRIANGLES));
 
         feature = make_shared<cad_data::Feature>(FACE_VERTS_3, SQUARE_UVS, "Face 3");
-        feature_renderable_pairs.emplace_back(feature, make_unique<TexturedRenderable>(texture_shader, basic_shader, face_textures_[2], feature, tint, GL_TRIANGLES));
+        feature_renderable_pairs.emplace_back(feature, make_unique<TexturedRenderable>(Renderer::DEFAULT_SHADER_INDEXES::BASIC_TEXTURED, face_textures_[2], feature, tint, GL_TRIANGLES));
 
         feature = make_shared<cad_data::Feature>(FACE_VERTS_4, SQUARE_UVS, "Face 4");
-        feature_renderable_pairs.emplace_back(feature, make_unique<TexturedRenderable>(texture_shader, basic_shader, face_textures_[3], feature, tint, GL_TRIANGLES));
+        feature_renderable_pairs.emplace_back(feature, make_unique<TexturedRenderable>(Renderer::DEFAULT_SHADER_INDEXES::BASIC_TEXTURED, face_textures_[3], feature, tint, GL_TRIANGLES));
 
         feature = make_shared<cad_data::Feature>(FACE_VERTS_5, SQUARE_UVS, "Face 5");
-        feature_renderable_pairs.emplace_back(feature, make_unique<TexturedRenderable>(texture_shader, basic_shader, face_textures_[4], feature, tint, GL_TRIANGLES));
+        feature_renderable_pairs.emplace_back(feature, make_unique<TexturedRenderable>(Renderer::DEFAULT_SHADER_INDEXES::BASIC_TEXTURED, face_textures_[4], feature, tint, GL_TRIANGLES));
 
         feature = make_shared<cad_data::Feature>(FACE_VERTS_6, SQUARE_UVS, "Face 6");
-        feature_renderable_pairs.emplace_back(feature, make_unique<TexturedRenderable>(texture_shader, basic_shader, face_textures_[5], feature, tint, GL_TRIANGLES));
+        feature_renderable_pairs.emplace_back(feature, make_unique<TexturedRenderable>(Renderer::DEFAULT_SHADER_INDEXES::BASIC_TEXTURED, face_textures_[5], feature, tint, GL_TRIANGLES));
     }
 
     void NaviCube::LoadTextures() {

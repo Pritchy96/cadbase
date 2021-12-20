@@ -21,7 +21,6 @@
 
 #include "cad_gui/imgui/gui_data.hpp"
 #include "cad_gui/opengl/raycast/ray.hpp"
-#include "cad_gui/opengl/shader.hpp"
 #include "cad_gui/opengl/renderables/renderable.hpp"
 #include "cad_gui/opengl/camera.hpp"
 #include "cad_gui/opengl/arcball.hpp"
@@ -54,8 +53,6 @@ namespace cad_gui {
             std::shared_ptr<Arcball> arcball;
 
             glm::vec4 background_colour;
-            GLuint shader_id;    
-            GLuint basic_shader;
             GLint render_face = GL_FRONT, render_mode = GL_FILL;
 
             GLuint fbo;

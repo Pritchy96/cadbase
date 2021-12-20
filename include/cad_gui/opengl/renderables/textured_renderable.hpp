@@ -18,15 +18,14 @@
 namespace cad_gui {
     class TexturedRenderable : public Renderable {
         public:
-            TexturedRenderable(GLuint texture_shader, GLuint basic_shader, GLuint texture, std::shared_ptr<cad_data::Feature> geo_ptr, glm::vec4 texture_tint = glm::vec4(1.0f), GLuint render_primative = GL_POINTS);
+            TexturedRenderable(int texture_shader, GLuint texture, std::shared_ptr<cad_data::Feature> geo_ptr, glm::vec4 texture_tint = glm::vec4(1.0f), GLuint render_primative = GL_POINTS);
             TexturedRenderable() = default;
 
             virtual void Draw(glm::mat4 projection_matrix, glm::mat4 view_matrix) override;
             virtual GLuint GetFeatureVAO() override;
 
-            GLuint shader, render_type;
+            GLuint render_type;
             GLuint texture, geometry_uv_vbo;
-            GLuint texture_shader;
             glm::vec4 texture_tint;
     };
 }

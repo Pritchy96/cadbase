@@ -5,8 +5,7 @@
 #include <vector>
 #include <memory>
 
-#include "cad_data/feature.hpp"
-#include "cad_data/feature.hpp"
+#include "cad_data/part.hpp"
 #include "cad_gui/imgui/imgui_windows/viewport_window/viewport.hpp"
 
 namespace cad_data {
@@ -17,60 +16,60 @@ namespace cad_data {
 
             std::string scene_title;
 
-            void MasterFeaturePushBack(std::shared_ptr<cad_data::Feature> feature) {
-                feature_timeline_.push_back(feature);
-
-                for (const std::shared_ptr<cad_gui::Viewport>& v : *viewports_) {
-                        v->feature_renderable_pairs.emplace_back(feature, nullptr);
-                }
+            void PartListPushBack(std::shared_ptr<cad_data::Part> part) {
+                part_list_.push_back(part);
             }
 
-            void MasterFeatureErase(std::vector<std::shared_ptr<cad_data::Feature>>::iterator position) {
-                (*position)->is_dead = true;
-                feature_timeline_.erase(position);
+            void PartListErase(std::vector<std::shared_ptr<cad_data::Part>>::iterator position) {
+                //TODO: Handle killing part subgeo
+                // (*position)->is_dead = true;
+                part_list_.erase(position);
             }
     
-            void MasterFeatureErase(int index) {
-                auto iter = feature_timeline_.begin() + index;
-                (*iter)->is_dead = true;
-                feature_timeline_.erase(iter);
+            void PartListErase(int index) {
+                auto iter = part_list_.begin() + index;
+                //TODO: Handle killing part subgeo
+                //(*iter)->is_dead = true;
+                part_list_.erase(iter);
             }
 
-            std::vector<std::shared_ptr<cad_data::Feature>>::iterator MasterGeoBegin() { return feature_timeline_.begin(); }
-            std::vector<std::shared_ptr<cad_data::Feature>>::iterator MasterGeoEnd() { return feature_timeline_.end(); }
+            std::vector<std::shared_ptr<cad_data::Part>>::iterator PartListBegin() { return part_list_.begin(); }
+            std::vector<std::shared_ptr<cad_data::Part>>::iterator PartListEnd() { return part_list_.end(); }
 
 
-            void SelectedFeaturePushBack(std::shared_ptr<cad_data::Feature> feature) {
-                selected_feature_list_.push_back(feature);
-                feature->draw_aa_bounding_box = true;
+            void SelectedPartPushBack(std::shared_ptr<cad_data::Part> part) {
+                selected_part_list_.push_back(part);
+                //TODO: construct a bounding box - whenever a feature is added or modified, iterate through the feature
+                // bounding boxes and get max/min points to get the part AABB
+                // part->draw_aa_bounding_box = true;   
 
             }
 
-            void SelectedFeatureErase(std::vector<std::shared_ptr<cad_data::Feature>>::iterator position) {
-                (*position)->draw_aa_bounding_box = false;;
-                selected_feature_list_.erase(position);
+            void SelectedPartErase(std::vector<std::shared_ptr<cad_data::Part>>::iterator position) {
+                // (*position)->draw_aa_bounding_box = false;;
+                selected_part_list_.erase(position);
             }
 
-            void SelectedFeatureErase(int index) {
-                auto iter = selected_feature_list_.begin() + index;
-                (*iter)->draw_aa_bounding_box = false;
-                selected_feature_list_.erase(iter);
+            void SelectedPartErase(int index) {
+                auto iter = selected_part_list_.begin() + index;
+                // (*iter)->draw_aa_bounding_box = false;
+                selected_part_list_.erase(iter);
             }
 
-            void ClearSelectedFeature() {
-                for (std::shared_ptr<cad_data::Feature> feature : selected_feature_list_) {
-                    feature->draw_aa_bounding_box = false;
-                }
-                selected_feature_list_.clear();
+            void ClearSelectedPartList() {
+                // for (std::shared_ptr<cad_data::Part> part : selected_part_list_) {
+                //     part->draw_aa_bounding_box = false;
+                // }
+                selected_part_list_.clear();
             }
 
-            std::vector<std::shared_ptr<cad_data::Feature>>::iterator SelectedFeatBegin() { return selected_feature_list_.begin(); }
-            std::vector<std::shared_ptr<cad_data::Feature>>::iterator SelectedFeatEnd() { return selected_feature_list_.end(); }
+            std::vector<std::shared_ptr<cad_data::Part>>::iterator SelectedPartListBegin() { return selected_part_list_.begin(); }
+            std::vector<std::shared_ptr<cad_data::Part>>::iterator SelectedPartListEnd() { return selected_part_list_.end(); }
 
         private:
             std::shared_ptr<std::vector<std::shared_ptr<cad_gui::Viewport>>> viewports_;
-            std::vector<std::shared_ptr<cad_data::Feature>> feature_timeline_;
-            std::vector<std::shared_ptr<cad_data::Feature>> selected_feature_list_;
+            std::vector<std::shared_ptr<cad_data::Part>> part_list_;
+            std::vector<std::shared_ptr<cad_data::Part>> selected_part_list_;
     };
 }
 #endif

@@ -61,7 +61,7 @@ namespace cad_gui {
             ImVec2 settings_popup_pos = settings_button_pos;
             
             //Align settings popup under button
-            //No arithmatic operaters for ImVecs
+            //No arithmatic operators for ImVecs
             settings_popup_pos.x += ImGui::GetItemRectSize().x + ImGui::GetWindowPos().x - ImGui::GetItemRectSize().x;
             settings_popup_pos.y += ImGui::GetItemRectSize().y + ImGui::GetWindowPos().y;
             

@@ -58,33 +58,33 @@ namespace cad_gui {
 	}
 
 	void Renderable::Draw(glm::mat4 projection_matrix, glm::mat4 view_matrix){
-		//If we can't draw anything, return
-		if (!(feature->draw_feature && draw_feature) && !(feature->draw_aa_bounding_box && draw_aa_bounding_box)) {
-			return;
-		}
+		// //If we can't draw anything, return
+		// if (!(feature->draw_feature && draw_feature) && !(feature->draw_aa_bounding_box && draw_aa_bounding_box)) {
+		// 	return;
+		// }
 
-		glUseProgram(basic_shader);
-		GLuint shader_id;
+		// glUseProgram(basic_shader);
+		// GLuint shader_id;
 
-		// TODO: Pass through and do multiplication GPU side?
-		glm::mat4 mvp = projection_matrix * view_matrix * model_matrix;
-		shader_id = glGetUniformLocation(basic_shader, "MVP"); 
-		glUniformMatrix4fv(shader_id, 1, GL_FALSE, &mvp[0][0]);
+		// // TODO: Pass through and do multiplication GPU side?
+		// glm::mat4 mvp = projection_matrix * view_matrix * model_matrix;
+		// shader_id = glGetUniformLocation(basic_shader, "MVP"); 
+		// glUniformMatrix4fv(shader_id, 1, GL_FALSE, &mvp[0][0]);
 
-		if (feature->draw_feature && draw_feature) {
-			glBindVertexArray(GetFeatureVAO());
-			glDrawArrays(render_type, 0, feature->flat_verts.size()/3);
-		}
+		// if (feature->draw_feature && draw_feature) {
+		// 	glBindVertexArray(GetFeatureVAO());
+		// 	glDrawArrays(render_type, 0, feature->flat_verts.size()/3);
+		// }
 		
-		//TODO: Is this better to be "feature AND renderable bool" or "feature OR renderable bool"
-		//Maybe make it "and" but have a seperate "override" for each which is or'd
-		//I.e ((geometry->draw_aa_bounding_box && draw_aa_bounding_box) || geometry->draw_aa_bounding_box_force || draw_aa_bounding_box_force)
-		if (feature->draw_aa_bounding_box && draw_aa_bounding_box) {
-			//TODO: is there a better way to do this than to have two VAOs?
-			glBindVertexArray(GetAABoundingBoxVao());
-			glDrawArrays(GL_LINES, 0, feature->aa_bounding_box.flat_verts.size()/3);
-		}
+		// //TODO: Is this better to be "feature AND renderable bool" or "feature OR renderable bool"
+		// //Maybe make it "and" but have a seperate "override" for each which is or'd
+		// //I.e ((geometry->draw_aa_bounding_box && draw_aa_bounding_box) || geometry->draw_aa_bounding_box_force || draw_aa_bounding_box_force)
+		// if (feature->draw_aa_bounding_box && draw_aa_bounding_box) {
+		// 	//TODO: is there a better way to do this than to have two VAOs?
+		// 	glBindVertexArray(GetAABoundingBoxVao());
+		// 	glDrawArrays(GL_LINES, 0, feature->aa_bounding_box.flat_verts.size()/3);
+		// }
 	}
 
-	Renderable::Renderable(GLuint basic_shader, shared_ptr<cad_data::Feature> geo_ptr, GLuint render_primative) : feature(geo_ptr), basic_shader(basic_shader), render_type(render_primative) {};
+	Renderable::Renderable(int shader_index, shared_ptr<cad_data::Feature> geo_ptr, GLuint render_primative) : feature(geo_ptr), next_shader(shader_index), render_type(render_primative) {};
 }

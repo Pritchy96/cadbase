@@ -21,7 +21,6 @@
 #include <glm/gtx/string_cast.hpp>
 
 #include "cad_gui/imgui/imgui_windows/viewport_window/gui_render_texture.hpp"
-#include "cad_gui/opengl/shader.hpp"
 #include "cad_data/feature.hpp"
 #include "cad_gui/opengl/renderables/renderable.hpp"
 #include "cad_gui/opengl/camera.hpp"

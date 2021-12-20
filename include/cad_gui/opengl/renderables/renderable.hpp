@@ -1,6 +1,7 @@
 #ifndef RENDERABLE_HPP
 #define RENDERABLE_HPP
 
+#include <string>
 #include <vector>
 #include <memory>
 
@@ -12,11 +13,12 @@
 #include <glm/gtx/transform.hpp>
 
 #include "cad_data/feature.hpp"
+#include "cad_gui/opengl/renderer.hpp"
 
 namespace cad_gui {
     class Renderable {
         public:
-            Renderable(GLuint basic_shader, std::shared_ptr<cad_data::Feature> geo_ptr, GLuint render_primative = GL_POINTS);
+            Renderable(int shader_index, std::shared_ptr<cad_data::Feature> geo_ptr, GLuint render_primative = GL_POINTS);
             Renderable() = default;
 
             virtual GLuint GetFeatureVAO();
@@ -36,12 +38,15 @@ namespace cad_gui {
             virtual void Draw(glm::mat4 projection_matrix, glm::mat4 view_matrix);
 
             std::shared_ptr<cad_data::Feature> feature;
-            GLuint basic_shader, render_type;
+            int next_shader = -1; //Which shader in the shader array.
+            GLuint render_type;
+            
             glm::mat4 model_matrix = glm::mat4(1.0f);
 
             bool is_dead = false;   
         private:
             int vert_buffer_size_;
+            int shader_ = -1; //The current shader - will be changed to next_shader in the next update loop.
     };
 }
 #endif

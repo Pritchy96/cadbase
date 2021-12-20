@@ -15,28 +15,16 @@
 #include "cad_gui/opengl/renderables/aa_bounding_box.hpp"
 
 namespace cad_data {
-    class Feature  {
+    class Feature {
         public:
             Feature() = default;    
-            explicit Feature(std::vector<glm::vec3> vert_data, std::string name, glm::vec3 origin = glm::vec3(0.0f));
-            Feature(std::vector<glm::vec3> vert_data, std::vector<glm::vec2> uv_data, std::string name, glm::vec3 origin = glm::vec3(0.0f));
+            explicit Feature(std::vector<glm::vec3> vert_data, std::string name);
+            Feature(std::vector<glm::vec3> vert_data, std::vector<glm::vec2> uv_data, std::string name);
 
-            Feature(std::vector<glm::vec3> vert_data, std::vector<glm::vec3> colour_data, std::string name, glm::vec3 origin = glm::vec3(0.0f));
-            Feature(std::vector<glm::vec3> vert_data, std::vector<glm::vec3> colour_data, std::vector<glm::vec2> uv_data, std::string name, glm::vec3 origin = glm::vec3(0.0f));
+            Feature(std::vector<glm ::vec3> vert_data, std::vector<glm::vec3> colour_data, std::string name);
+            Feature(std::vector<glm::vec3> vert_data, std::vector<glm::vec3> colour_data, std::vector<glm::vec2> uv_data, std::string name);
 
             void Update();
-
-            glm::vec3 GetOrigin() { return origin_; }
-
-            void SetOrigin(glm::vec3 new_origin) {
-                origin_ = new_origin;
-                buffers_invalid = true;
-            }
-
-            void MoveOrigin(glm::vec3 delta) {
-                origin_ += delta;
-                buffers_invalid = true;
-            }
 
             virtual ~Feature() = default;
             virtual int GenerateFlatBuffers();
@@ -62,7 +50,6 @@ namespace cad_data {
 
             cad_gui::AABoundingBox aa_bounding_box;  
         private:
-            glm::vec3 origin_ = glm::vec3(0.0f); //Offsets the feature.
     };
 }
 #endif

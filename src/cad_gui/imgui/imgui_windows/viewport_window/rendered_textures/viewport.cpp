@@ -44,10 +44,10 @@ namespace cad_gui {
         spdlog::info("Viewport Initialised");
 
         render_axis = make_shared<cad_data::Feature>(AXIS_LINES, AXIS_COLOURS, "Render Axis");
-        feature_renderable_pairs.emplace_back(render_axis, make_unique<Renderable>(basic_shader, render_axis, GL_LINES));
+        feature_renderable_pairs.emplace_back(render_axis, make_unique<Renderable>(Renderer::DEFAULT_SHADER_INDEXES::BASIC, render_axis, GL_LINES));
 
-        grid = make_shared<ViewportGrid>(50, 50, 20, 20, glm::vec3(0.3f, 0.3f, 0.3f), basic_shader);
-        feature_renderable_pairs.emplace_back(grid, make_unique<Renderable>(basic_shader, grid, GL_LINES));
+        grid = make_shared<ViewportGrid>(50, 50, 20, 20, glm::vec3(0.3f, 0.3f, 0.3f), Renderer::DEFAULT_SHADER_INDEXES::BASIC);
+        feature_renderable_pairs.emplace_back(grid, make_unique<Renderable>(Renderer::DEFAULT_SHADER_INDEXES::BASIC, grid, GL_LINES));
     }
 
     void Viewport::Draw() {
@@ -68,7 +68,7 @@ namespace cad_gui {
             if (geo_renderable->second == nullptr) {
                 // Renderable for feature doesn't exist, make one.
                 // TODO: Some logic to choose a render type? (currently default to GL_TRIANGLES)
-                geo_renderable->second = make_unique<Renderable>(basic_shader, geo_renderable->first, GL_TRIANGLES);
+                geo_renderable->second = make_unique<Renderable>(Renderer::DEFAULT_SHADER_INDEXES::BASIC, geo_renderable->first, GL_TRIANGLES);
             }
 
             shared_ptr<cad_data::Feature> geometry = geo_renderable->first;
@@ -108,8 +108,8 @@ namespace cad_gui {
                 glm::vec4 mouse_delta_world = camera->GetRotation() * glm::vec4(mouse_delta.x, 0.0f, -mouse_delta.y, 1.0f);
                 mouse_delta_world /= mouse_delta_world.w;
 
-                auto selected_ptr = scene_data->SelectedFeatBegin();
-                while (selected_ptr != scene_data->SelectedFeatEnd()) {
+                auto selected_ptr = scene_data->SelectedPartListBegin();
+                while (selected_ptr != scene_data->SelectedPartListEnd()) {
         
                     (*selected_ptr)->MoveOrigin(mouse_delta_world);
                     selected_ptr++;
@@ -119,26 +119,33 @@ namespace cad_gui {
         }
     }
 
+    //TODO: do we need to make this function work with selecting features as well as parts?
     void Viewport::SelectRenderable(shared_ptr<Renderable> clicked_renderable) {    
-
-        bool object_already_selected = std::find(scene_data->SelectedFeatBegin(), scene_data->SelectedFeatEnd(), clicked_renderable->feature) != scene_data->SelectedFeatEnd();
+        // bool object_already_selected = std::find(scene_data->SelectedPartListBegin(), scene_data->SelectedPartListEnd(), clicked_renderable->feature) != scene_data->SelectedPartListEnd();
         
-        //Don't deselect all feature other than clicked object if it's already clicked 
-        //This is annoying behaviour for the user if they accidentally click a selected object
-        if (!ImGui::GetIO().KeyShift && !object_already_selected) {
-            scene_data->ClearSelectedFeature();
-        }
+        // //Don't deselect all feature other than clicked object if it's already clicked 
+        // //This is annoying behaviour for the user if they accidentally click a selected object
+        // if (!ImGui::GetIO().KeyShift && !object_already_selected) {
+        //     scene_data->ClearSelectedPartList();
+        // }
 
-        //Not in list, add it.
-        if (!object_already_selected) {
-            scene_data->SelectedFeaturePushBack(clicked_renderable->feature);
-        }
+        // //Not in list, add it.
+        // if (!object_already_selected) {
+        //     auto part_ptr = scene_data->SelectedPartListBegin();
+
+        //     while (part_ptr != scene_data->SelectedPartListEnd()) {
+        //         if () {
+        //             scene_data->SelectedPartPushBack(clicked_renderable->feature);
+        //             break;
+        //         }
+        //     }
+        // }
     }
 
     void Viewport::SelectNothing() {    
-        if (!ImGui::GetIO().KeyShift) {    // Clear selection when Shift is not held
-            scene_data->ClearSelectedFeature();
-        }
+        // if (!ImGui::GetIO().KeyShift) {    // Clear selection when Shift is not held
+        //     scene_data->ClearSelectedPartList();
+        // }
     }
 
 }
