@@ -145,14 +145,15 @@ bool ImportGeoTest(const std::string& pFile) {
                 test_geo.push_back(glm::vec3(mesh->mVertices[face_index].x, mesh->mVertices[face_index].y, mesh->mVertices[face_index].z) * import_scale_factor);
             }
         }
-    }
+    } 
 
     glm::vec3 random_position = glm::vec3((rand() % 1000) - 500, (rand() % 1000) - 500, (rand() % 1000) - 500);
-    
-    std::vector<std::shared_ptr<cad_data::Feature>> test_part_features; 
-    test_part_features.emplace_back(make_shared<cad_data::Feature>(test_geo, "Test Feature " + std::to_string(rand())));
 
-    scene_data->PartListPushBack(make_shared<cad_data::Part>(viewports, "Test Part " + std::to_string(rand()), random_position, test_part_features));
+    scene_data->PartListPushBack(make_shared<cad_data::Part>(viewports, "Test Part " + std::to_string(rand()), random_position));
+
+    shared_ptr<glm::vec3> test = scene_data->PartListLastItem()->GetOrigin();
+    scene_data->PartListLastItem()->FeatureListPushBack(make_shared<cad_data::Feature>(test_geo, "Test Feature " + std::to_string(rand()), scene_data->PartListLastItem()->GetOrigin()));
+
     return true;
 }
 

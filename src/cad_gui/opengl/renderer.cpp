@@ -10,16 +10,10 @@ using std::string;
 
 namespace cad_gui {
 
-
-        //static const enum SHADERS { BASIC, BASIC_TEXTURED, BASIC_CAMERA };
         void Renderer::LoadDefaultShaders() {
-            auto vert_glsl = LoadFileFromDisk("./shaders/basic.vertshader");
-            auto frag_glsl = LoadFileFromDisk("./shaders/basic.fragshader");
-            AddShader(vert_glsl.c_str(), frag_glsl.c_str(), "Basic");
-
-            vert_glsl = LoadFileFromDisk("./shaders/basic_camera.vertshader");
-            frag_glsl = LoadFileFromDisk("./shaders/basic_camera.fragshader");
-            AddShader(vert_glsl.c_str(), frag_glsl.c_str(), "Basic Camera");
+            auto vert_glsl = LoadFileFromDisk("./shaders/basic_colour.vertshader");
+            auto frag_glsl = LoadFileFromDisk("./shaders/basic_colour.fragshader");
+            AddShader(vert_glsl.c_str(), frag_glsl.c_str(), "Basic Colour");
 
             vert_glsl = LoadFileFromDisk("./shaders/basic_textured.vertshader");
             frag_glsl = LoadFileFromDisk("./shaders/basic_textured.fragshader");
@@ -92,6 +86,10 @@ namespace cad_gui {
             glDeleteShader(fragment_shader_id);
 
             shaders.emplace_back(program_id, shader_name);
+        }
+
+        void Renderer::Update() {
+            
         }
 
         string Renderer::LoadFileFromDisk(char* path) {

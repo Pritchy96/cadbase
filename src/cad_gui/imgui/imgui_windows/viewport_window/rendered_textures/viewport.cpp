@@ -5,10 +5,12 @@
 #include <vector>
 
 #include "cad_gui/imgui/imgui_windows/viewport_window/viewport.hpp"	
+#include "cad_gui/opengl/renderables/renderable.hpp"
 #include "cad_gui/opengl/renderables/viewport_grid.hpp"
 #include "cad_gui/imgui/gui_data.hpp"
 #include "cad_gui/imgui/imgui_windows/viewport_window/gui_render_texture.hpp"
 #include "cad_data/scene_data.hpp"
+#include "cad_gui/opengl/renderer.hpp"
 
 using std::vector;
 
@@ -44,16 +46,13 @@ namespace cad_gui {
         spdlog::info("Viewport Initialised");
 
         render_axis = make_shared<cad_data::Feature>(AXIS_LINES, AXIS_COLOURS, "Render Axis");
-        feature_renderable_pairs.emplace_back(render_axis, make_unique<Renderable>(Renderer::DEFAULT_SHADER_INDEXES::BASIC, render_axis, GL_LINES));
+        feature_renderable_pairs.emplace_back(render_axis, make_unique<Renderable>(cad_gui::DEFAULT_SHADER_INDEXES::BASIC_COLOUR, render_axis, GL_LINES));
 
-        grid = make_shared<ViewportGrid>(50, 50, 20, 20, glm::vec3(0.3f, 0.3f, 0.3f), Renderer::DEFAULT_SHADER_INDEXES::BASIC);
-        feature_renderable_pairs.emplace_back(grid, make_unique<Renderable>(Renderer::DEFAULT_SHADER_INDEXES::BASIC, grid, GL_LINES));
+        grid = make_shared<ViewportGrid>(50, 50, 20, 20, glm::vec3(0.3f, 0.3f, 0.3f), cad_gui::DEFAULT_SHADER_INDEXES::BASIC_COLOUR);
+        feature_renderable_pairs.emplace_back(grid, make_unique<Renderable>(cad_gui::DEFAULT_SHADER_INDEXES::BASIC_COLOUR, grid, GL_LINES));
     }
 
     void Viewport::Draw() {
-        //Call base class Draw method.
-        GuiRenderTexture::Draw();
-
         //Render viewport specific Geometry.
         auto geo_renderable = feature_renderable_pairs.begin();
 
@@ -68,7 +67,7 @@ namespace cad_gui {
             if (geo_renderable->second == nullptr) {
                 // Renderable for feature doesn't exist, make one.
                 // TODO: Some logic to choose a render type? (currently default to GL_TRIANGLES)
-                geo_renderable->second = make_unique<Renderable>(Renderer::DEFAULT_SHADER_INDEXES::BASIC, geo_renderable->first, GL_TRIANGLES);
+                geo_renderable->second = make_unique<Renderable>(cad_gui::DEFAULT_SHADER_INDEXES::BASIC_COLOUR, geo_renderable->first, GL_TRIANGLES);
             }
 
             shared_ptr<cad_data::Feature> geometry = geo_renderable->first;
@@ -79,10 +78,23 @@ namespace cad_gui {
                 renderable->valid_aa_bounding_box_vao = false;
             }
 
-            renderable->Draw(camera->GetProjectionMatrix(), camera->GetViewMatrix());
+            if (renderable->shader != renderable->next_shader) {
+                if(renderable->shader >= 0 && renderable->shader < renderer->shaders.size() ) {
+                    std::vector<shared_ptr<cad_gui::Renderable>> render_list = renderer->shaders.at(renderable->shader).render_list;
+                    render_list.erase(std::remove(render_list.begin(), render_list.end(), renderable), render_list.end());
+                }
+
+                if(renderable->next_shader >= 0 && renderable->next_shader < renderer->shaders.size() ) {
+                    renderer->shaders.at(renderable->next_shader).render_list.emplace_back(renderable);
+                    renderable->shader = renderable->next_shader;
+                }
+            }
 
             ++geo_renderable;
         }
+
+        //Call base class Draw method.
+        GuiRenderTexture::Draw();
     }
 
     void Viewport::HandleIO() {
@@ -113,7 +125,6 @@ namespace cad_gui {
         
                     (*selected_ptr)->MoveOrigin(mouse_delta_world);
                     selected_ptr++;
-
                 }
             }
         }

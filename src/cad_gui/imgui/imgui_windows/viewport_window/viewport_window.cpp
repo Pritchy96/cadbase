@@ -164,7 +164,7 @@ namespace cad_gui {
             }
         }
 
-        navicube_->HandleIO();
+        // navicube_->HandleIO();
         DrawRenderWindowSettings();
 
         ImGui::EndChild();

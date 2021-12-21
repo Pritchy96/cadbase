@@ -7,7 +7,7 @@
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
-#define GLM_ENABLE_EXPERIMENTAL
+#define GLM_ENABLE_EXPERIMENTAL 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/transform.hpp>
@@ -21,7 +21,7 @@ namespace cad_gui {
             TexturedRenderable(int texture_shader, GLuint texture, std::shared_ptr<cad_data::Feature> geo_ptr, glm::vec4 texture_tint = glm::vec4(1.0f), GLuint render_primative = GL_POINTS);
             TexturedRenderable() = default;
 
-            virtual void Draw(glm::mat4 projection_matrix, glm::mat4 view_matrix) override;
+            virtual void Draw(glm::mat4 projection_matrix, glm::mat4 view_matrix, GLuint shader_program) override;
             virtual GLuint GetFeatureVAO() override;
 
             GLuint render_type;

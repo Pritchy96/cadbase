@@ -13,7 +13,6 @@
 #include <glm/gtx/transform.hpp>
 
 #include "cad_data/feature.hpp"
-#include "cad_gui/opengl/renderer.hpp"
 
 namespace cad_gui {
     class Renderable {
@@ -35,10 +34,12 @@ namespace cad_gui {
             bool draw_feature = true;
             bool draw_aa_bounding_box = true;
 
-            virtual void Draw(glm::mat4 projection_matrix, glm::mat4 view_matrix);
+            virtual void Draw(glm::mat4 projection_matrix, glm::mat4 view_matrix, GLuint shader_program);
 
             std::shared_ptr<cad_data::Feature> feature;
-            int next_shader = -1; //Which shader in the shader array.
+            int next_shader = 0; //Which shader in the shader array.
+            int shader = -1; //The current shader - will be changed to next_shader in the next update loop.
+
             GLuint render_type;
             
             glm::mat4 model_matrix = glm::mat4(1.0f);
@@ -46,7 +47,6 @@ namespace cad_gui {
             bool is_dead = false;   
         private:
             int vert_buffer_size_;
-            int shader_ = -1; //The current shader - will be changed to next_shader in the next update loop.
     };
 }
 #endif

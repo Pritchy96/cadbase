@@ -36,6 +36,9 @@ namespace cad_data {
             std::vector<std::shared_ptr<cad_data::Part>>::iterator PartListBegin() { return part_list_.begin(); }
             std::vector<std::shared_ptr<cad_data::Part>>::iterator PartListEnd() { return part_list_.end(); }
 
+            std::shared_ptr<cad_data::Part> PartListLastItem() { return part_list_.at(part_list_.size()-1); }
+
+
 
             void SelectedPartPushBack(std::shared_ptr<cad_data::Part> part) {
                 selected_part_list_.push_back(part);

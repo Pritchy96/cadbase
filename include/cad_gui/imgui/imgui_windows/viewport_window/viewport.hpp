@@ -1,6 +1,7 @@
 #ifndef VIEWPORT_HPP
 #define VIEWPORT_HPP
 
+#include "cad_gui/opengl/renderer.hpp"
 #include <glm/fwd.hpp>
 #include <iostream>
 #include <cstdio>
@@ -45,7 +46,7 @@ namespace cad_gui {
             void HandleIO() override;
             void SelectRenderable(std::shared_ptr<Renderable> selected_renderable) override;
             void SelectNothing() override;
-
+            
             //Viewport specific stuff that doesn't need i.e selecting etc.
             std::vector<std::pair<std::shared_ptr<cad_data::Feature>, std::shared_ptr<Renderable>>> feature_renderable_pairs;
 

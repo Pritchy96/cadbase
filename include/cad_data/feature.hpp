@@ -3,6 +3,7 @@
 
 // #include "stdafx.h"
 #include <glm/fwd.hpp>
+#include <memory>
 #include <string>
 #include <vector>
 #include <GL/glew.h>
@@ -18,11 +19,10 @@ namespace cad_data {
     class Feature {
         public:
             Feature() = default;    
-            explicit Feature(std::vector<glm::vec3> vert_data, std::string name);
-            Feature(std::vector<glm::vec3> vert_data, std::vector<glm::vec2> uv_data, std::string name);
-
-            Feature(std::vector<glm ::vec3> vert_data, std::vector<glm::vec3> colour_data, std::string name);
-            Feature(std::vector<glm::vec3> vert_data, std::vector<glm::vec3> colour_data, std::vector<glm::vec2> uv_data, std::string name);
+            explicit Feature(std::vector<glm::vec3> vert_data, std::string name, std::shared_ptr<glm::vec3> part_origin = std::make_shared<glm::vec3>(0.0f));
+            Feature(std::vector<glm::vec3> vert_data, std::vector<glm::vec2> uv_data, std::string name, std::shared_ptr<glm::vec3> part_origin = std::make_shared<glm::vec3>(0.0f));
+            Feature(std::vector<glm ::vec3> vert_data, std::vector<glm::vec3> colour_data, std::string name, std::shared_ptr<glm::vec3> part_origin = std::make_shared<glm::vec3>(0.0f));
+            Feature(std::vector<glm::vec3> vert_data, std::vector<glm::vec3> colour_data, std::vector<glm::vec2> uv_data, std::string name, std::shared_ptr<glm::vec3> part_origin = std::make_shared<glm::vec3>(0.0f));
 
             void Update();
 
@@ -31,7 +31,9 @@ namespace cad_data {
 
             std::string name;
 
-            std::vector<Feature> dependent_features; 
+            std::vector<Feature> dependent_features;
+
+            std::shared_ptr<glm::vec3> part_origin;    //Where the part is in world space.
 
             // TODO: replace these with accessors into flatverts.
             // TODO: or do we even need flatverts? we never access it again after creating and loading it on to the GPU, so we could just create the flat structure and load it into the VAO, never storing it CPU side.

@@ -24,6 +24,7 @@
 #include "cad_gui/opengl/renderables/renderable.hpp"
 #include "cad_gui/opengl/camera.hpp"
 #include "cad_gui/opengl/arcball.hpp"
+#include "cad_gui/opengl/renderer.hpp"
 
 #include "cad_data/feature.hpp"
 
@@ -51,6 +52,8 @@ namespace cad_gui {
             std::shared_ptr<glm::vec2> window_size;
             std::shared_ptr<Camera> camera;
             std::shared_ptr<Arcball> arcball;
+
+            std::unique_ptr<cad_gui::Renderer> renderer;
 
             glm::vec4 background_colour;
             GLint render_face = GL_FRONT, render_mode = GL_FILL;

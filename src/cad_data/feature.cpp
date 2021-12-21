@@ -1,22 +1,26 @@
+#include <cstddef>
 #include <glm/fwd.hpp>
 #include <glm/glm.hpp>
 #include <glm/common.hpp>
+#include <glm/gtx/string_cast.hpp>
+#include <memory>
 #include <vector>
 
 #include "cad_data/feature.hpp"
+#include "spdlog/spdlog.h"
 
 using std::vector;
 using glm::vec3;
 
 namespace cad_data {
-	Feature::Feature(vector<vec3> vert_data, std::string name) : name(name) {
+	Feature::Feature(vector<vec3> vert_data, std::string name, std::shared_ptr<glm::vec3> part_origin) : name(name), part_origin(part_origin) {
 		vertexes = vert_data;
 		colours = vert_data;
 
 		GenerateFlatBuffers();
 	}
 
-	Feature::Feature(vector<vec3> vert_data, std::vector<glm::vec2> uv_data, std::string name) : name(name) {
+	Feature::Feature(vector<vec3> vert_data, std::vector<glm::vec2> uv_data, std::string name, std::shared_ptr<glm::vec3> part_origin) : name(name), part_origin(part_origin) {
 		vertexes = vert_data;
 		uvs = uv_data;
 
@@ -24,14 +28,14 @@ namespace cad_data {
 	}
 
 
-	Feature::Feature(vector<vec3> vert_data, vector<vec3> colour_data, std::string name) : name(name) {
+	Feature::Feature(vector<vec3> vert_data, vector<vec3> colour_data, std::string name, std::shared_ptr<glm::vec3> part_origin) : name(name), part_origin(part_origin) {
 		vertexes = vert_data;
 		colours = colour_data;
 
 		GenerateFlatBuffers();
 	}
 
-	Feature::Feature(vector<vec3> vert_data, vector<vec3> colour_data, std::vector<glm::vec2> uv_data, std::string name) : name(name) {
+	Feature::Feature(vector<vec3> vert_data, vector<vec3> colour_data, std::vector<glm::vec2> uv_data, std::string name, std::shared_ptr<glm::vec3> part_origin) : name(name), part_origin(part_origin) {
 		vertexes = vert_data;
 		colours = colour_data;
 		uvs = uv_data;
@@ -41,6 +45,7 @@ namespace cad_data {
 
 	void Feature::Update() {
 		if (buffers_invalid) {
+			spdlog::info("Buffers invalid");
 			GenerateFlatBuffers();
 		}
 	}
@@ -51,10 +56,23 @@ namespace cad_data {
 		aa_bounding_box.min = glm::vec3(INT16_MAX);
 		aa_bounding_box.max = glm::vec3(-INT16_MAX);
 
-		for (auto vertex : vertexes) {
+		glm::vec3 offset;
 
-			//TODO: get offset from part.
-			glm::vec3 offset_vertex = vertex;// + origin_;	//TODO: should we pass this through to GLSL and do this there or something?
+		// //TODO: get offset from part.	
+		if (part_origin == nullptr) {
+			spdlog::info("Null pointer");
+
+			offset = glm::vec3(0.0f);
+		} else {
+			spdlog::info("Not a null pointer");
+			offset = *part_origin;
+		}
+
+		spdlog::info("offset: " + glm::to_string(offset));
+
+
+		for (auto vertex : vertexes) {
+			glm::vec3 offset_vertex = vertex + offset;	//TODO: should we pass this through to GLSL and do this there or something?
 			flat_verts.push_back(offset_vertex.x);
 			flat_verts.push_back(offset_vertex.y);
 			flat_verts.push_back(offset_vertex.z);

@@ -11,21 +11,25 @@
 namespace cad_data {
     class Part {
         public:
-            explicit Part(std::shared_ptr<std::vector<std::shared_ptr<cad_gui::Viewport>>> viewport_list, std::string part_name  = "Untitled Part", glm::vec3 origin = glm::vec3(0.0f), std::vector<std::shared_ptr<cad_data::Feature>> features = {}) : part_name(part_name), viewports_(viewport_list) {
-                for (std::shared_ptr<Feature> f : features) {
-                    FeatureListPushBack(f);
-                }
+            explicit Part(std::shared_ptr<std::vector<std::shared_ptr<cad_gui::Viewport>>> viewport_list, std::string part_name  = "Untitled Part", glm::vec3 origin = glm::vec3(0.0f)) : part_name(part_name), viewports_(viewport_list) {
+                SetOrigin(origin);
             };
-            
+             
             ~Part() = default;
-    
-            std::string part_name;
 
+            std::string part_name;
+    
             void FeatureListPushBack(std::shared_ptr<cad_data::Feature> feature) {
                 feature_timeline_.push_back(feature);
 
-                for (const std::shared_ptr<cad_gui::Viewport>& v : *viewports_) {
-                        v->feature_renderable_pairs.emplace_back(feature, nullptr);
+                //Invalidate buffers to regenerate vertex positions with new offset
+                if (feature->part_origin != origin_) {
+                    feature->part_origin = origin_;
+                    feature->buffers_invalid = true;
+                }
+
+                for (const std::shared_ptr<cad_gui::Viewport>& viewport : *viewports_) {
+                    viewport->feature_renderable_pairs.emplace_back(feature, nullptr);
                 }
             }
 
@@ -70,21 +74,25 @@ namespace cad_data {
             std::vector<std::shared_ptr<cad_data::Feature>>::iterator SelectedFeatEnd() { return selected_feature_list_.end(); }
 
 
-            glm::vec3 GetOrigin() { return origin_; }
+            std::shared_ptr<glm::vec3> GetOrigin() { return origin_; }
 
             void SetOrigin(glm::vec3 new_origin) {
-                origin_ = new_origin;
+                *origin_ = new_origin;
 
                 for (std::shared_ptr<cad_data::Feature> feature : feature_timeline_) {
+                    feature->part_origin = origin_;
                     feature->buffers_invalid = true;
+
                 }
             }
 
             void MoveOrigin(glm::vec3 delta) {
-                origin_ += delta;
+                *origin_ += delta;
                 
                 for (std::shared_ptr<cad_data::Feature> feature : feature_timeline_) {
+                    feature->part_origin = origin_;
                     feature->buffers_invalid = true;
+
                 }
             }
 
@@ -93,7 +101,7 @@ namespace cad_data {
             std::shared_ptr<std::vector<std::shared_ptr<cad_gui::Viewport>>> viewports_;
             std::vector<std::shared_ptr<cad_data::Feature>> feature_timeline_;
             std::vector<std::shared_ptr<cad_data::Feature>> selected_feature_list_;
-            glm::vec3 origin_ = glm::vec3(0.0f); //Offsets the feature.
+            std::shared_ptr<glm::vec3> origin_ = std::make_shared<glm::vec3>(0.0f); //Offsets the feature.
 
     };
 }

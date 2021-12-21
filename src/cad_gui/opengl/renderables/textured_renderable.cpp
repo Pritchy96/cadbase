@@ -43,47 +43,45 @@ namespace cad_gui {
 		return geometry_vao;
 	}
 
-	void TexturedRenderable::Draw(glm::mat4 projection_matrix, glm::mat4 view_matrix) {
-		// //If we can't draw anything, return
-		// if (!(feature->draw_feature && draw_feature) && !(feature->draw_aa_bounding_box && draw_aa_bounding_box)) {
-		// 	return;
-		// }
+	void TexturedRenderable::Draw(glm::mat4 projection_matrix, glm::mat4 view_matrix, GLuint shader_program) {
+		//If we can't draw anything, return
+		if (!(feature->draw_feature && draw_feature) && !(feature->draw_aa_bounding_box && draw_aa_bounding_box)) {
+			return;
+		}
 
-		// glUseProgram(texture_shader);
+		// Get a handle for texture uniform
+		GLuint texture_id = glGetUniformLocation(shader_program, "texture_sampler");
 
-		// // Get a handle for texture uniform
-		// GLuint texture_id = glGetUniformLocation(texture_shader, "texture_sampler");
+		// Bind our texture in Texture Unit 0
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, texture);
+		// Set our texture sampler to use Texture Unit 0
+		glUniform1i(texture_id, 0);
 
-		// // Bind our texture in Texture Unit 0
-		// glActiveTexture(GL_TEXTURE0);
-		// glBindTexture(GL_TEXTURE_2D, texture);
-		// // Set our texture sampler to use Texture Unit 0
-		// glUniform1i(texture_id, 0);
+		// Set texture tint
+		GLuint texture_tint_id = glGetUniformLocation(shader_program, "texture_tint");
+		glUniform4fv(texture_tint_id, 1, glm::value_ptr(texture_tint));
 
-		// // Set texture tint
-		// GLuint texture_tint_id = glGetUniformLocation(texture_shader, "texture_tint");
-		// glUniform4fv(texture_tint_id, 1, glm::value_ptr(texture_tint));
+		// TODO: Pass through and do multiplication GPU side?
+		glm::mat4 mvp = projection_matrix * view_matrix * model_matrix;
+		GLuint shader_id = glGetUniformLocation(shader_program, "MVP"); 
+		glUniform3f(texture_tint_id, texture_tint.r, texture_tint.g, texture_tint.b	);
+		glUniformMatrix4fv(shader_id, 1, GL_FALSE, &mvp[0][0]);
 
-		// // TODO: Pass through and do multiplication GPU side?
-		// glm::mat4 mvp = projection_matrix * view_matrix * model_matrix;
-		// GLuint shader_id = glGetUniformLocation(texture_shader, "MVP"); 
-		// glUniform3f(texture_tint_id, texture_tint.r, texture_tint.g, texture_tint.b	);
-		// glUniformMatrix4fv(shader_id, 1, GL_FALSE, &mvp[0][0]);
+		if (feature->draw_feature && draw_feature) {
+			glBindVertexArray(GetFeatureVAO());
+			glDrawArrays(GL_TRIANGLES, 0, feature->flat_verts.size()/3);
+		}
 
-		// if (feature->draw_feature && draw_feature) {
-		// 	glBindVertexArray(GetFeatureVAO());
-		// 	glDrawArrays(GL_TRIANGLES, 0, feature->flat_verts.size()/3);
-		// }
+		//TODO: Is this better to be "feature AND renderable bool" or "feature OR renderable bool"
+		//Maybe make it "and" but have a seperate "override" for each which is or'd
+		//I.e ((feature->draw_aa_bounding_box && draw_aa_bounding_box) || feature->draw_aa_bounding_box_force || draw_aa_bounding_box_force)
+		if (feature->draw_aa_bounding_box && draw_aa_bounding_box) {
+			//TODO: is there a better way to do this than to have two VAOs?
+			glUseProgram(shader);
 
-		// //TODO: Is this better to be "feature AND renderable bool" or "feature OR renderable bool"
-		// //Maybe make it "and" but have a seperate "override" for each which is or'd
-		// //I.e ((feature->draw_aa_bounding_box && draw_aa_bounding_box) || feature->draw_aa_bounding_box_force || draw_aa_bounding_box_force)
-		// if (feature->draw_aa_bounding_box && draw_aa_bounding_box) {
-		// 	//TODO: is there a better way to do this than to have two VAOs?
-		// 	glUseProgram(shader);
-
-		// 	glBindVertexArray(GetAABoundingBoxVao());
-		// 	glDrawArrays(GL_LINES, 0, feature->aa_bounding_box.flat_verts.size()/3);
-		// }
+			glBindVertexArray(GetAABoundingBoxVao());
+			glDrawArrays(GL_LINES, 0, feature->aa_bounding_box.flat_verts.size()/3);
+		}
 	}
 }  // namespace cad_gui

@@ -37,6 +37,10 @@ namespace cad_gui {
         // in main.cpp
         glfwMakeContextCurrent(glfw_window_);
 
+        //TODO: just have one renderer that has a shared reference with each GuiRenderTexture?
+        renderer = make_unique<cad_gui::Renderer>();
+        spdlog::info("gui_render_texture Renderer Initialised");
+
         SetupFBO();
     }
 
@@ -81,13 +85,11 @@ namespace cad_gui {
             if (geo_renderable->second == nullptr) {
                 // Renderable for feature doesn't exist, make one.
                 // TODO: Some logic to choose a render type? (currently default to GL_TRIANGLES)
-                geo_renderable->second = make_unique<Renderable>(Renderer::DEFAULT_SHADER_INDEXES::BASIC, geo_renderable->first, GL_TRIANGLES);
+                geo_renderable->second = make_unique<Renderable>(cad_gui::DEFAULT_SHADER_INDEXES::BASIC_COLOUR, geo_renderable->first, GL_TRIANGLES);
             }
 
             shared_ptr<cad_data::Feature> geometry = geo_renderable->first;
             shared_ptr<Renderable> renderable = geo_renderable->second;
-
-            renderable->Draw(camera->GetProjectionMatrix(), camera->GetViewMatrix());
 
             //Do this after drawing so feature updated this frame is loaded into the VAO 
             //(Feature is updated after renderables are drawn above)
@@ -95,6 +97,19 @@ namespace cad_gui {
                 renderable->valid_geometry_vao = false;
                 renderable->valid_aa_bounding_box_vao = false;
             }
+
+            if (renderable->shader != renderable->next_shader) {
+                if(renderable->shader >= 0 && renderable->shader < renderer->shaders.size() ) {
+                    std::vector<shared_ptr<cad_gui::Renderable>> render_list = renderer->shaders.at(renderable->shader).render_list;
+                    render_list.erase(std::remove(render_list.begin(), render_list.end(), renderable), render_list.end());
+                }
+
+                if(renderable->next_shader >= 0 && renderable->next_shader < renderer->shaders.size() ) {
+                    renderer->shaders.at(renderable->next_shader).render_list.emplace_back(renderable);
+                    renderable->shader = renderable->next_shader;
+                }
+            }
+
             ++geo_renderable;
         }
 
@@ -112,21 +127,42 @@ namespace cad_gui {
             if (geo_renderable->second == nullptr) {
                 // Renderable for feature doesn't exist, make one.
                 // TODO: Some logic to choose a render type? (currently default to GL_TRIANGLES)
-                geo_renderable->second = make_unique<Renderable>(Renderer::DEFAULT_SHADER_INDEXES::BASIC , geo_renderable->first, GL_TRIANGLES);
+                geo_renderable->second = make_unique<Renderable>(cad_gui::DEFAULT_SHADER_INDEXES::BASIC_COLOUR , geo_renderable->first, GL_TRIANGLES);
             }
 
             shared_ptr<cad_data::Feature> geometry = geo_renderable->first;
             shared_ptr<Renderable> renderable = geo_renderable->second;
-
-            renderable->Draw(camera->GetProjectionMatrix(), camera->GetViewMatrix());
-
+            
             //Do this after drawing so feature updated this frame is loaded into the VAO 
             //(Feature is updated after renderables are drawn above)
             if (geometry->buffers_invalid) {
                 renderable->valid_geometry_vao = false;
                 renderable->valid_aa_bounding_box_vao = false;
             }
+
+
+            if (renderable->shader != renderable->next_shader) {
+                if(renderable->shader >= 0 && renderable->shader < renderer->shaders.size() ) {
+                    std::vector<shared_ptr<cad_gui::Renderable>> render_list = renderer->shaders.at(renderable->shader).render_list;
+                    render_list.erase(std::remove(render_list.begin(), render_list.end(), renderable), render_list.end());
+                }
+
+                if(renderable->next_shader >= 0 && renderable->next_shader < renderer->shaders.size() ) {
+                    renderer->shaders.at(renderable->next_shader).render_list.emplace_back(renderable);
+                    renderable->shader = renderable->next_shader;
+                }
+            }
+
             ++geo_renderable;
+        }
+
+        //Actually draw
+        for (Shader s : renderer->shaders) {
+            glUseProgram(s.program);
+
+            for (shared_ptr<Renderable> r : s.render_list) {
+                r->Draw(camera->GetProjectionMatrix(), camera->GetViewMatrix(), s.program);
+            }
         }
     }
 
@@ -320,7 +356,7 @@ namespace cad_gui {
         line_colour.emplace_back(ray_colour);
         line_colour.emplace_back(ray_colour);
         std::shared_ptr<cad_data::Feature> line_geo = std::make_shared<cad_data::Feature>(line, line_colour, "");
-        debug_feature_renderable_pairs.emplace_back(line_geo, std::make_unique<Renderable>(Renderer::DEFAULT_SHADER_INDEXES::BASIC, line_geo, GL_LINES));
+        debug_feature_renderable_pairs.emplace_back(line_geo, std::make_unique<Renderable>(cad_gui::DEFAULT_SHADER_INDEXES::BASIC_COLOUR, line_geo, GL_LINES));
     }
 
     //TODO: Move (into static raycasting util class?)
