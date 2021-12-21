@@ -1,19 +1,22 @@
 #include <glm/gtx/quaternion.hpp>
+#include <cstdio>
 #include <glm/gtx/rotate_vector.hpp>
 #include <glm/gtx/string_cast.hpp>
 #include <spdlog/spdlog.h>
 #include <glm/fwd.hpp>
 #include <glm/gtx/quaternion.hpp>
 
-#include <memory>
+#include <imgui.h>
+
 #include <vector>
+#include <algorithm>
 
 #include "cad_gui/imgui/imgui_windows/viewport_window/gui_render_texture.hpp"
 #include "cad_gui/opengl/camera.hpp"
 #include "cad_gui/imgui/gui_data.hpp"
 #include "cad_gui/opengl/raycast/ray.hpp"
+#include "cad_gui/opengl/renderables/renderable.hpp"
 #include "cad_gui/opengl/renderer.hpp"
-#include "imgui.h"
 
 using std::shared_ptr;
 using std::make_shared;
@@ -101,7 +104,10 @@ namespace cad_gui {
             if (renderable->shader != renderable->next_shader) {
                 if(renderable->shader >= 0 && renderable->shader < renderer->shaders.size() ) {
                     std::vector<shared_ptr<cad_gui::Renderable>> render_list = renderer->shaders.at(renderable->shader).render_list;
-                    render_list.erase(std::remove(render_list.begin(), render_list.end(), renderable), render_list.end());
+                    auto position = std::find(render_list.begin(), render_list.end(), renderable);
+                    if (position != render_list.end()) {
+                        render_list.erase(position);
+                    }
                 }
 
                 if(renderable->next_shader >= 0 && renderable->next_shader < renderer->shaders.size() ) {
@@ -140,11 +146,13 @@ namespace cad_gui {
                 renderable->valid_aa_bounding_box_vao = false;
             }
 
-
             if (renderable->shader != renderable->next_shader) {
                 if(renderable->shader >= 0 && renderable->shader < renderer->shaders.size() ) {
                     std::vector<shared_ptr<cad_gui::Renderable>> render_list = renderer->shaders.at(renderable->shader).render_list;
-                    render_list.erase(std::remove(render_list.begin(), render_list.end(), renderable), render_list.end());
+                    auto position = std::find(render_list.begin(), render_list.end(), renderable);
+                    if (position != render_list.end()) {
+                        render_list.erase(position);
+                    }
                 }
 
                 if(renderable->next_shader >= 0 && renderable->next_shader < renderer->shaders.size() ) {
@@ -400,4 +408,4 @@ namespace cad_gui {
     
         return true; 
     }
-}
+}  // namespace cad_gui

@@ -158,5 +158,4 @@ namespace cad_gui {
         //     scene_data->ClearSelectedPartList();
         // }
     }
-
-}
+}  // namespace cad_gui

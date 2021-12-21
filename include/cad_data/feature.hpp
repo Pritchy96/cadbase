@@ -18,8 +18,11 @@
 namespace cad_data {
     class Feature {
         public:
-            Feature() = default;    
-            explicit Feature(std::vector<glm::vec3> vert_data, std::string name, std::shared_ptr<glm::vec3> part_origin = std::make_shared<glm::vec3>(0.0f));
+            Feature() {
+                part_origin = std::make_shared<glm::vec3>(0.0f);
+            };
+
+            Feature(std::vector<glm::vec3> vert_data, std::string name, std::shared_ptr<glm::vec3> part_origin = std::make_shared<glm::vec3>(0.0f));
             Feature(std::vector<glm::vec3> vert_data, std::vector<glm::vec2> uv_data, std::string name, std::shared_ptr<glm::vec3> part_origin = std::make_shared<glm::vec3>(0.0f));
             Feature(std::vector<glm ::vec3> vert_data, std::vector<glm::vec3> colour_data, std::string name, std::shared_ptr<glm::vec3> part_origin = std::make_shared<glm::vec3>(0.0f));
             Feature(std::vector<glm::vec3> vert_data, std::vector<glm::vec3> colour_data, std::vector<glm::vec2> uv_data, std::string name, std::shared_ptr<glm::vec3> part_origin = std::make_shared<glm::vec3>(0.0f));

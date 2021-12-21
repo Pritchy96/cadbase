@@ -56,23 +56,8 @@ namespace cad_data {
 		aa_bounding_box.min = glm::vec3(INT16_MAX);
 		aa_bounding_box.max = glm::vec3(-INT16_MAX);
 
-		glm::vec3 offset;
-
-		// //TODO: get offset from part.	
-		if (part_origin == nullptr) {
-			spdlog::info("Null pointer");
-
-			offset = glm::vec3(0.0f);
-		} else {
-			spdlog::info("Not a null pointer");
-			offset = *part_origin;
-		}
-
-		spdlog::info("offset: " + glm::to_string(offset));
-
-
 		for (auto vertex : vertexes) {
-			glm::vec3 offset_vertex = vertex + offset;	//TODO: should we pass this through to GLSL and do this there or something?
+			glm::vec3 offset_vertex = vertex + *part_origin;	//TODO: should we pass this through to GLSL and do this there or something?
 			flat_verts.push_back(offset_vertex.x);
 			flat_verts.push_back(offset_vertex.y);
 			flat_verts.push_back(offset_vertex.z);
@@ -93,7 +78,6 @@ namespace cad_data {
 			flat_cols.push_back(colour.z);
 		}
 
-
 		for (auto uv : uvs) {
 			flat_uvs.push_back(uv.x);
 			flat_uvs.push_back(uv.y);
@@ -102,4 +86,4 @@ namespace cad_data {
 		buffers_invalid = false;
 		return vertexes.size();
 	}
-}
+}  // namespace cad_data

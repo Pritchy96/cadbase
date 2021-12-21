@@ -193,7 +193,6 @@ void Update() {
             (*feature_ptr)->Update();
             feature_ptr++;
         }
-        
         part_ptr++;
     }
 

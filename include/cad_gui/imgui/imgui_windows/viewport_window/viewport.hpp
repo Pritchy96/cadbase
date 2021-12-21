@@ -54,5 +54,5 @@ namespace cad_gui {
             std::shared_ptr<cad_data::Feature> render_axis;
             std::shared_ptr<ViewportGrid> grid;
     };
-}
+}  // namespace cad_gui
 #endif
