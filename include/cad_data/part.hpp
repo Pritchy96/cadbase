@@ -18,6 +18,7 @@ namespace cad_data {
             ~Part() = default;
 
             std::string part_name;
+            bool draw_aa_bounding_box = false;
     
             void FeatureListPushBack(std::shared_ptr<cad_data::Feature> feature) {
                 feature_timeline_.push_back(feature);

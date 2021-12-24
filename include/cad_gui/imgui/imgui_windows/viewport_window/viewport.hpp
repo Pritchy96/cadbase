@@ -44,7 +44,7 @@ namespace cad_gui {
 
             void Draw() override;
             void HandleIO() override;
-            void SelectRenderable(std::shared_ptr<Renderable> selected_renderable) override;
+            void SelectRenderable(std::shared_ptr<Renderable> clicked_renderable) override;
             void SelectNothing() override;
             
             //Viewport specific stuff that doesn't need i.e selecting etc.

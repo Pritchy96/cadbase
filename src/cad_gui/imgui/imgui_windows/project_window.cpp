@@ -7,7 +7,9 @@
 
 #include <memory>
 #include <string>
+#include <algorithm>
 
+#include "cad_data/part.hpp"
 #include "cad_gui/imgui/imgui_windows/project_window.hpp" 
 #include "cad_gui/imgui/imgui_windows/viewport_window/viewport.hpp"
 #include "imgui_internal.h"
@@ -21,24 +23,43 @@ namespace cad_gui {
 
     void ProjectWindow::Draw() {
         ImGui::Begin(name.c_str());
-        ImGui::Text((scene_data->scene_title + ": ").c_str());
+        ImGui::Text("%s", (scene_data->scene_title + ": ").c_str());
         ImGui::Separator();
 
-        bool selected;
+        static ImGuiTreeNodeFlags tree_flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_SpanAvailWidth;
+        shared_ptr<cad_data::Part> part_clicked = nullptr;
         auto part_ptr = scene_data->PartListBegin();
-            while (part_ptr != scene_data->PartListEnd()) {
-            // selected = std::find(scene_data->PartListBegin(), scene_data->PartListEnd(), (*part_ptr)) != scene_data->PartListEnd();
 
-            ImGui::Bullet();
-            if (ImGui::Selectable((*part_ptr)->part_name.c_str(), selected))   {
-                if (!ImGui::GetIO().KeyShift) {    // Clear selection when Shift is not held
-                    // scene_data->ClearSelectedPart();
-                }
-
-                scene_data->SelectedPartPushBack(*part_ptr);
+        while (part_ptr != scene_data->PartListEnd()) {
+            ImGuiTreeNodeFlags part_flags = tree_flags;
+            if (std::find(scene_data->SelectedPartListBegin(), scene_data->SelectedPartListEnd(), (*part_ptr)) != scene_data->SelectedPartListEnd()) {
+                part_flags |= ImGuiTreeNodeFlags_Selected;  //Show node visibly selected.
             }
 
+            int index = part_ptr - scene_data->PartListBegin();
+            bool node_open = ImGui::TreeNodeEx((void*)(intptr_t)index, part_flags, "%s", (*part_ptr)->part_name.c_str());
+            if (ImGui::IsItemClicked()) {
+                part_clicked = (*part_ptr);
+            }
+
+            if (node_open)  {
+                auto feature_ptr = (*part_ptr)->FeatureListBegin();
+
+                while (feature_ptr != (*part_ptr)->FeatureListEnd()) {
+                    ImGui::BulletText("%s\n", (*feature_ptr)->name.c_str());
+                    feature_ptr++;
+                }       
+                ImGui::TreePop();
+            }
             part_ptr++;
+        }
+
+        // Update selection state (outside of tree loop to avoid visual inconsistencies during the clicking frame)
+        if (part_clicked != nullptr) {
+            if (!ImGui::GetIO().KeyShift) {
+                scene_data->ClearSelectedPartList();
+            } 
+            scene_data->SelectedPartPushBack(part_clicked);
         }
 
         ImGui::Separator();

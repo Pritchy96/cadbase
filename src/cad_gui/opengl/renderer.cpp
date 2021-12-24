@@ -9,7 +9,6 @@
 using std::string;
 
 namespace cad_gui {
-
         void Renderer::LoadDefaultShaders() {
             auto vert_glsl = LoadFileFromDisk("./shaders/basic_colour.vertshader");
             auto frag_glsl = LoadFileFromDisk("./shaders/basic_colour.fragshader");

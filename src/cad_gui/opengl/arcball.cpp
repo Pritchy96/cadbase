@@ -80,4 +80,4 @@ namespace cad_gui {
             }
         }
     }
-}
+}  // namespace cad_gui

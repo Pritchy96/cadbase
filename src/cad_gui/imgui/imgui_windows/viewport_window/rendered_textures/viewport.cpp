@@ -132,7 +132,7 @@ namespace cad_gui {
 
     //TODO: do we need to make this function work with selecting features as well as parts?
     void Viewport::SelectRenderable(shared_ptr<Renderable> clicked_renderable) {    
-        // bool object_already_selected = std::find(scene_data->SelectedPartListBegin(), scene_data->SelectedPartListEnd(), clicked_renderable->feature) != scene_data->SelectedPartListEnd();
+        bool part_already_selected = std::find(scene_data->SelectedPartListBegin(), scene_data->SelectedPartListEnd(), clicked_renderable->feature) != scene_data->SelectedPartListEnd();
         
         // //Don't deselect all feature other than clicked object if it's already clicked 
         // //This is annoying behaviour for the user if they accidentally click a selected object
