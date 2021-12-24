@@ -5,6 +5,7 @@
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/fwd.hpp>
 #include <iostream>
+#include <fstream>
 #include <memory>
 #include <string>
 
@@ -26,14 +27,14 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-#include "cad-base/shader.hpp"
-#include "cad-base/geometry/geometry.hpp"
-#include "cad-base/renderable.hpp"
-#include "cad-base/scene_data.hpp"
-#include "cad-base/gui/gui_logger.hpp"
-#include "cad-base/gui/app_style.hpp"
-#include "cad-base/gui/gui_main.hpp"
-#include "cad-base/gui/rendered_textures/viewport.hpp"
+#include "cad_data/feature.hpp"
+#include "cad_data/part.hpp"
+#include "cad_gui/opengl/renderables/renderable.hpp"
+#include "cad_data/scene_data.hpp"
+#include "cad_gui/imgui/imgui_windows/log_window.hpp"
+#include "cad_gui/imgui/app_style.hpp"
+#include "cad_gui/imgui/imgui_windows/main_window.hpp"
+#include "cad_gui/imgui/imgui_windows/viewport_window/viewport.hpp"
 
 using std::vector;
 using std::shared_ptr;
@@ -43,16 +44,16 @@ using std::make_unique;
 
 const ImVec4 BACKGROUND_COLOUR = ImVec4(0.15f, 0.15f, 0.15f, 1.00f);    //TODO: remove
 
-unique_ptr<GuiMain> gui_main;
-shared_ptr<SceneData> scene_data;
-shared_ptr<GuiLogger> gui_logger_sink;
+unique_ptr<cad_gui::MainWindow> main_window;
+shared_ptr<cad_data::SceneData> scene_data;
+shared_ptr<cad_gui::LogWindow> log_window_sink;
 
-AppStyle app_style;
+cad_gui::AppStyle app_style;
 
 GLFWwindow* glfw_window;
 
-// TODO: We may wish to rename 'Viewport' as IMGUI now has such a concept.
-shared_ptr<vector<shared_ptr<Viewport>>> viewports;
+// TODO: We may wish to rename 'cad_gui::Viewport' as IMGUI now has such a concept.
+shared_ptr<vector<shared_ptr<cad_gui::Viewport>>> viewports;
 
 bool ImportGeoTest( const std::string& pFile);  //TODO: temp prototype.
 
@@ -144,23 +145,29 @@ bool ImportGeoTest(const std::string& pFile) {
                 test_geo.push_back(glm::vec3(mesh->mVertices[face_index].x, mesh->mVertices[face_index].y, mesh->mVertices[face_index].z) * import_scale_factor);
             }
         }
-    }
+    } 
 
-	scene_data->MasterGeoPushBack(make_shared<Geometry>(test_geo, "Test Geo " + std::to_string(rand()), glm::vec3((rand() % 1000) - 500, (rand() % 1000) - 500, (rand() % 1000) - 500)));
+    glm::vec3 random_position = glm::vec3((rand() % 1000) - 500, (rand() % 1000) - 500, (rand() % 1000) - 500);
+
+    scene_data->PartListPushBack(make_shared<cad_data::Part>(viewports, "Test Part " + std::to_string(rand()), random_position));
+
+    shared_ptr<glm::vec3> test = scene_data->PartListLastItem()->GetOrigin();
+    scene_data->PartListLastItem()->FeatureListPushBack(make_shared<cad_data::Feature>(test_geo, "Test Feature " + std::to_string(rand()), scene_data->PartListLastItem()->GetOrigin()));
+
     return true;
 }
 
 void SetupRenderWindows() {
     // TODO: temp test.
     for (int i= 0; i < 4; i++) { 
-        viewports->push_back(make_shared<Viewport>(glfw_window, 
+        viewports->push_back(make_shared<cad_gui::Viewport>(glfw_window, 
             glm::vec4(app_style.BACKGROUND_COLOUR_MEDIUM.x, app_style.BACKGROUND_COLOUR_MEDIUM.y, 
                 app_style.BACKGROUND_COLOUR_MEDIUM.z, app_style.BACKGROUND_COLOUR_MEDIUM.w),
             1000, 1000, scene_data));
 
-        // Make our render windows - one for each viewport for now.
+        // Make our render windows - one for each cad_gui::viewport for now.
         std::string name = "Render Window " + std::to_string(i);
-        gui_main->gui_render_windows.push_back(make_shared<GuiRenderWindow>(name, glfw_window, viewports->back()));
+        main_window->gui_render_windows.push_back(make_shared<cad_gui::ViewportWindow>(name, glfw_window, viewports->back()));
     }
 }
 
@@ -179,19 +186,23 @@ void Update() {
         v->Update();
     }
 
-    auto geo_ptr = scene_data->MasterGeoBegin();
-    while (geo_ptr != scene_data->MasterGeoEnd()) {
-        (*geo_ptr)->Update();
-        geo_ptr++;
+    auto part_ptr = scene_data->PartListBegin();
+    while (part_ptr != scene_data->PartListEnd()) {
+        auto feature_ptr = (*part_ptr)->FeatureListBegin();
+        while (feature_ptr != (*part_ptr)->FeatureListEnd()) {
+            (*feature_ptr)->Update();
+            feature_ptr++;
+        }
+        part_ptr++;
     }
 
-    gui_main->Update();
+    main_window->Update();
 }
 
 void SetupLogger() {
     auto console_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
-    gui_logger_sink = make_shared<GuiLogger>();
-    spdlog::sinks_init_list sink_list = {gui_logger_sink, console_sink};
+    log_window_sink = make_shared<cad_gui::LogWindow>();
+    spdlog::sinks_init_list sink_list = {log_window_sink, console_sink};
 
     auto logger = make_shared<spdlog::logger>("logger", sink_list);
     spdlog::set_default_logger(logger); //Means that when we do spdlog::info/warn etc it goes to this logger.
@@ -206,9 +217,9 @@ int main(int argc, const char* argv[]) { // NOLINT: main function.
         return -1;
     }
 
-    viewports = make_shared<vector<shared_ptr<Viewport>>>();
-	scene_data = make_shared<SceneData>(viewports);    
-    gui_main = make_unique<GuiMain>(glfw_window, gui_logger_sink, scene_data); 
+    viewports = make_shared<vector<shared_ptr<cad_gui::Viewport>>>();
+	scene_data = make_shared<cad_data::SceneData>(viewports);    
+    main_window = make_unique<cad_gui::MainWindow>(glfw_window, log_window_sink, scene_data); 
 
     SetupRenderWindows();
 
