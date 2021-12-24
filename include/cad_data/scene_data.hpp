@@ -38,31 +38,28 @@ namespace cad_data {
 
             std::shared_ptr<cad_data::Part> PartListLastItem() { return part_list_.at(part_list_.size()-1); }
 
-
-
             void SelectedPartPushBack(std::shared_ptr<cad_data::Part> part) {
                 selected_part_list_.push_back(part);
                 //TODO: construct a bounding box - whenever a feature is added or modified, iterate through the feature
                 // bounding boxes and get max/min points to get the part AABB
-                // part->draw_aa_bounding_box = true;   
-
+                part->draw_aa_bounding_box = true;
             }
 
             void SelectedPartErase(std::vector<std::shared_ptr<cad_data::Part>>::iterator position) {
-                // (*position)->draw_aa_bounding_box = false;;
+                (*position)->draw_aa_bounding_box = false;;
                 selected_part_list_.erase(position);
             }
 
             void SelectedPartErase(int index) {
                 auto iter = selected_part_list_.begin() + index;
-                // (*iter)->draw_aa_bounding_box = false;
+                (*iter)->draw_aa_bounding_box = false;
                 selected_part_list_.erase(iter);
             }
 
             void ClearSelectedPartList() {
-                // for (std::shared_ptr<cad_data::Part> part : selected_part_list_) {
-                //     part->draw_aa_bounding_box = false;
-                // }
+                for (std::shared_ptr<cad_data::Part> part : selected_part_list_) {
+                    part->draw_aa_bounding_box = false;
+                }
                 selected_part_list_.clear();
             }
 

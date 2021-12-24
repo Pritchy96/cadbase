@@ -77,7 +77,6 @@ namespace cad_gui {
                 ImGui::PopItemFlag();
                 ImGui::PopStyleVar();
 
-
                 if(ImGui::MenuItem("Import Mesh"))  {
                     nfdchar_t *out_path = NULL;
                     //TODO this doesn't work when ran in vscode debugger? 
@@ -165,8 +164,8 @@ namespace cad_gui {
         colors[ImGuiCol_FrameBgActive]          = app_style_.ACCENT_COLOUR_BRIGHT;
         colors[ImGuiCol_TitleBgActive]          = app_style_.ACCENT_COLOUR_DIM;
         colors[ImGuiCol_MenuBarBg]              = app_style_.ACCENT_COLOUR_DIM;
-        colors[ImGuiCol_PopupBg]                = app_style_.ACCENT_COLOUR_DIM;
-        colors[ImGuiCol_CheckMark]              = app_style_.ACCENT_COLOUR_DIM;
+        colors[ImGuiCol_PopupBg]                = app_style_.BACKGROUND_COLOUR_DIM;
+        colors[ImGuiCol_CheckMark]              = app_style_.ACCENT_COLOUR_BRIGHT;
         colors[ImGuiCol_SliderGrab]             = app_style_.ACCENT_COLOUR_DIM;
         colors[ImGuiCol_SliderGrabActive]       = app_style_.ACCENT_COLOUR_MEDIUM;
         colors[ImGuiCol_Button]                 = app_style_.ACCENT_COLOUR_DIM;
