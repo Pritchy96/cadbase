@@ -75,7 +75,7 @@ void Arcball::Zoom() {
     
     for (std::shared_ptr<Camera> c :affected_cameras) {
         if (c->can_zoom) {
-            c->SetZoom(c->GetZoom() + io.MouseWheel);
+            c->SetZoom(c->GetZoom() + io.MouseWheel*2);
         }
     }
 }

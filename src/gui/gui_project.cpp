@@ -14,7 +14,7 @@
 
 using std::shared_ptr;
 
-GuiProject::GuiProject(std::string name, GLFWwindow* glfw_window, std::shared_ptr<SceneData> scene_data) : name(name), glfw_window(glfw_window), scene_data(scene_data) {
+GuiProject::GuiProject(std::string name, GLFWwindow* glfw_window, std::shared_ptr<LevelGeo> level_geo) : name(name), glfw_window(glfw_window), level_geo(level_geo) {
   
 }
 
@@ -23,21 +23,21 @@ void GuiProject::Draw() {
 
     
 
-    ImGui::Text((scene_data->scene_title + ": ").c_str());
+    ImGui::Text("Level Contents: ");
     ImGui::Separator();
 
     bool selected;
-    auto geo_ptr = scene_data->MasterGeoBegin();
-        while (geo_ptr != scene_data->MasterGeoEnd()) {
-        selected = std::find(scene_data->SelectedGeoBegin(), scene_data->SelectedGeoEnd(), (*geo_ptr)) != scene_data->SelectedGeoEnd();
+    auto geo_ptr = level_geo->MasterGeoBegin();
+        while (geo_ptr != level_geo->MasterGeoEnd()) {
+        selected = std::find(level_geo->SelectedGeoBegin(), level_geo->SelectedGeoEnd(), (*geo_ptr)) != level_geo->SelectedGeoEnd();
 
         ImGui::Bullet();
         if (ImGui::Selectable((*geo_ptr)->name.c_str(), selected))   {
             if (!ImGui::GetIO().KeyShift) {    // Clear selection when Shift is not held
-                scene_data->ClearSelectedGeo();
+                level_geo->ClearSelectedGeo();
             }
 
-            scene_data->SelectedGeoPushBack(*geo_ptr);
+            level_geo->SelectedGeoPushBack(*geo_ptr);
         }
 
         geo_ptr++;

@@ -8,13 +8,11 @@
 #include "cad-base/geometry/geometry.hpp"
 #include "cad-base/gui/rendered_textures/viewport.hpp"
 
-class SceneData {
+class LevelGeo {
     public:
-        explicit SceneData(std::shared_ptr<std::vector<std::shared_ptr<Viewport>>> viewport_list, std::string scene_title = "Untitled Scene") : scene_title(scene_title), viewports_(viewport_list) {};
-        ~SceneData() = default;
+        explicit LevelGeo(std::shared_ptr<std::vector<std::shared_ptr<Viewport>>> viewport_list) : viewports_(viewport_list) {};
 
-        std::string scene_title;
-
+~LevelGeo() = default;
 
         void MasterGeoPushBack(std::shared_ptr<Geometry> geometry) {
             master_geometry_list_.push_back(geometry);
@@ -37,7 +35,6 @@ class SceneData {
 
         std::vector<std::shared_ptr<Geometry>>::iterator MasterGeoBegin() { return master_geometry_list_.begin(); }
         std::vector<std::shared_ptr<Geometry>>::iterator MasterGeoEnd() { return master_geometry_list_.end(); }
-
 
         void SelectedGeoPushBack(std::shared_ptr<Geometry> geometry) {
             selected_geometry_list_.push_back(geometry);
@@ -65,6 +62,7 @@ class SceneData {
 
         std::vector<std::shared_ptr<Geometry>>::iterator SelectedGeoBegin() { return selected_geometry_list_.begin(); }
         std::vector<std::shared_ptr<Geometry>>::iterator SelectedGeoEnd() { return selected_geometry_list_.end(); }
+
 
     private:
         std::shared_ptr<std::vector<std::shared_ptr<Viewport>>> viewports_;

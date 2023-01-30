@@ -15,14 +15,14 @@
 
 using std::make_unique;
 
-GuiMain::GuiMain(GLFWwindow* glfw_window, std::shared_ptr<GuiLogger> gui_logger_sink, std::shared_ptr<SceneData> scene_data) : glfw_window(glfw_window), gui_logger_sink_(gui_logger_sink) {
+GuiMain::GuiMain(GLFWwindow* glfw_window, std::shared_ptr<GuiLogger> gui_logger_sink, std::shared_ptr<LevelGeo> level_geo) : glfw_window(glfw_window), gui_logger_sink_(gui_logger_sink) {
     if (!SetupImgui()) {
         //Todo: error handling.
     }
     
     main_imgui_viewport_ = ImGui::GetMainViewport();
 
-    gui_project_ = make_unique<GuiProject>("Project", glfw_window, scene_data);
+    gui_project_ = make_unique<GuiProject>("Project", glfw_window, level_geo);
 }
 
 bool GuiMain::SetupImgui() {
@@ -210,34 +210,20 @@ void GuiMain::SetLayout() {
     ImGui::DockBuilderAddNode(dockspace_id, dockspace_flags_ | ImGuiDockNodeFlags_DockSpace);
     ImGui::DockBuilderSetNodeSize(dockspace_id, main_imgui_viewport_->Size);
 
-    ImGuiID dock_id_left_pane, dock_id_grid, dock_id_grid_top_left, dock_id_grid_bottom_left, dock_id_grid_top_right, dock_id_grid_bottom_right;
-    ImGui::DockBuilderSplitNode(dockspace_id, ImGuiDir_Left, 0.15f, &dock_id_left_pane, &dock_id_grid);
+    ImGuiID dock_id_left_pane, dock_id_main;
+    ImGui::DockBuilderSplitNode(dockspace_id, ImGuiDir_Left, 0.15f, &dock_id_left_pane, &dock_id_main);
 
     //Construct the grid.
-    ImGui::DockBuilderSplitNode(dock_id_grid, ImGuiDir_Up, 0.5f, &dock_id_grid_top_left, &dock_id_grid_bottom_left);
-    ImGui::DockBuilderSplitNode(dock_id_grid_top_left, ImGuiDir_Left, 0.5f, &dock_id_grid_top_left, &dock_id_grid_top_right);
-    ImGui::DockBuilderSplitNode(dock_id_grid_bottom_left, ImGuiDir_Left, 0.5f, &dock_id_grid_bottom_left, &dock_id_grid_bottom_right);
-
-    //Auto hide main_imgui_viewport_ tab bars.
-    ImGuiDockNode* node = ImGui::DockBuilderGetNode(dock_id_grid_top_left);
-    node->LocalFlags |= ImGuiDockNodeFlags_AutoHideTabBar; 
-    node = ImGui::DockBuilderGetNode(dock_id_grid_top_right);
-    node->LocalFlags |= ImGuiDockNodeFlags_AutoHideTabBar;
-    node = ImGui::DockBuilderGetNode(dock_id_grid_bottom_left);
-    node->LocalFlags |= ImGuiDockNodeFlags_AutoHideTabBar;
-    node = ImGui::DockBuilderGetNode(dock_id_grid_bottom_right);
-    node->LocalFlags |= ImGuiDockNodeFlags_AutoHideTabBar;
+    // ImGui::DockBuilderSplitNode(dock_id_main, ImGuiDir_Up, 0.5f, &dock_id_grid_top_left, &dock_id_grid_bottom_left);
+    // ImGui::DockBuilderSplitNode(dock_id_grid_top_left, ImGuiDir_Left, 0.5f, &dock_id_grid_top_left, &dock_id_grid_top_right);
+    // ImGui::DockBuilderSplitNode(dock_id_grid_bottom_left, ImGuiDir_Left, 0.5f, &dock_id_grid_bottom_left, &dock_id_grid_bottom_right);
 
     // we now dock our windows into the docking node we made above
     ImGui::DockBuilderDockWindow("Project", dock_id_left_pane);
     ImGui::DockBuilderDockWindow("Dear Imgui Demo", dock_id_left_pane);
-    ImGui::DockBuilderDockWindow("Render Window 0", dock_id_grid_top_left);
-    ImGui::DockBuilderDockWindow("Render Window 1", dock_id_grid_top_right);
+    ImGui::DockBuilderDockWindow("Render Window", dock_id_main);
+    ImGui::DockBuilderDockWindow("Log", dock_id_main);
 
-    ImGui::DockBuilderDockWindow("Log", dock_id_grid_bottom_left);
-    ImGui::DockBuilderDockWindow("Render Window 2", dock_id_grid_bottom_left);
-
-    ImGui::DockBuilderDockWindow("Render Window 3", dock_id_grid_bottom_right);
 
     ImGui::DockBuilderFinish(dockspace_id);
 }

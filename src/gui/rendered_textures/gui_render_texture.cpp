@@ -83,7 +83,7 @@ void GuiRenderTexture::Draw() {
         if (geo_renderable->second == nullptr) {
             // Renderable for geo doesn't exist, make one.
             // TODO: Some logic to choose a render type? (currently default to GL_TRIANGLES)
-            geo_renderable->second = make_unique<Renderable>(basic_shader, geo_renderable->first, GL_TRIANGLES);
+            geo_renderable->second = make_unique<Renderable>(basic_shader, geo_renderable->first, GL_LINES);
         }
 
         shared_ptr<Geometry> geometry = geo_renderable->first;

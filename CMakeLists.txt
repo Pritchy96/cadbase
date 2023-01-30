@@ -42,10 +42,28 @@ target_link_libraries(${APP_NAME} OpenGL::GL)
 find_package(GLEW REQUIRED)
 target_link_libraries(${APP_NAME} GLEW::GLEW)
 
-#assimp
-set(ASSIMP_SRC_DIR ${THIRDPARTY_DIR}/assimp)
-include_directories(${ASSIMP_SRC_DIR}/include)
-add_subdirectory(${ASSIMP_SRC_DIR})
+#assopensimplexnoiseimp
+set(OPENSIMPLEX_SRC_DIR ${THIRDPARTY_DIR}/opensimplexnoise/OpenSimplexNoise)
+include_directories(${OPENSIMPLEX_SRC_DIR})
+
+set(OPENSIMPLEX_SOURCES
+    ${OPENSIMPLEX_SRC_DIR}/OpenSimplexNoise.h
+    ${OPENSIMPLEX_SRC_DIR}/OpenSimplexNoise.cpp
+)
+add_library(opensimplexnoise STATIC ${OPENSIMPLEX_SOURCES})
+
+#stb
+set(STB_SRC_DIR ${THIRDPARTY_DIR}/stb)
+include_directories(${STB_SRC_DIR})
+link_directories(${STB_SRC_DIR}) 
+
+
+
+
+# #assimp
+# set(ASSIMP_SRC_DIR ${THIRDPARTY_DIR}/assimp)
+# include_directories(${ASSIMP_SRC_DIR}/include)
+# add_subdirectory(${ASSIMP_SRC_DIR})
 
 #stb
 set(STB_SRC_DIR ${THIRDPARTY_DIR}/stb)
@@ -91,7 +109,7 @@ set(IMGUI_SOURCES
 add_library(imgui STATIC ${IMGUI_SOURCES})
 
 # Link third party libs
-target_link_libraries(${APP_NAME} imgui assimp nativefiledialog spdlog)
+target_link_libraries(${APP_NAME} imgui opensimplexnoise nativefiledialog spdlog) #assimp
 
 # Copy over shader files.
 add_custom_target(copy_assets

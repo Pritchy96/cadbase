@@ -6,18 +6,18 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
-#include "cad-base/scene_data.hpp"
+#include "cad-base/level_geo.hpp"
 #include "cad-base/gui/rendered_textures/viewport.hpp"
 
 class GuiProject {
     public:
-        GuiProject(std::string name, GLFWwindow* glfw_window, std::shared_ptr<SceneData> scene_data);
+        GuiProject(std::string name, GLFWwindow* glfw_window, std::shared_ptr<LevelGeo> level_geo);
 
         void Draw();
 
         std::string name;
         GLFWwindow* glfw_window;
-        std::shared_ptr<SceneData> scene_data;
+        std::shared_ptr<LevelGeo> level_geo;
         
     private:   
   

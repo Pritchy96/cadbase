@@ -19,11 +19,11 @@
 #include "cad-base/gui/gui_render_window.hpp"
 #include "cad-base/gui/gui_logger.hpp"
 #include "cad-base/gui/app_style.hpp"
-#include "cad-base/scene_data.hpp"
+#include "cad-base/level_geo.hpp"
 
 class GuiMain {
     public:
-        explicit GuiMain(GLFWwindow* glfw_window, std::shared_ptr<GuiLogger> gui_logger_sink_, std::shared_ptr<SceneData> scene_data);
+        explicit GuiMain(GLFWwindow* glfw_window, std::shared_ptr<GuiLogger> gui_logger_sink_, std::shared_ptr<LevelGeo> level_geo);
         // ~GuiBase();
 
         bool SetupImgui(); 
